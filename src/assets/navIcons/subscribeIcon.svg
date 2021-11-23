@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="44.889" height="44" viewBox="0 0 44.889 44">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #5330ad;
+      }
+
+      .cls-2 {
+        filter: url(#Path_66);
+      }
+
+      .cls-3 {
+        filter: url(#Path_65);
+      }
+
+      .cls-4 {
+        filter: url(#Path_64);
+      }
+
+      .cls-5 {
+        filter: url(#Path_63);
+      }
+    </style>
+    <filter id="Path_63" x="3.422" y="0" width="32.69" height="27.634" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Path_64" x="0" y="11.031" width="39.905" height="32.688" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur-2"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-2"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Path_65" x="14.942" y="14.052" width="29.946" height="29.948" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur-3"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-3"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Path_66" x="17.805" y="15.707" width="21.877" height="23.26" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur-4"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-4"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="PngItem_3142908" transform="translate(9 6)">
+    <g class="cls-5" transform="matrix(1, 0, 0, 1, -9, -6)">
+      <path id="Path_63-2" data-name="Path 63" class="cls-1" d="M83.649-593.347C81.643-591.342,80-589.685,80-589.664s.824.031,1.831.031h1.831v2.267h7.367v-2.267h1.831c1.007,0,1.831-.013,1.831-.035,0-.048-7.3-7.332-7.345-7.332C87.319-597,85.658-595.357,83.649-593.347Z" transform="translate(-67.58 603)"/>
+    </g>
+    <g class="cls-4" transform="matrix(1, 0, 0, 1, -9, -6)">
+      <path id="Path_64-2" data-name="Path 64" class="cls-1" d="M3.361-343.889a2.608,2.608,0,0,0-1.783,1.748c-.074.249-.078.541-.078,5.536v5.275l.1.305a2.567,2.567,0,0,0,1.735,1.7c.227.057,1.129.065,7.4.065h7.14l-.536-.532a8.116,8.116,0,0,1-.689-.763l-.153-.227-6.347,0H3.806l-.24-.122a1.018,1.018,0,0,1-.366-.305l-.131-.192-.013-2.7-.009-2.7,6.172-.009,6.173-.013.118-.371a7.3,7.3,0,0,1,1.809-2.921,3.518,3.518,0,0,0,.375-.4c0-.022-3.3-.035-7.328-.035H3.043l.013-.623c.013-.6.017-.632.131-.806a1.208,1.208,0,0,1,.327-.3l.209-.122,8.736-.013,8.736-.009.235.109c.222.1.288.109,1.107.118.719.013.867,0,.867-.048a2.125,2.125,0,0,0-.139-.349,3.067,3.067,0,0,0-1.059-1.081c-.567-.3.135-.275-9.7-.27C5.432-343.942,3.544-343.933,3.361-343.889Z" transform="translate(7.5 360.98)"/>
+    </g>
+    <g class="cls-3" transform="matrix(1, 0, 0, 1, -9, -6)">
+      <path id="Path_65-2" data-name="Path 65" class="cls-1" d="M349.323-274.6a6.017,6.017,0,0,0-4.377,3.156,5.628,5.628,0,0,0-.663,2.533,5.918,5.918,0,0,0,2.467,5.087,6.027,6.027,0,0,0,5.484.789,6.048,6.048,0,0,0,3.753-3.945,6.509,6.509,0,0,0,.161-2.716,6.014,6.014,0,0,0-4.642-4.843A7.793,7.793,0,0,0,349.323-274.6Zm2.114,1.264a4.9,4.9,0,0,1,3.269,2.846,5,5,0,0,1,.323,1.369,4.817,4.817,0,0,1-3.806,5.139,5.671,5.671,0,0,1-1.879.017,4.713,4.713,0,0,1-2.428-1.277,4.766,4.766,0,0,1-1.2-5.017,3.925,3.925,0,0,1,.545-1.09,4.913,4.913,0,0,1,2.589-1.927,4.128,4.128,0,0,1,1.543-.2A4.041,4.041,0,0,1,351.437-273.335Z" transform="translate(-320.34 294.7)"/>
+    </g>
+    <g class="cls-2" transform="matrix(1, 0, 0, 1, -9, -6)">
+      <path id="Path_66-2" data-name="Path 66" class="cls-1" d="M413.023-236.619a.9.9,0,0,0-.24.179l-.109.118-.013,1.848-.013,1.848h-1.09c-1.2,0-1.286.013-1.491.257a.6.6,0,0,0,.2.894,5.675,5.675,0,0,0,1.591.07c1.565,0,1.622-.009,1.835-.24l.109-.118.013-2.227c.009-2.153.009-2.236-.074-2.371A.582.582,0,0,0,413.023-236.619Z" transform="translate(-383.14 258.37)"/>
+    </g>
+  </g>
+</svg>

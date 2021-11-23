@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="43.606" height="43.606" viewBox="0 0 43.606 43.606">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #5330ad;
+        fill-rule: evenodd;
+      }
+
+      .cls-2 {
+        filter: url(#Path_56);
+      }
+    </style>
+    <filter id="Path_56" x="0" y="0" width="43.606" height="43.606" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g class="cls-2" transform="matrix(1, 0, 0, 1, 0, 0)">
+    <path id="Path_56-2" data-name="Path 56" class="cls-1" d="M13,.2A12.8,12.8,0,1,0,25.8,13,12.808,12.808,0,0,0,13,.2ZM11.72,23.153A10.228,10.228,0,0,1,2.758,13a10.394,10.394,0,0,1,.269-2.292l6.133,6.133v1.28a2.568,2.568,0,0,0,2.561,2.561Zm6.4-5.032a2.54,2.54,0,0,1,2.433,1.78A10.22,10.22,0,0,0,16.841,3.513v.525A2.568,2.568,0,0,1,14.281,6.6H11.72V9.159a1.284,1.284,0,0,1-1.28,1.28H7.879V13h7.682a1.284,1.284,0,0,1,1.28,1.28v3.841Z" transform="translate(8.8 5.8)"/>
+  </g>
+</svg>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="26.084" height="32" viewBox="0 0 26.084 32">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #3e3e3e;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2px;
+      }
+    </style>
+  </defs>
+  <g id="alarm-bell" transform="translate(1 1)">
+    <path id="Path_39" data-name="Path 39" class="cls-1" d="M10,21.75a2.8,2.8,0,0,0,5.359,0" transform="translate(-0.634 6.251)"/>
+    <path id="Path_40" data-name="Path 40" class="cls-1" d="M12,3.75v-3" transform="translate(0.042 -0.75)"/>
+    <path id="Path_41" data-name="Path 41" class="cls-1" d="M15.042,3A10.018,10.018,0,0,1,25.077,13c0,9.4,2.007,11,2.007,11H3s2.007-2.555,2.007-11A10.018,10.018,0,0,1,15.042,3Z" transform="translate(-3 0)"/>
+  </g>
+</svg>
