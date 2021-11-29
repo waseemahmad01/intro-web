@@ -35,7 +35,7 @@ export const AllTabs = () => {
   const classes = useStyles();
   const theme = useTheme();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
-  const [videos, setVideos] = useState(null);
+  const [videos, setVideos] = useState([]);
   const allVideos = useRef([]);
   allVideos.current = [];
   const addToRefs = (e) => {
@@ -77,7 +77,7 @@ export const AllTabs = () => {
       setVideos(data.data);
       console.log(data.data);
     })();
-  }, []);
+  });
   const tabItems = [
     {
       label: "Home",

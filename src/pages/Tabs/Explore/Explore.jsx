@@ -6,7 +6,7 @@ import { Filter } from "../../../components/Filter/Filter";
 import { Post } from "../../../components/Post/Post";
 export const Explore = ({ videos, addToRefs }) => {
   const classes = useStyles();
-  const items = [1, 2, 3, 4, 5, 6];
+  // const items = [1, 2, 3, 4, 5, 6];
   return (
     <>
       <Grid container className={classes.exploreContainer} direction="column">

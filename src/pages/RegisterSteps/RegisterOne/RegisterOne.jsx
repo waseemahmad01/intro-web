@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Grid,
   Checkbox,
   useTheme,
   useMediaQuery,
   Typography,
+  FormControlLabel,
 } from "@material-ui/core";
 import { useStyles } from "../Styles/registerStylesOne";
 import { Input } from "../../../components/Textfield/Input";
@@ -15,6 +16,7 @@ import { submit } from "../../../store/user";
 import { Header } from "../../../components/header/Header";
 import { dob, username } from "../../../http/index";
 import axios from "axios";
+import Joi from "joi-browser";
 
 export const RegisterOne = ({ onNext }) => {
   const classes = useStyles();
@@ -24,8 +26,7 @@ export const RegisterOne = ({ onNext }) => {
     setChecked(event.target.checked);
   };
   const userState = useSelector((state) => state.auth.user);
-  const [authToken, setAuthToken] = useState(userState.accessToken);
-  // console.log(userState);
+  const [type, setType] = useState("text");
   const [user, setUser] = useState({
     email: "",
     firstname: "",
@@ -33,11 +34,47 @@ export const RegisterOne = ({ onNext }) => {
     username: "",
     dob: "",
   });
+  const [errors, setErrors] = useState({});
+  const schema = {
+    email: Joi.string().email().required().label("Email"),
+    firstname: Joi.string().required().label("Firstname"),
+    lastname: Joi.string().required().label("Lastname"),
+    username: Joi.string().required().label("Username"),
+    dob: Joi.date().required().label("Date of birth"),
+  };
+
+  const validate = () => {
+    const data = {
+      email: user.email[0],
+      firstname: user.firstname[0],
+      lastname: user.lastname[0],
+      username: user.username[0],
+      dob: user.dob[0],
+    };
+    const result = Joi.validate(data, schema, { abortEarly: false });
+    if (!result.error) {
+      setErrors({});
+      return false;
+    } else {
+      const errorsObject = {};
+      for (let item of result.error.details)
+        errorsObject[item.path[0]] = item.message;
+      setErrors(errorsObject);
+      return true;
+    }
+  };
   const dispatch = useDispatch();
   const handleUser = (e) => {
     const { name, value } = e.target;
     setUser((prev) => ({ ...prev, [name]: [value] }));
+    const obj = { [name]: value };
+    const subSchema = { [name]: schema[name] };
+    const { error } = Joi.validate(obj, subSchema);
+    const it = error
+      ? setErrors({ ...errors, [name]: error.details[0].message })
+      : setErrors({ ...errors, [name]: "" });
   };
+
   const calculateAge = (val) => {
     const dob = new Date(val);
     const currentDate = Date.now();
@@ -47,10 +84,10 @@ export const RegisterOne = ({ onNext }) => {
     age = Math.abs(year - 1970);
     return age;
   };
+
   const handleSubmit = async () => {
-    try {
-      // console.log(authToken);
-      // const config = { headers: { Authorization: `Bearer ${authToken}` } };
+    const error = validate();
+    if (!error) {
       const dateOfBirth = {
         dob: user.dob[0],
         age: calculateAge(user.dob[0]),
@@ -63,19 +100,22 @@ export const RegisterOne = ({ onNext }) => {
         username: user.username[0],
         step: "/gender-selection",
       };
-      await axios.all([dob(dateOfBirth), username(userInfo)]).then(
-        axios.spread(function (res1, res2) {
-          dispatch(submit(res2.data));
-        })
-      );
-      onNext();
-    } catch (err) {
-      console.log(err);
+      await axios
+        .all([dob(dateOfBirth), username(userInfo)])
+        .then(
+          axios.spread(function (res1, res2) {
+            dispatch(submit(res2.data));
+            onNext();
+          })
+        )
+        .catch((err) => console.log(err.message));
     }
   };
+  useEffect(() => {
+    console.log(user.dob.toString().split("-"));
+  }, [user.dob]);
   const theme = useTheme();
   const xsScreen = useMediaQuery(theme.breakpoints.down("xs"));
-  const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const headerItems = [
     {
@@ -87,6 +127,11 @@ export const RegisterOne = ({ onNext }) => {
       to: "/helpcenter",
     },
   ];
+  const showDate = () => {
+    const dateSplit = user.dob.toString().split("-");
+    const date = `${dateSplit[1]}/${dateSplit[2]}/${dateSplit[0]}`;
+    return date;
+  };
   return (
     <Grid container className={classes.container}>
       <Header transparent headerItems={headerItems} />
@@ -115,6 +160,8 @@ export const RegisterOne = ({ onNext }) => {
                   name="email"
                   onChange={handleUser}
                   value={user.email}
+                  error={errors.email ? true : false}
+                  helperText={errors.email}
                 />
               </Grid>
               <Grid item container direction="row" spacing={xsScreen ? 0 : 2}>
@@ -126,6 +173,8 @@ export const RegisterOne = ({ onNext }) => {
                     name="firstname"
                     onChange={handleUser}
                     value={user.firstname}
+                    error={errors.firstname ? true : false}
+                    helperText={errors.firstname}
                   />
                 </Grid>
                 <Grid item sm={6} xs={12}>
@@ -136,6 +185,8 @@ export const RegisterOne = ({ onNext }) => {
                     name="lastname"
                     onChange={handleUser}
                     value={user.lastname}
+                    error={errors.lastname ? true : false}
+                    helperText={errors.lastname}
                   />
                 </Grid>
               </Grid>
@@ -147,20 +198,33 @@ export const RegisterOne = ({ onNext }) => {
                   name="username"
                   onChange={handleUser}
                   value={user.username}
+                  error={errors.username ? true : false}
+                  helperText={errors.username}
                 />
               </Grid>
               <Grid item container spacing={2}>
                 <Grid item sm={12}>
                   <Input
-                    type="text"
-                    placeholder="calender"
+                    type={setType}
+                    placeholder="Calender"
                     label="Date of birth"
-                    onFocus={(e) => (e.target.type = "date")}
-                    onBlur={(e) => (e.target.type = "text")}
+                    onFocus={(e) => {
+                      e.target.type = "date";
+                      setType("date");
+                    }}
+                    onBlur={(e) => {
+                      e.target.type = "text";
+                      setType("text");
+                    }}
                     // col={6}
                     name="dob"
                     onChange={handleUser}
-                    value={user.dob}
+                    // value={moment(user.dob).format("MMM Do YYYY").toString()}
+                    value={
+                      type === "text" && user.dob !== "" ? showDate() : user.dob
+                    }
+                    error={errors.dob ? true : false}
+                    helperText={errors.dob}
                   />
                 </Grid>
                 {/* <Grid item sm={6}></Grid> */}
@@ -192,12 +256,12 @@ export const RegisterOne = ({ onNext }) => {
               </Grid>
               <Grid item container justifyContent="center">
                 {/* <Link to="/registertwo"> */}
-                <CustomIconButton onClick={handleSubmit} />
+                <CustomIconButton disabled={!checked} onClick={handleSubmit} />
                 {/* </Link> */}
               </Grid>
               <Grid item container justifyContent="center">
                 <Typography className={classes.p} variant="body1">
-                  Already have an account?{" "}
+                  Already have an account?
                   <Link to="/login" className={classes.link}>
                     Sign In
                   </Link>

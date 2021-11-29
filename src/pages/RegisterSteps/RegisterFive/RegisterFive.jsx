@@ -13,14 +13,13 @@ import { hometown, education } from "../../../http";
 import { useDispatch } from "react-redux";
 import { submit } from "../../../store/user";
 import axios from "axios";
+import Joi from "joi-browser";
 
 export const RegisterFive = ({ onNext }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const theme = useTheme();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
-  const mdScreen = useMediaQuery(theme.breakpoints.down("md"));
-  const xsScreen = useMediaQuery(theme.breakpoints.down("xs"));
 
   const [values, setValues] = useState({
     live: "0",
@@ -31,11 +30,53 @@ export const RegisterFive = ({ onNext }) => {
     school: "",
   });
   const [show, setShow] = useState({
-    live: false,
-    hometown: false,
-    school: false,
-    degree: false,
+    live: true,
+    hometown: true,
+    school: true,
+    degree: true,
   });
+
+  const [errors, setErrors] = useState({
+    live: "",
+    hometown: "",
+    school: "",
+    degree: "",
+  });
+
+  const schema = {
+    live: Joi.string().min(2).required(),
+    hometown: Joi.string().required(),
+    school: Joi.string().required(),
+    degree: Joi.string().min(2).required(),
+  };
+
+  const validate = () => {
+    const data = {
+      live: values.live,
+      hometown: details.hometown[0],
+      school: details.school[0],
+      degree: values.degree,
+    };
+    const result = Joi.validate(data, schema, { abortEarly: false });
+    if (!result.error) {
+      setErrors({
+        live: "",
+        hometown: "",
+        school: "",
+        degree: "",
+      });
+      return false;
+    } else {
+      const errorsObject = {};
+      for (let item of result.error.details)
+        errorsObject[item.path[0]] = `"${
+          item.path[0].charAt(0).toUpperCase() + item.path[0].slice(1)
+        }" is not allowed to be empty`;
+      console.log(errorsObject);
+      setErrors(errorsObject);
+      return true;
+    }
+  };
 
   const handleShow = (e) => {
     const { checked, name } = e.target;
@@ -44,13 +85,37 @@ export const RegisterFive = ({ onNext }) => {
   const handleSelect = (e) => {
     const { value, name } = e.target;
     setValues({ ...values, [name]: value });
+    const obj = { [name]: value };
+    const subSchema = { [name]: schema[name] };
+    const { error } = Joi.validate(obj, subSchema);
+    console.log(error);
+    const it = error
+      ? setErrors({
+          ...errors,
+          [name]: `"${
+            name.charAt(0).toUpperCase() + name.slice(1)
+          }" is not allowed to be empty`,
+        })
+      : setErrors({ ...errors, [name]: "" });
   };
   const handleDetails = (e) => {
     const { value, name } = e.target;
     setDetails({ ...details, [name]: value });
+    const obj = { [name]: value };
+    const subSchema = { [name]: schema[name] };
+    const { error } = Joi.validate(obj, subSchema);
+    const it = error
+      ? setErrors({
+          ...errors,
+          [name]: `"${
+            name.charAt(0).toUpperCase() + name.slice(1)
+          }" is not allowed to be empty`,
+        })
+      : setErrors({ ...errors, [name]: "" });
   };
   const handleNext = async () => {
-    try {
+    const error = validate();
+    if (!error) {
       const hometownData = {
         home_town: details.hometown,
         visible: show.hometown,
@@ -65,14 +130,17 @@ export const RegisterFive = ({ onNext }) => {
         d_visible: show.degree,
         step: "/step",
       };
-      await axios.all([hometown(hometownData), education(educationData)]).then(
-        axios.spread(function (res1, res2) {
-          dispatch(submit(res2.data));
-        })
-      );
-      onNext();
-    } catch (e) {
-      console.log(e.message);
+      await axios
+        .all([hometown(hometownData), education(educationData)])
+        .then(
+          axios.spread(function (res1, res2) {
+            dispatch(submit(res2.data));
+            onNext();
+          })
+        )
+        .catch((err) => {
+          console.log(err.message);
+        });
     }
   };
   return (
@@ -116,6 +184,8 @@ export const RegisterFive = ({ onNext }) => {
                   name="live"
                   onSelect={handleSelect}
                   value={values.live}
+                  error={errors.live}
+                  errorText={errors.live}
                 />
               </Grid>
               <Grid
@@ -133,6 +203,8 @@ export const RegisterFive = ({ onNext }) => {
                     value={details.hometown}
                     onChange={handleDetails}
                     name="hometown"
+                    error={errors.hometown}
+                    helperText={errors.hometown}
                   />
                 </Grid>
                 <Grid
@@ -148,6 +220,7 @@ export const RegisterFive = ({ onNext }) => {
                   <Checkbox
                     variant="switch"
                     name="work"
+                    show={show.hometown}
                     handleShow={handleShow}
                   />
                 </Grid>
@@ -161,6 +234,8 @@ export const RegisterFive = ({ onNext }) => {
                     value={details.school}
                     onChange={handleDetails}
                     name="school"
+                    error={errors.school}
+                    helperText={errors.school}
                   />
                 </Grid>
                 <Grid
@@ -176,6 +251,7 @@ export const RegisterFive = ({ onNext }) => {
                   <Checkbox
                     variant="switch"
                     name="work"
+                    show={show.school}
                     handleShow={handleShow}
                   />
                 </Grid>
@@ -191,6 +267,8 @@ export const RegisterFive = ({ onNext }) => {
                   name="degree"
                   onSelect={handleSelect}
                   value={values.degree}
+                  error={errors.degree}
+                  errorText={errors.degree}
                 />
               </Grid>
               <Grid item container justifyContent="center">

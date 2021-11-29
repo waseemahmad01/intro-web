@@ -32,9 +32,11 @@ export const SelectImage = () => {
   const [uploadImage, setUploadImage] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [openWebCam, setOpenWebCam] = useState(false);
+  const [error, setError] = useState(false);
   const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const handleUploadImage = (e) => {
+    setError(false);
     setUploadImage("");
     setImageFile(e.target.files[0]);
     const image = URL.createObjectURL(e.target.files[0]);
@@ -48,13 +50,12 @@ export const SelectImage = () => {
     setOpenWebCam(false);
   }, [webcamRef]);
   const handleSubmit = async () => {
+    if (imageFile === null) return setError(true);
     try {
-      history.push("/home");
       let imageData = new FormData();
       imageData.append("profile_img", imageFile);
       axios.all([profileImage(imageData), step({ step: "/home" })]).then(
         axios.spread(function (res1, res2) {
-          console.log(res2.data);
           dispatch(submit(res2.data));
         })
       );
@@ -104,6 +105,9 @@ export const SelectImage = () => {
               <p className={classes.previewText}>Selected Image</p>
             )}
           </div>
+          {error && (
+            <span className={classes.error}>Please upload an image.</span>
+          )}
         </Grid>
         <Grid item>
           <CustomButton

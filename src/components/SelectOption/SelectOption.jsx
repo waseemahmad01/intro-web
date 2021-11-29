@@ -91,6 +91,15 @@ export const useStyles = makeStyles((theme) => ({
   none: {
     color: "rgba(112,112,112,0.5)",
   },
+  error: {
+    color: theme.palette.error.main,
+    fontSize: "1.3rem",
+    marginLeft: "10px",
+    marginTop: "5px",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "14px",
+    },
+  },
 }));
 export const SelectOption = ({
   options,
@@ -102,12 +111,15 @@ export const SelectOption = ({
   name,
   onSelect,
   value,
+  errorText,
+  ...rest
 }) => {
   const classes = useStyles();
   const [age, setAge] = useState(1);
   const handleChange = (event) => {
     setAge(event.target.value);
   };
+
   return (
     <Grid container spacing={2} direction="column">
       <Grid item style={{ paddingBottom: "0" }}>
@@ -123,7 +135,8 @@ export const SelectOption = ({
       >
         <Grid item className={classes.selectContainer}>
           <Select
-            value={value}
+            {...rest}
+            value={`${value}`}
             onChange={onSelect}
             variant="outlined"
             className={classes.select}
@@ -146,12 +159,13 @@ export const SelectOption = ({
               <MenuItem
                 key={option}
                 className={classes.menuItem}
-                value={option}
+                value={`${option}`}
               >
                 {option}
               </MenuItem>
             ))}
           </Select>
+          {errorText && <span className={classes.error}>{errorText}</span>}
         </Grid>
         <Grid
           item

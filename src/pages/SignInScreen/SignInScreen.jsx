@@ -268,7 +268,7 @@ export const SignInScreen = (props) => {
   };
   const handleSubmit = async () => {
     try {
-      //   setOpenDialog(true);
+      // setOpenDialog(true);
       if (phoneNumber === "") {
         return setError({
           ...error,
@@ -291,7 +291,7 @@ export const SignInScreen = (props) => {
   };
   const handleVerify = async () => {
     try {
-      // props.history.push("register");
+      props.history.push("register");
       if (otp === "123456") {
         const { data } = await verify({
           phonenumber: phoneNumber,

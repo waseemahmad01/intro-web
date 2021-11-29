@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import store from "./store/index";
 import { ThemeProvider } from "@material-ui/core";
 import theme from "./components/Theme/theme";
-import { HashRouter as Router, Route } from "react-router-dom";
+import { BrowserRouter as Router, Route } from "react-router-dom";
 
 ReactDOM.render(
   <ThemeProvider theme={theme}>

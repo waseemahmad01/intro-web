@@ -16,6 +16,7 @@ import {
   fitness,
 } from "../../../data";
 import axios from "axios";
+import Joi from "joi-browser";
 
 export const RegisterTwo = ({ onNext }) => {
   const classes = useStyles();
@@ -28,11 +29,11 @@ export const RegisterTwo = ({ onNext }) => {
   const bodyTypeOptions = bType;
 
   const [show, setShow] = useState({
-    identify: false,
-    height: false,
-    bodyType: false,
-    diet: false,
-    fitness: false,
+    identify: true,
+    height: true,
+    bodyType: true,
+    diet: true,
+    fitness: true,
   });
   const [values, setValues] = useState({
     identify: "0",
@@ -41,24 +42,84 @@ export const RegisterTwo = ({ onNext }) => {
     diet: "0",
     fitness: "0",
   });
+  const [errors, setErrors] = useState({
+    identify: "",
+    height: "",
+    bodyType: "",
+    diet: "",
+    fitness: "",
+  });
+  const schema = {
+    identify: Joi.string().min(2).required().label("Identify"),
+    height: Joi.string().min(2).required().label("Height"),
+    bodyType: Joi.string().min(2).required().label("Body Type"),
+    diet: Joi.string().min(2).required().label("Diet"),
+    fitness: Joi.string().min(2).required().label("Fitness"),
+  };
+
+  const validate = () => {
+    const result = Joi.validate(values, schema, { abortEarly: false });
+    // console.log(result);
+    if (!result.error) {
+      setErrors({
+        identify: "",
+        height: "",
+        bodyType: "",
+        diet: "",
+        fitness: "",
+      });
+      return false;
+    } else {
+      const errorsObject = {};
+      for (let item of result.error.details)
+        errorsObject[item.path[0]] = `"${
+          item.path[0].charAt(0).toUpperCase() + item.path[0].slice(1)
+        }" can not be empty`;
+      console.log(errorsObject);
+      setErrors(errorsObject);
+      return true;
+    }
+  };
+
+  const toFeet = (cm) => {
+    const realFeets = (cm * 0.3937) / 12;
+    const feets = Math.floor(realFeets);
+    const inches = Math.round((realFeets - feets) * 12);
+    return `${feets}'${inches}" ( ${cm}cm )`;
+  };
+  const newHeight = heightOptions.map((e) => toFeet(e));
   const handleShow = (e) => {
     const { checked, name } = e.target;
     setShow({ ...show, [name]: checked });
-    // alert(name);
   };
   const handleSelect = (e) => {
     const { value, name } = e.target;
     setValues({ ...values, [name]: value });
+    const obj = { [name]: value };
+    const subSchema = { [name]: schema[name] };
+    const { error } = Joi.validate(obj, subSchema);
+    console.log(error);
+    const it = error
+      ? setErrors({
+          ...errors,
+          [name]: `"${
+            name.charAt(0).toUpperCase() + name.slice(1)
+          }" can not be empty`,
+        })
+      : setErrors({ ...errors, [name]: "" });
   };
   const handleNext = async () => {
-    try {
+    const error = validate();
+    console.log(error);
+    if (!error) {
+      const heightInCM = values.height.split(" ")[2].split("cm")[0];
       const identifyData = {
         gender: values.identify,
         visible: show.identify,
         step: "/height",
       };
       const heightData = {
-        height: values.height,
+        height: heightInCM,
         visible: show.height,
         step: "/body-type",
       };
@@ -76,14 +137,15 @@ export const RegisterTwo = ({ onNext }) => {
         .then(
           axios.spread(function (res1, res2, res3) {
             dispatch(submit(res3.data));
+            onNext();
           })
-        );
-
-      onNext();
-    } catch (err) {
-      console.log(err);
+        )
+        .catch((err) => {
+          console.log(err.message);
+        });
     }
   };
+
   return (
     <Grid
       container
@@ -120,19 +182,24 @@ export const RegisterTwo = ({ onNext }) => {
                   name="identify"
                   onSelect={handleSelect}
                   value={values.identify}
+                  error={errors.identify}
+                  errorText={errors.identify}
                 />
               </Grid>
               <Grid item sm={12}>
                 <SelectOption
                   checkboxVaraint="switch"
                   label="Height"
-                  options={heightOptions}
+                  options={newHeight}
                   placeholder={`6'2" (188cm)`}
                   show={show.height}
                   handleShow={handleShow}
                   name="height"
                   onSelect={handleSelect}
                   value={values.height}
+                  height
+                  error={errors.height}
+                  errorText={errors.height}
                 />
               </Grid>
               <Grid item sm={12}>
@@ -141,11 +208,13 @@ export const RegisterTwo = ({ onNext }) => {
                   label="Body Type"
                   options={bodyTypeOptions}
                   placeholder="Select body type"
-                  show={show.identify}
+                  show={show.bodyType}
                   handleShow={handleShow}
                   name="bodyType"
                   onSelect={handleSelect}
                   value={values.bodyType}
+                  error={errors.bodyType}
+                  errorText={errors.bodyType}
                 />
               </Grid>
               <Grid item sm={12}>
@@ -159,6 +228,8 @@ export const RegisterTwo = ({ onNext }) => {
                   name="diet"
                   onSelect={handleSelect}
                   value={values.diet}
+                  error={errors.diet}
+                  errorText={errors.diet}
                 />
               </Grid>
               <Grid item sm={12}>
@@ -172,6 +243,8 @@ export const RegisterTwo = ({ onNext }) => {
                   name="fitness"
                   onSelect={handleSelect}
                   value={values.fitness}
+                  error={errors.fitness}
+                  errorText={errors.fitness}
                 />
               </Grid>
               <Grid item container justifyContent="center">

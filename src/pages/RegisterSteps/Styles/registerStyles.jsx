@@ -152,6 +152,16 @@ export const useStyles = makeStyles((theme) => ({
       },
     },
   },
+  error: {
+    color: theme.palette.error.main,
+    fontSize: "1.3rem",
+    marginLeft: "20px",
+    marginTop: "10px",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "14px",
+      marginTop: "7px",
+    },
+  },
 
   // select styles
   selectContainer: {

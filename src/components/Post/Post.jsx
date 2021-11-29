@@ -144,7 +144,7 @@ export const Post = React.forwardRef(
                 playsInline
                 autoPlay={meetMe ? true : false}
                 loop
-                // muted={isMuted}
+                muted={isMuted}
                 src={meetMe ? image.video : video_url}
                 className={classes.postAsset}
               ></video>

@@ -6,7 +6,6 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
-  FormControlLabel,
 } from "@material-ui/core";
 import image from "../../../assets/index";
 import { RadioButton } from "../../../components/RadioButton/RadioButton";
@@ -17,6 +16,7 @@ import { Header } from "../../../components/header/Header";
 import { useDispatch } from "react-redux";
 import { submit } from "../../../store/user";
 import { datePreference as datePreferenceApi } from "../../../http";
+import Joi from "joi-browser";
 
 export const RegisterFour = ({ onNext }) => {
   const classes = useStyles();
@@ -25,38 +25,84 @@ export const RegisterFour = ({ onNext }) => {
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const mdScreen = useMediaQuery(theme.breakpoints.down("md"));
   const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
-  const [datePreference, setDatePrerence] = useState(null);
-  const [audience, setAudience] = useState(null);
+  const [datePreference, setDatePrerence] = useState("");
+  const [audience, setAudience] = useState("");
+  const [errors, setErrors] = useState({
+    datePreference: "",
+    audience: "",
+  });
+  const schema = {
+    datePreference: Joi.string().required().label("Date Preference"),
+    audience: Joi.string().required().label("Intent"),
+  };
+
+  const validate = () => {
+    const data = {
+      datePreference,
+      audience,
+    };
+    const result = Joi.validate(data, schema, { abortEarly: false });
+    console.log(result);
+    if (!result.error) {
+      setErrors({
+        datePreference: "",
+        audience: "",
+      });
+      return false;
+    } else {
+      const errorsObject = {};
+      for (let item of result.error.details)
+        errorsObject[item.path[0]] = item.message;
+      setErrors(errorsObject);
+      return true;
+    }
+  };
 
   const handleDatePreference = (e) => {
     setDatePrerence(e.target.value);
+    const obj = { datePreference: e.target.value };
+    const subSchema = { datePreference: schema.datePreference };
+    const { error } = Joi.validate(obj, subSchema);
+    const it = error
+      ? setErrors({
+          ...errors,
+          datePreference: `"Date Preference" is not allowed to be empty`,
+        })
+      : setErrors({ ...errors, datePreference: "" });
   };
   const handleAudiencePreference = (e) => {
     setAudience(e.target.value);
+    const obj = { audience: e.target.value };
+    const subSchema = { audience: schema.datePreference };
+    const { error } = Joi.validate(obj, subSchema);
+    const it = error
+      ? setErrors({
+          ...errors,
+          audience: `"Intent" is not allowed to be empty`,
+        })
+      : setErrors({ ...errors, audience: "" });
   };
   //   const handleClick = (e) => {
   //     const { checked, name } = e.target;
   //     setValues({ ...values, [name]: checked });
   //   };
   const handleNext = async () => {
-    try {
-      //   const keys = Object.keys(values);
-      //   //   console.log(keys);
-      //   let list = keys.filter((key) => values[key] === true);
-      //   let audienceT = list.map((e) => audience[e]);
-      //   //   console.log(audienceT);
-      const apiData = {
-        interested_gender: datePreference,
-        interested_audience: audience,
-        visible: true,
-        step: "/hometown",
-      };
-      console.log(apiData);
-      const { data } = await datePreferenceApi(apiData);
-      dispatch(submit(data));
-      onNext();
-    } catch (e) {
-      console.log(e.message);
+    const error = validate();
+    if (!error) {
+      try {
+        const apiData = {
+          interested_gender: datePreference,
+          interested_audience: audience,
+          visible: true,
+          step: "/hometown",
+        };
+        console.log(apiData);
+        const { data } = await datePreferenceApi(apiData);
+        dispatch(submit(data));
+        onNext();
+      } catch (e) {
+        console.log(e.message);
+      }
     }
   };
   return (
@@ -116,6 +162,9 @@ export const RegisterFour = ({ onNext }) => {
                   <RadioButton value="women" label="Women" />
                   <RadioButton value="everyone" label="Everyone" />
                 </Grid>
+                {errors.datePreference && (
+                  <span className={classes.error}>{errors.datePreference}</span>
+                )}
               </RadioGroup>
             </Grid>
             <Grid item>
@@ -152,102 +201,9 @@ export const RegisterFour = ({ onNext }) => {
                   <RadioButton value="Anything" label="Anything" />
                 </Grid>
               </RadioGroup>
-              {/* <Grid item xs={6} sm={4}>
-                <FormControlLabel
-                  value={values}
-                  className={classes.formControlLabel}
-                  control={
-                    <Checkbox
-                      variant="circle"
-                      handleShow={handleClick}
-                      name="meet"
-                      show={values.meet}
-                    />
-                  }
-                  label="Meet Someone New"
-                  labelPlacement="start"
-                />
-              </Grid>
-              <Grid item xs={6} sm={4}>
-                <FormControlLabel
-                  onClick={handleClick}
-                  className={classes.formControlLabel}
-                  control={
-                    <Checkbox
-                      variant="circle"
-                      handleShow={handleClick}
-                      name="casual"
-                      show={values.casual}
-                    />
-                  }
-                  label="Something Casual"
-                  labelPlacement="start"
-                />
-              </Grid>
-              <Grid item xs={6} sm={4}>
-                <FormControlLabel
-                  onClick={handleClick}
-                  className={classes.formControlLabel}
-                  control={
-                    <Checkbox
-                      variant="circle"
-                      handleShow={handleClick}
-                      name="friends"
-                      show={values.friends}
-                    />
-                  }
-                  label="Friends"
-                  labelPlacement="start"
-                />
-              </Grid>
-              <Grid item xs={6} sm={4}>
-                <FormControlLabel
-                  onClick={handleClick}
-                  className={classes.formControlLabel}
-                  control={
-                    <Checkbox
-                      variant="circle"
-                      handleShow={handleClick}
-                      name="relationship"
-                      show={values.relationship}
-                    />
-                  }
-                  label="Relationship"
-                  labelPlacement="start"
-                />
-              </Grid>
-              <Grid item xs={6} sm={4}>
-                <FormControlLabel
-                  onClick={handleClick}
-                  className={classes.formControlLabel}
-                  control={
-                    <Checkbox
-                      variant="circle"
-                      handleShow={handleClick}
-                      name="marraige"
-                      show={values.marraige}
-                    />
-                  }
-                  label="Marraige"
-                  labelPlacement="start"
-                />
-              </Grid>
-              <Grid item xs={6} sm={4}>
-                <FormControlLabel
-                  onClick={handleClick}
-                  className={classes.formControlLabel}
-                  control={
-                    <Checkbox
-                      variant="circle"
-                      handleShow={handleClick}
-                      name="anything"
-                      show={values.anything}
-                    />
-                  }
-                  label="Anything"
-                  labelPlacement="start"
-                />
-              </Grid> */}
+              {errors.audience && (
+                <span className={classes.error}>{errors.audience}</span>
+              )}
             </Grid>
             <Grid
               item
