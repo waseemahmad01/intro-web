@@ -11,6 +11,8 @@ import {
   Chip,
   Button,
   makeStyles,
+  Checkbox as MuiCheckbox,
+  ListItemText,
 } from "@material-ui/core";
 import axios from "axios";
 import { KeyboardArrowDown } from "@material-ui/icons";
@@ -23,16 +25,14 @@ import { Header } from "../../../components/header/Header";
 import { religion as religionApi, children, ethnicityApi } from "../../../http";
 import { useDispatch } from "react-redux";
 import { submit } from "../../../store/user";
+import * as allCounrtry from "country-flag-emoji-json";
 import {
   religion,
-  // race,
   politics,
   haveChild,
   wantChild,
-  countryList,
   ethnicityList,
 } from "../../../data";
-// import { RadioButton } from "../../../components/RadioButton/RadioButton";
 import ChipRadio from "../../../components/chipRadioButton/ChipRadio";
 import Joi from "joi-browser";
 
@@ -375,9 +375,42 @@ const useStyles = makeStyles((theme) => ({
       fontSize: "14px",
     },
   },
+  listItemText: {
+    "& .MuiListItemText-primary": {
+      margin: 0,
+      color: "#000000",
+      fontSize: "22px",
+      textAlign: "left",
+      marginLeft: "10px",
+      [theme.breakpoints.down("lg")]: {
+        fontSize: "15px",
+      },
+    },
+  },
+  menu: {
+    // backgroundColor: "red",
+    "& .MuiMenu-paper": {
+      maxHeight: "55vh",
+    },
+  },
+  customPlaceHolder: {
+    color: "#000000",
+    opacity: "0.4",
+    position: "absolute",
+    fontSize: "22px",
+    top: "20px",
+    left: "20px",
+    zIndex: 0,
+    [theme.breakpoints.down("lg")]: {
+      top: "11px",
+      left: "20px",
+      fontSize: "15px",
+    },
+  },
 }));
 
 export const RegisterThree = ({ onNext }) => {
+  const countryList = allCounrtry.default;
   const classes = useStyles();
   const dispatch = useDispatch();
   const theme = useTheme();
@@ -385,6 +418,7 @@ export const RegisterThree = ({ onNext }) => {
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [ethinic, setEthinic] = useState([]);
+
   const [show, setShow] = useState({
     origin: true,
     ethnic: true,
@@ -462,11 +496,6 @@ export const RegisterThree = ({ onNext }) => {
   const handleOpenDialog = () => {
     setIsDialogOpen(true);
   };
-  // const handleDatePreference = (e) => {
-  //   // e.target.parentNode.parentNode.parentNode.classList;
-  //   setDatePrerence(e.target.value);
-  // };
-  // const [datePreference, setDatePrerence] = useState(null);
   const handleEthinic = (e) => {
     setEthinic(e.target.value);
     const obj = { ethinic: e.target.value };
@@ -687,7 +716,11 @@ export const RegisterThree = ({ onNext }) => {
                     alignItems="center"
                     style={{ marginBottom: "0.7rem" }}
                   >
-                    <Grid item className={classes.selectContainer}>
+                    <Grid
+                      item
+                      style={{ position: "relative" }}
+                      className={classes.selectContainer}
+                    >
                       <Select
                         value={ethinic}
                         onChange={handleEthinic}
@@ -697,6 +730,18 @@ export const RegisterThree = ({ onNext }) => {
                         className={classes.select1}
                         color="primary"
                         name="ethinic"
+                        MenuProps={{
+                          anchorOrigin: {
+                            vertical: "top",
+                            horizontal: "left",
+                          },
+                          transformOrigin: {
+                            vertical: "top",
+                            horizontal: "left",
+                          },
+                          getContentAnchorEl: null,
+                          className: classes.menu,
+                        }}
                         // classes={{ root: classes.selectRoot }}
                         inputProps={{
                           classes: {
@@ -734,14 +779,36 @@ export const RegisterThree = ({ onNext }) => {
                         </MenuItem>
                         {countryList.map((option, index) => (
                           <MenuItem
-                            key={option}
+                            key={option.unicode}
                             className={classes.menuItem}
-                            value={option}
+                            value={option.name}
                           >
-                            {option}
+                            <MuiCheckbox
+                              color="primary"
+                              style={{
+                                transform: lgScreen ? "scale(1)" : "scale(1.4)",
+                                marginRight: "10px",
+                              }}
+                              checked={ethinic.indexOf(option.name) > -1}
+                            />
+                            <img
+                              src={option.image}
+                              width={lgScreen ? "30px" : "40px"}
+                              alt=""
+                            />
+                            <ListItemText
+                              className={classes.listItemText}
+                              primary={option.name}
+                            />
                           </MenuItem>
                         ))}
                       </Select>
+                      {ethinic.length === 0 ? (
+                        <span className={classes.customPlaceHolder}>
+                          <em> Choose Country</em>
+                        </span>
+                      ) : undefined}
+
                       {errors.ethinic && (
                         <span className={classes.error}>{errors.ethinic}</span>
                       )}

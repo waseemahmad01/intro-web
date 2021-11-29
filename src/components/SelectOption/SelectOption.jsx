@@ -100,6 +100,12 @@ export const useStyles = makeStyles((theme) => ({
       fontSize: "14px",
     },
   },
+  menu: {
+    // backgroundColor: "red",
+    "& .MuiMenu-paper": {
+      maxHeight: "35vh",
+    },
+  },
 }));
 export const SelectOption = ({
   options,
@@ -142,6 +148,18 @@ export const SelectOption = ({
             className={classes.select}
             color="primary"
             name={name}
+            MenuProps={{
+              anchorOrigin: {
+                vertical: "top",
+                horizontal: "left",
+              },
+              transformOrigin: {
+                vertical: "top",
+                horizontal: "left",
+              },
+              getContentAnchorEl: null,
+              className: classes.menu,
+            }}
             // classes={{ root: classes.selectRoot }}
             inputProps={{
               classes: {
