@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     fontSize: "39px",
-    fontWeight: "700",
+    fontWeight: "500",
     margin: "2rem 0",
     [theme.breakpoints.down("lg")]: {
       fontSize: "25px",

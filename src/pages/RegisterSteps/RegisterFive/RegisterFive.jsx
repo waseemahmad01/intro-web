@@ -197,7 +197,7 @@ export const RegisterFive = ({ onNext }) => {
               >
                 <Grid item className={classes.inputContainer}>
                   <Input
-                    label="Your Hometown?"
+                    label="Your Hometown (optional)"
                     type="text"
                     placeholder="Enter details"
                     value={details.hometown}
@@ -259,7 +259,7 @@ export const RegisterFive = ({ onNext }) => {
               <Grid item sm={12}>
                 <SelectOption
                   checkboxVaraint="switch"
-                  label="What's the highest degree you've attained?"
+                  label="Degree"
                   options={schoolDegree}
                   placeholder="Select an option"
                   show={show.degree}

@@ -116,6 +116,7 @@ export const SelectImage = () => {
               marginTop: "2rem",
               width: lgScreen ? "150px" : "188px",
               fontSize: lgScreen ? "15px" : "21px",
+              paddingInline: "0",
             }}
             onClick={() => setOpenWebCam(true)}
           >

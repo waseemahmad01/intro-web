@@ -22,7 +22,7 @@ export const useStyles = makeStyles((theme) => ({
   },
   postContainer: {
     width: "914px",
-    height: "911px",
+    height: "750px",
     // backgroundColor: "#fbfbfb",
     padding: "0rem 1rem",
     borderRadius: "54px",
@@ -36,13 +36,13 @@ export const useStyles = makeStyles((theme) => ({
     },
   },
   postAvatarContainer: {
-    paddingTop: "0rem",
+    paddingTop: "2.5rem",
     [theme.breakpoints.down("sm")]: {
       paddingTop: "0.5rem",
     },
   },
   postTitle: {
-    fontSize: "30px",
+    fontSize: "24px",
     fontFamily: "Helvetica",
     margin: "10px 0px",
     [theme.breakpoints.down("lg")]: {
@@ -62,10 +62,10 @@ export const useStyles = makeStyles((theme) => ({
   },
   imageContianer: {
     position: "relative",
-    height: "775px",
-    width: "519px",
+    height: "640px",
+    width: "428px",
     overflow: "hidden",
-    borderRadius: "20px",
+    borderRadius: "35px",
     [theme.breakpoints.down("lg")]: {
       width: "300px",
       height: "447.97px",

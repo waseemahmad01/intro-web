@@ -169,7 +169,7 @@ export const RegisterFour = ({ onNext }) => {
             </Grid>
             <Grid item>
               <Typography className={classes.title} variant="h3">
-                What are you looking for
+                Intent
               </Typography>
             </Grid>
             <Grid item>

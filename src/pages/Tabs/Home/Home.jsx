@@ -58,7 +58,7 @@ export const Home = () => {
       <Grid item>
         <Typography className={classes.title}>Online Users</Typography>
       </Grid>
-      <Grid item style={{ width: "100%" }}>
+      <Grid item style={{ width: "100%" }} className={classes.sliderContainer}>
         <Slider />
       </Grid>
       <Grid

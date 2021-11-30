@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import {
   Grid,
   List,
@@ -29,7 +29,10 @@ import {
   PersonRounded,
   SubscriptionsRounded,
 } from "@material-ui/icons";
-import { videos as getVideos } from "../../http/index";
+import {
+  videos as getVideos,
+  allVideos as getAllVideos,
+} from "../../http/index";
 
 export const AllTabs = () => {
   const classes = useStyles();
@@ -37,7 +40,25 @@ export const AllTabs = () => {
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const [videos, setVideos] = useState([]);
   const allVideos = useRef([]);
+  const [loading, setLoading] = useState(false);
+  const [pageNumber, setPageNumber] = useState(1);
   allVideos.current = [];
+
+  const observer = useRef();
+  const lastElementRef = useCallback(
+    (node) => {
+      if (loading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          setPageNumber(pageNumber + 1);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loading]
+  );
+
   const addToRefs = (e) => {
     if (e && !allVideos.current.includes(e) && !null) allVideos.current.push(e);
   };
@@ -72,12 +93,13 @@ export const AllTabs = () => {
     if (allVideos.current.length > 0) {
       allVideos.current[0].lastChild.lastChild.lastChild.firstChild.play();
     }
-    (async function () {
-      const { data } = await getVideos();
-      setVideos(data.data);
-      console.log(data.data);
-    })();
   });
+  useEffect(() => {
+    (async function () {
+      const { data } = await getAllVideos(pageNumber, 3);
+      setVideos([...videos, ...data.data]);
+    })();
+  }, [pageNumber]);
   const tabItems = [
     {
       label: "Home",
@@ -178,7 +200,13 @@ export const AllTabs = () => {
             <Route
               exact
               path="/home/explore"
-              render={() => <Explore addToRefs={addToRefs} videos={videos} />}
+              render={() => (
+                <Explore
+                  addToRefs={addToRefs}
+                  lastElementRef={lastElementRef}
+                  videos={videos}
+                />
+              )}
             />
             <Route exact path="/home/meetme" render={() => <MeetMe />} />
             <Route exact path="/home/inbox" render={() => <Inbox />} />

@@ -58,6 +58,8 @@ export const getUser = () => api.get("/api/user");
 
 export const videos = () => api.get("/api/videos");
 export const likeVideo = (data) => api.post("/api/video/like", data);
+export const allVideos = (page, limit) =>
+  api.get(`/api/allVideos?page=${page}&limit=${limit}`);
 
 // profile apis
 

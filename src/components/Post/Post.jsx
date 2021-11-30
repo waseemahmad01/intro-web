@@ -122,7 +122,9 @@ export const Post = React.forwardRef(
           style={{ paddingLeft: meetMe ? "4.5rem" : undefined }}
         >
           <Grid item>
-            <h2 className={classes.postTitle}>{title}</h2>
+            <h2 className={classes.postTitle}>
+              {meetMe ? "Worst Idea I ever had?" : title}
+            </h2>
           </Grid>
           <Grid item>
             <div

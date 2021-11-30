@@ -27,11 +27,9 @@ export const TopBar = ({ live }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenu, setOpenMenu] = useState(false);
   const userState = useSelector((state) => state.auth.user.data);
-  console.log(userState);
   const handleMenu = (event) => {
     setAnchorEl(event.target);
     setOpenMenu(true);
-    console.log(anchorEl);
   };
   const handleClose = () => {
     setAnchorEl(null);

@@ -18,6 +18,7 @@ import OtpInput from "react-otp-input";
 import { login, verify } from "../../http";
 import { submit } from "../../store/user";
 import { useDispatch } from "react-redux";
+import Joi from "joi-browser";
 const useStyles = makeStyles((theme) => ({
   container: {
     backgroundColor: "#fbfbfb",
@@ -172,7 +173,7 @@ const useStyles = makeStyles((theme) => ({
   facebookButton: {
     backgroundColor: "#3B5998",
     marginTop: "0.5rem",
-    width: "314px",
+    width: "320px",
     height: "50px",
     textTransform: "none",
     fontSize: "21px",
@@ -202,7 +203,7 @@ const useStyles = makeStyles((theme) => ({
   },
   googleButton: {
     backgroundColor: "#CE4317",
-    width: "314px",
+    width: "320px",
     height: "50px",
     textTransform: "none",
     fontSize: "23px",
@@ -245,17 +246,25 @@ const useStyles = makeStyles((theme) => ({
   errorSpan: {
     color: "red",
     lineHeight: "2rem",
-    fontSize: "1.25rem",
+    fontSize: "1.3rem",
   },
   error: {
-    fontSize: "1.25rem",
+    fontSize: "1.3rem",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "14px",
+    },
+  },
+  menu: {
+    "& .MuiMenu-paper": {
+      maxHeight: "35vh",
+    },
   },
 }));
 
 export const SignInScreen = (props) => {
   const classes = useStyles();
   const [otp, setOtp] = useState("");
-  const [phoneNumber, setPhoenNumber] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [countryCode, setCountryCode] = useState("+1");
   const dispatch = useDispatch();
@@ -263,41 +272,80 @@ export const SignInScreen = (props) => {
     otp: "",
     phonenumber: "",
   });
+  const schema = {
+    phonenumber: Joi.number().required().label("Phone number"),
+    // .messages({ "string.pattern.base": "dnaldkf" }),
+  };
+  const validate = () => {
+    const result = Joi.validate(
+      {
+        phonenumber: phoneNumber,
+      },
+      schema
+    );
+    if (!result.error) {
+      setError({
+        otp: "",
+        phonenumber: "",
+      });
+      return false;
+    } else {
+      const errorsObject = {};
+      for (let item of result.error.details)
+        errorsObject[item.path[0]] = item.message;
+      setError(errorsObject);
+      return true;
+    }
+  };
   const handleChange = (event) => {
     setCountryCode(event.target.value);
   };
   const handleSubmit = async () => {
-    try {
-      // setOpenDialog(true);
-      if (phoneNumber === "") {
-        return setError({
-          ...error,
-          phonenumber: "phone number can't be empty",
+    const err = validate();
+    if (!err) {
+      try {
+        if (phoneNumber === "") {
+          return setError({
+            ...error,
+            phonenumber: "phone number is not allowed to be empty",
+          });
+        }
+        const number = countryCode + phoneNumber;
+        const { data } = await login({
+          phonenumber: number,
+          channel: "sms",
         });
+        console.log(data);
+        setOpenDialog(true);
+      } catch (err) {
+        console.log(err);
       }
-      console.log(phoneNumber);
-      const { data } = await login({
-        phonenumber: phoneNumber,
-        channel: "sms",
-      });
-      console.log(data);
-      setOpenDialog(true);
-    } catch (err) {
-      console.log(err);
     }
   };
   const handleOtp = (otp) => {
     setOtp(otp);
   };
+  const handlePhoneNumber = (e) => {
+    setPhoneNumber(e.target.value);
+    const obj = {
+      phonenumber: phoneNumber,
+    };
+    const subSchema = {
+      phonenumber: Joi.number().required().label("Phone number"),
+    };
+    const { error } = Joi.validate(obj, subSchema);
+    const it = error
+      ? setError({ ...error, phonenumber: error.details[0].message })
+      : setError({ ...error, phonenumber: "" });
+  };
   const handleVerify = async () => {
     try {
-      props.history.push("register");
+      const number = countryCode + phoneNumber;
       if (otp === "123456") {
         const { data } = await verify({
-          phonenumber: phoneNumber,
+          phonenumber: number,
           code: "123456",
         });
-        // console.log(data);
         if (data.data.step === "/home") {
           props.history.push("home");
         } else props.history.push("register");
@@ -343,6 +391,18 @@ export const SignInScreen = (props) => {
             onChange={handleChange}
             variant="outlined"
             className={classes.select}
+            MenuProps={{
+              anchorOrigin: {
+                vertical: "top",
+                horizontal: "left",
+              },
+              transformOrigin: {
+                vertical: "top",
+                horizontal: "left",
+              },
+              getContentAnchorEl: null,
+              className: classes.menu,
+            }}
           >
             <MenuItem className={classes.menuItem} value="+1">
               +1
@@ -351,7 +411,7 @@ export const SignInScreen = (props) => {
               +92
             </MenuItem>
             <MenuItem className={classes.menuItem} value="+93">
-              +92
+              +93
             </MenuItem>
           </Select>
           <TextField
@@ -360,7 +420,7 @@ export const SignInScreen = (props) => {
             classes={{ root: classes.inputRoot }}
             placeholder="Phone Number"
             InputProps={{ className: classes.input }}
-            onChange={(e) => setPhoenNumber(e.target.value)}
+            onChange={handlePhoneNumber}
             error={error.phonenumber}
             helperText={error.phonenumber}
             FormHelperTextProps={{ className: classes.error }}
@@ -372,7 +432,7 @@ export const SignInScreen = (props) => {
             styleProps={{
               height: lgScreen ? "40px" : "52px",
               width: lgScreen ? "100px" : "158px",
-              fontSize: lgScreen ? "15px" : undefined,
+              fontSize: lgScreen ? "14px" : undefined,
             }}
             onClick={handleSubmit}
           >
@@ -441,7 +501,7 @@ export const SignInScreen = (props) => {
           </Grid>
           <Grid item>
             <Typography className={classes.dialogSubtitle}>
-              sent to +92-2604-260254
+              sent to {countryCode}-{phoneNumber}
             </Typography>
           </Grid>
           <Grid item className={classes.verifyContainer}>
