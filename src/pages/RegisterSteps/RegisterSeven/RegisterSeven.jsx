@@ -6,7 +6,7 @@ import { SelectOption } from "../../../components/SelectOption/SelectOption";
 import { CustomIconButton } from "../../../components/IconButton/CustomIconButton";
 import { CustomButton } from "../../../components/CustomButton/CustomButton";
 import { Header } from "../../../components/header/Header";
-import { vices } from "../../../http";
+import { vices, step } from "../../../http";
 import { useDispatch } from "react-redux";
 import { submit } from "../../../store/user";
 import Joi from "joi-browser";
@@ -110,6 +110,18 @@ export const RegisterSeven = ({ onNext }) => {
       }
     }
   };
+  const handleSkip = async () => {
+    const stepData = {
+      step: "/",
+    };
+    try {
+      const { data } = await step(stepData);
+      dispatch(submit(data));
+      onNext();
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <Grid
       container
@@ -200,7 +212,9 @@ export const RegisterSeven = ({ onNext }) => {
               </Grid>
               <Grid item container justifyContent="center">
                 <CustomIconButton onClick={handleNext} />
-                <CustomButton variant="outlineButton">Skip</CustomButton>
+                <CustomButton onClick={handleSkip} variant="outlineButton">
+                  Skip
+                </CustomButton>
               </Grid>
             </Grid>
           </form>

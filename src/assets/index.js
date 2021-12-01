@@ -84,5 +84,6 @@ const image = {
   recordDot: require("./recordDot.svg").default,
   liveIcon: require("./liveIcon.svg").default,
   video: require("./video.mp4").default,
+  unMute: require("./unMute.png").default,
 };
 export default image;

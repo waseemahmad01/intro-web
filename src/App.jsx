@@ -35,6 +35,7 @@ function App(props) {
   const fetchUser = async () => {
     try {
       const { data } = await getUser();
+      console.log(data);
       dispatch(submit(data));
     } catch (err) {
       console.log(err);

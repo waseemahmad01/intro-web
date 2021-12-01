@@ -27,12 +27,8 @@ import {
   QuestionAnswerRounded,
   ThumbUpAltRounded,
   PersonRounded,
-  SubscriptionsRounded,
 } from "@material-ui/icons";
-import {
-  videos as getVideos,
-  allVideos as getAllVideos,
-} from "../../http/index";
+import { allVideos as getAllVideos } from "../../http/index";
 
 export const AllTabs = () => {
   const classes = useStyles();
@@ -42,6 +38,7 @@ export const AllTabs = () => {
   const allVideos = useRef([]);
   const [loading, setLoading] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
+  const totalPages = useRef(0);
   allVideos.current = [];
 
   const observer = useRef();
@@ -50,8 +47,8 @@ export const AllTabs = () => {
       if (loading) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-          setPageNumber(pageNumber + 1);
+        if (entries[0].isIntersecting && pageNumber <= totalPages.current) {
+          setPageNumber((prev) => prev + 1);
         }
       });
       if (node) observer.current.observe(node);
@@ -96,8 +93,9 @@ export const AllTabs = () => {
   });
   useEffect(() => {
     (async function () {
-      const { data } = await getAllVideos(pageNumber, 3);
+      const { data } = await getAllVideos(pageNumber, 10);
       setVideos([...videos, ...data.data]);
+      totalPages.current = data.totalPages;
     })();
   }, [pageNumber]);
   const tabItems = [

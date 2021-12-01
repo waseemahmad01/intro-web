@@ -15,7 +15,7 @@ import { CustomButton } from "../../../components/CustomButton/CustomButton";
 import { Header } from "../../../components/header/Header";
 import { useDispatch } from "react-redux";
 import { submit } from "../../../store/user";
-import { datePreference as datePreferenceApi } from "../../../http";
+import { datePreference as datePreferenceApi, step } from "../../../http";
 import Joi from "joi-browser";
 
 export const RegisterFour = ({ onNext }) => {
@@ -82,10 +82,6 @@ export const RegisterFour = ({ onNext }) => {
         })
       : setErrors({ ...errors, audience: "" });
   };
-  //   const handleClick = (e) => {
-  //     const { checked, name } = e.target;
-  //     setValues({ ...values, [name]: checked });
-  //   };
   const handleNext = async () => {
     const error = validate();
     if (!error) {
@@ -103,6 +99,18 @@ export const RegisterFour = ({ onNext }) => {
       } catch (e) {
         console.log(e.message);
       }
+    }
+  };
+  const handleSkip = async () => {
+    const stepData = {
+      step: "/",
+    };
+    try {
+      const { data } = await step(stepData);
+      dispatch(submit(data));
+      onNext();
+    } catch (err) {
+      console.log(err);
     }
   };
   return (
@@ -214,7 +222,9 @@ export const RegisterFour = ({ onNext }) => {
             >
               <Grid item container alignItems="center" justifyContent="center">
                 <CustomIconButton onClick={handleNext} />
-                <CustomButton variant="outlineButton">Skip</CustomButton>
+                <CustomButton onClick={handleSkip} variant="outlineButton">
+                  Skip
+                </CustomButton>
               </Grid>
             </Grid>
           </Grid>

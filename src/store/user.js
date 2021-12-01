@@ -62,7 +62,6 @@ const authSlice = createSlice({
       if (action.payload.accessToken) {
         state.user.accessToken = action.payload.access_token;
       } else {
-        // localStorage.setItem("token", action.payload.access_token);
         state.user.accessToken = localStorage.getItem("token");
       }
     },

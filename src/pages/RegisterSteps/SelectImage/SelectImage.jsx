@@ -11,7 +11,6 @@ import Webcam from "react-webcam";
 import { useDispatch, useSelector } from "react-redux";
 import { profileImage, step } from "../../../http";
 import { submit } from "../../../store/user";
-import axios from "axios";
 export const SelectImage = () => {
   const history = useHistory();
   const classes = useStyles();
@@ -53,12 +52,14 @@ export const SelectImage = () => {
     if (imageFile === null) return setError(true);
     try {
       let imageData = new FormData();
+      const stepData = {
+        step: "/home",
+      };
       imageData.append("profile_img", imageFile);
-      axios.all([profileImage(imageData), step({ step: "/home" })]).then(
-        axios.spread(function (res1, res2) {
-          dispatch(submit(res2.data));
-        })
-      );
+      let res = await profileImage(imageData);
+      res = await step(stepData);
+      console.log(res);
+      dispatch(submit(res.data));
       history.push("/home");
     } catch (err) {
       console.log(err);
@@ -141,14 +142,6 @@ export const SelectImage = () => {
           >
             Choose from Facebook
           </CustomButton>
-          {/* <CustomButton
-						variant="btnBlue"
-						styleProps={{
-							marginLeft: smScreen ? "0" : "2rem",
-						}}
-					>
-						Upload
-					</CustomButton> */}
           <label htmlFor="image-picker" className={classes.uploadButton}>
             Upload
           </label>

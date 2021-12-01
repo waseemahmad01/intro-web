@@ -22,7 +22,12 @@ import { SelectOption } from "../../../components/SelectOption/SelectOption";
 import { CustomIconButton } from "../../../components/IconButton/CustomIconButton";
 import { CustomButton } from "../../../components/CustomButton/CustomButton";
 import { Header } from "../../../components/header/Header";
-import { religion as religionApi, children, ethnicityApi } from "../../../http";
+import {
+  religion as religionApi,
+  children,
+  ethnicityApi,
+  step,
+} from "../../../http";
 import { useDispatch } from "react-redux";
 import { submit } from "../../../store/user";
 import * as allCounrtry from "country-flag-emoji-json";
@@ -274,7 +279,7 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("lg")]: {
       marginTop: "0px",
     },
-    width: "195px",
+    width: "210px",
     "& span": {
       fontSize: "15px",
       marginRight: "20px",
@@ -552,6 +557,19 @@ export const RegisterThree = ({ onNext }) => {
           })
         )
         .catch((err) => console.log(err.message));
+    }
+  };
+
+  const handleSkip = async () => {
+    const stepData = {
+      step: "/",
+    };
+    try {
+      const { data } = await step(stepData);
+      dispatch(submit(data));
+      onNext();
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -893,7 +911,9 @@ export const RegisterThree = ({ onNext }) => {
               </Grid>
               <Grid item container alignItems="center" justifyContent="center">
                 <CustomIconButton onClick={handleNext} />
-                <CustomButton variant="outlineButton">Skip</CustomButton>
+                <CustomButton onClick={handleSkip} variant="outlineButton">
+                  Skip
+                </CustomButton>
               </Grid>
             </Grid>
           </form>

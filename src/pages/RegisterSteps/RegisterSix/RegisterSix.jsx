@@ -6,12 +6,10 @@ import { CustomIconButton } from "../../../components/IconButton/CustomIconButto
 import { CustomButton } from "../../../components/CustomButton/CustomButton";
 import { Input } from "../../../components/Textfield/Input";
 import { Checkbox } from "../../../components/Checkbox/Checkbox";
-import { SelectOption } from "../../../components/SelectOption/SelectOption";
 import { Header } from "../../../components/header/Header";
 import { useDispatch } from "react-redux";
 import { submit } from "../../../store/user";
-import { profession } from "../../../http";
-import { schoolDegree } from "../../../data";
+import { profession, step } from "../../../http";
 import Joi from "joi-browser";
 
 export const RegisterSix = ({ onNext }) => {
@@ -98,6 +96,18 @@ export const RegisterSix = ({ onNext }) => {
       } catch (e) {
         console.log(e.message);
       }
+    }
+  };
+  const handleSkip = async () => {
+    const stepData = {
+      step: "/",
+    };
+    try {
+      const { data } = await step(stepData);
+      dispatch(submit(data));
+      onNext();
+    } catch (err) {
+      console.log(err);
     }
   };
   return (
@@ -239,7 +249,9 @@ export const RegisterSix = ({ onNext }) => {
               </Grid>
               <Grid item container justifyContent="center">
                 <CustomIconButton onClick={handleNext} />
-                <CustomButton variant="outlineButton">Skip</CustomButton>
+                <CustomButton onClick={handleSkip} variant="outlineButton">
+                  Skip
+                </CustomButton>
               </Grid>
             </Grid>
           </form>

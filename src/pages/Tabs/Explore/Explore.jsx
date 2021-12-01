@@ -40,6 +40,7 @@ export const Explore = ({ videos, addToRefs, lastElementRef }) => {
                           user_status={item.user_status}
                           video_id={item._id}
                           ref={addToRefs}
+                          like={item.like}
                         />
                       </Grid>
                     );
@@ -55,6 +56,7 @@ export const Explore = ({ videos, addToRefs, lastElementRef }) => {
                           user_status={item.user_status}
                           video_id={item._id}
                           ref={addToRefs}
+                          like={item.like}
                         />
                       </Grid>
                     );

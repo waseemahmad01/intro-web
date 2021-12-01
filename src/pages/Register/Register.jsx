@@ -7,7 +7,7 @@ import { RegisterSix } from "../RegisterSteps/RegisterSix/RegisterSix";
 import { RegisterThree } from "../RegisterSteps/RegisterThree/RegisterThree";
 import { RegisterTwo } from "../RegisterSteps/RegisterTwo/RegisterTwo";
 import { SelectImage } from "../RegisterSteps/SelectImage/SelectImage";
-import { Header } from "../../components/header/Header";
+// import { Header } from "../../components/header/Header";
 
 export const Register = () => {
   const Steps = {

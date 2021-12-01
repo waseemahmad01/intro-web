@@ -20,6 +20,7 @@ export const useStyles = makeStyles((theme) => ({
   },
   formContainer: {
     width: "860px",
+    // backgroundColor: "red",
     marginTop: "2rem",
     padding: "10px",
     [theme.breakpoints.down("lg")]: {
@@ -125,7 +126,7 @@ export const useStyles = makeStyles((theme) => ({
     },
   },
   switchContainer: {
-    width: "195px",
+    width: "210px",
   },
   formControlLabel: {
     border: `2px solid ${theme.palette.primary.main}`,
@@ -247,14 +248,14 @@ export const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("lg")]: {
       marginTop: "0px",
     },
-    width: "195px",
+    width: "210px",
     "& span": {
       fontSize: "15px",
       marginRight: "20px",
-      marginLeft: "15px",
+      marginLeft: "22px",
       [theme.breakpoints.down("lg")]: {
         fontSize: "12px",
-        marginLeft: "10px",
+        marginLeft: "14px",
         marginRight: "10px",
       },
     },

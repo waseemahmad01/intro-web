@@ -68,7 +68,7 @@ export const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("lg")]: {
       marginTop: "0px",
     },
-    width: "195px",
+    width: "210px",
     "& span": {
       fontSize: "15px",
       marginRight: "20px",

@@ -9,7 +9,7 @@ import { Header } from "../../../components/header/Header";
 import { Input } from "../../../components/Textfield/Input";
 import { Checkbox } from "../../../components/Checkbox/Checkbox";
 import { homeTown, schoolDegree } from "../../../data";
-import { hometown, education } from "../../../http";
+import { hometown, education, step } from "../../../http";
 import { useDispatch } from "react-redux";
 import { submit } from "../../../store/user";
 import axios from "axios";
@@ -143,6 +143,18 @@ export const RegisterFive = ({ onNext }) => {
         });
     }
   };
+  const handleSkip = async () => {
+    const stepData = {
+      step: "/",
+    };
+    try {
+      const { data } = await step(stepData);
+      dispatch(submit(data));
+      onNext();
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <Grid
       container
@@ -273,7 +285,9 @@ export const RegisterFive = ({ onNext }) => {
               </Grid>
               <Grid item container justifyContent="center">
                 <CustomIconButton onClick={handleNext} />
-                <CustomButton variant="outlineButton">Skip</CustomButton>
+                <CustomButton onClick={handleSkip} variant="outlineButton">
+                  Skip
+                </CustomButton>
               </Grid>
             </Grid>
           </form>

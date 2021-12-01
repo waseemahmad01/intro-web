@@ -27,20 +27,11 @@ import DateFnsUtils from "@date-io/date-fns";
 
 import AvatarGroup from "@material-ui/lab/AvatarGroup";
 import image from "../../assets/index";
-import { Favorite, Close } from "@material-ui/icons";
+import { Favorite, Close, FavoriteBorder } from "@material-ui/icons";
 import { likeVideo } from "../../http";
 export const Post = React.forwardRef(
   (
-    {
-      meetMe,
-      username,
-      profile_img,
-      video_url,
-      video_id,
-      title,
-      user_id,
-      user_status,
-    },
+    { meetMe, username, profile_img, video_url, video_id, title, like },
     ref
   ) => {
     const classes = useStyles();
@@ -51,7 +42,7 @@ export const Post = React.forwardRef(
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [openSuperDialog, setOpenSuperDialog] = useState(false);
     const [isMuted, setIsMuted] = useState(true);
-
+    const [isLiked, setIsLiked] = useState(like);
     const handleDateChange = (date) => {
       setSelectedDate(date);
     };
@@ -70,7 +61,9 @@ export const Post = React.forwardRef(
       return `${value}o'clock`;
     };
     const handleLike = async () => {
+      setIsLiked(!isLiked);
       const { data } = await likeVideo({ video_id });
+      console.log(data);
       setOpenDialog(data.matched);
     };
     const theme = useTheme();
@@ -163,7 +156,7 @@ export const Post = React.forwardRef(
                       onClick={() => setIsMuted(!isMuted)}
                     >
                       <img
-                        src={image.mute}
+                        src={isMuted ? image.mute : image.unMute}
                         className={classes.muteIcon}
                         alt=""
                       />
@@ -172,7 +165,10 @@ export const Post = React.forwardRef(
                   <Grid item>
                     {meetMe ? undefined : (
                       <IconButton onClick={handleLike}>
-                        <Favorite className={classes.likeIcon} />
+                        <Favorite
+                          style={{ color: isLiked ? "red" : "" }}
+                          className={classes.likeIcon}
+                        />
                       </IconButton>
                     )}
                   </Grid>

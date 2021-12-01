@@ -97,6 +97,7 @@ export const useStyles = makeStyles((theme) => ({
     },
   },
   muteIcon: {
+    width: "40px",
     [theme.breakpoints.down("lg")]: {
       maxWidth: "28px",
     },
