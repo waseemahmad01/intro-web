@@ -37,7 +37,8 @@ export const AllTabs = () => {
   const [videos, setVideos] = useState([]);
   const allVideos = useRef([]);
   const [loading, setLoading] = useState(false);
-  const [pageNumber, setPageNumber] = useState(1);
+  const pageNumber = useRef(1);
+  const [changing, setChanging] = useState(1);
   const totalPages = useRef(0);
   allVideos.current = [];
 
@@ -47,8 +48,13 @@ export const AllTabs = () => {
       if (loading) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && pageNumber <= totalPages.current) {
-          setPageNumber((prev) => prev + 1);
+        if (
+          entries[0].isIntersecting &&
+          pageNumber.current <= totalPages.current
+        ) {
+          pageNumber.current = pageNumber.current + 1;
+          console.log(pageNumber.current);
+          setChanging((prev) => prev + 1);
         }
       });
       if (node) observer.current.observe(node);
@@ -91,13 +97,19 @@ export const AllTabs = () => {
       allVideos.current[0].lastChild.lastChild.lastChild.firstChild.play();
     }
   });
+  const url = window.location.pathname;
   useEffect(() => {
-    (async function () {
-      const { data } = await getAllVideos(pageNumber, 10);
-      setVideos([...videos, ...data.data]);
-      totalPages.current = data.totalPages;
-    })();
-  }, [pageNumber]);
+    if (url === "/home/explore") {
+      (async function () {
+        const { data } = await getAllVideos(pageNumber.current, 3);
+        setVideos([...videos, ...data.data]);
+        totalPages.current = data.totalPages;
+      })();
+    } else {
+      setVideos([]);
+      pageNumber.current = 1;
+    }
+  }, [changing, url]);
   const tabItems = [
     {
       label: "Home",

@@ -15,12 +15,19 @@ import { LiveFAQ } from "./pages/Help/LiveFAQ";
 import { AllTabs } from "./pages/TabsContainer/AllTabs";
 import { Live } from "./pages/Live/Live";
 import { Battle } from "./pages/Battle/Battle";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getUser } from "./http/index";
 import { submit } from "./store/user";
+// import io from "socket.io-client";
+
+// const socket = io(process.env.REACT_APP_API_URL);
+
+// socket.on('login', )
 
 function App(props) {
   const dispatch = useDispatch();
+  // const user = useSelector((state) => state.auth.user.data);
+  // socket.on("login", user._id);
   const theme = useTheme();
   const lgScreen = useMediaQuery(theme.breakpoints.down("md"));
   const handleResize = () => {

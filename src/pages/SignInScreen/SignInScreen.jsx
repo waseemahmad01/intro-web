@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   makeStyles,
   Grid,
@@ -19,6 +19,8 @@ import { login, verify } from "../../http";
 import { submit } from "../../store/user";
 import { useDispatch } from "react-redux";
 import Joi from "joi-browser";
+import { SocketContext } from "../../http/socket";
+// import io from "socket.io-client";
 const useStyles = makeStyles((theme) => ({
   container: {
     backgroundColor: "#fbfbfb",
@@ -263,6 +265,14 @@ const useStyles = makeStyles((theme) => ({
 
 export const SignInScreen = (props) => {
   const classes = useStyles();
+  const socket = useContext(SocketContext);
+  console.log(socket);
+
+  // const socket = io("http://104.154.205.129:8080");
+  // socket.disconnect();
+  // socket.on("connection", () => {
+  //   console.log("connected");
+  // });
   const [otp, setOtp] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
@@ -304,18 +314,12 @@ export const SignInScreen = (props) => {
     const err = validate();
     if (!err) {
       try {
-        if (phoneNumber === "") {
-          return setError({
-            ...error,
-            phonenumber: "phone number is not allowed to be empty",
-          });
-        }
         const number = countryCode + phoneNumber;
         const { data } = await login({
           phonenumber: number,
           channel: "sms",
         });
-        console.log(data);
+        // console.log(data);
         setOpenDialog(true);
       } catch (err) {
         console.log(err);
@@ -346,6 +350,8 @@ export const SignInScreen = (props) => {
           phonenumber: number,
           code: "123456",
         });
+        // console.log(data);
+        socket.emit("login", data.data._id);
         if (data.data.step === "/home") {
           props.history.push("home");
         } else props.history.push("register");

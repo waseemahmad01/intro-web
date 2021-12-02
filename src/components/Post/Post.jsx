@@ -29,6 +29,8 @@ import AvatarGroup from "@material-ui/lab/AvatarGroup";
 import image from "../../assets/index";
 import { Favorite, Close, FavoriteBorder } from "@material-ui/icons";
 import { likeVideo } from "../../http";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleMute } from "../../store/videoSound";
 export const Post = React.forwardRef(
   (
     { meetMe, username, profile_img, video_url, video_id, title, like },
@@ -41,7 +43,8 @@ export const Post = React.forwardRef(
     const [sliderValue, setSliderValue] = useState([11, 23]);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [openSuperDialog, setOpenSuperDialog] = useState(false);
-    const [isMuted, setIsMuted] = useState(true);
+    const isMuted = useSelector((state) => state.video.muted);
+    const dispatch = useDispatch();
     const [isLiked, setIsLiked] = useState(like);
     const handleDateChange = (date) => {
       setSelectedDate(date);
@@ -153,7 +156,7 @@ export const Post = React.forwardRef(
                   <Grid item>
                     <IconButton
                       style={{ zIndex: 2 }}
-                      onClick={() => setIsMuted(!isMuted)}
+                      onClick={() => dispatch(toggleMute())}
                     >
                       <img
                         src={isMuted ? image.mute : image.unMute}
