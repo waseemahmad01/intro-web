@@ -108,40 +108,41 @@ export const useStyles = makeStyles((theme) => ({
     border: `1px solid ${theme.palette.primary.main}`,
     textTransform: "none",
     marginTop: "5px",
+    marginBottom: "28px",
     [theme.breakpoints.down("lg")]: {
       width: "110px",
       fontSize: "12px",
+      marginBottom: "18px",
     },
   },
-  childAccordionRoot: {
-    width: "211px",
-    borderRadius: "14px",
-    marginBottom: "0.75rem",
-    position: "initial",
+  collapseContainer: {
     boxShadow: theme.shadows[3],
-    backgroundColor: "#fbfbfb",
-    "& .Mui-expanded": {
-      margin: "auto",
-    },
-    "& .MuiAccordionSummary-expandIcon.Mui-expanded": {
-      transform: "rotate(180deg)",
-    },
+    background: "#fbfbfb",
+    borderRadius: "14px",
+    paddingInline: "12px 18px",
+    paddingBlock: "16px",
+    marginBottom: "11px",
     [theme.breakpoints.down("lg")]: {
-      width: "100%",
+      paddingInline: "10px 5px",
+      paddingBlock: "10px",
+      marginBottom: "7px",
     },
   },
-  childaccordionSummary: {
-    height: "53px",
-    minHeight: "20px",
-    "& .Mui-expanded": {
-      minHeight: "20px",
-      margin: 0,
-      padding: 0,
-    },
+  collapseButton: {
+    width: "20px",
+    height: "20px",
     [theme.breakpoints.down("lg")]: {
-      height: "40px",
+      height: "10px",
+      width: "10px",
     },
   },
+  rotate: {
+    transform: "rotate(-180deg)",
+  },
+  collapseInner: {
+    paddingTop: "0.8rem",
+  },
+
   childAccordionHeading: {
     color: "#000",
     margin: "auto 0",
@@ -160,8 +161,10 @@ export const useStyles = makeStyles((theme) => ({
     },
   },
   childAccordionIcon: {
+    transition: "0.4s ease",
+    fontSize: "2rem",
     [theme.breakpoints.down("lg")]: {
-      fontSize: "1rem",
+      fontSize: "1.5rem",
     },
   },
 

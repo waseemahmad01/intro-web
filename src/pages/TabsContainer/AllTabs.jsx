@@ -101,7 +101,7 @@ export const AllTabs = () => {
   useEffect(() => {
     if (url === "/home/explore") {
       (async function () {
-        const { data } = await getAllVideos(pageNumber.current, 3);
+        const { data } = await getAllVideos(pageNumber.current, 10);
         setVideos([...videos, ...data.data]);
         totalPages.current = data.totalPages;
       })();

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Grid,
   Typography,
@@ -15,44 +15,55 @@ import { Slider } from "../../../components/Slider/Slider";
 import image from "../../../assets/index";
 import { useStyles } from "./homeStyles";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  getMatchedUsers,
+  iVisitedProfiles,
+  visitedMe as visitedMeApi,
+  likedMeApi,
+} from "../../../http";
+import { setMatches } from "../../../store/matches";
+import axios from "axios";
 
 export const Home = () => {
   const classes = useStyles();
   const userState = useSelector((state) => state.auth.user.data);
+  const matched = useSelector((state) => state.matches.matches);
+  // console.log(matched);
+  const dispatch = useDispatch();
+  const [iVisited, setIVisited] = useState([]);
+  const [visitedMe, setVisitedMe] = useState([]);
+  const [likedMe, setLikedMe] = useState([]);
 
-  const likes = [
-    {
-      name: "Jen Kins",
-      avatar: image.img,
-    },
-    {
-      name: "Jen Kins",
-      avatar: image.img,
-    },
-    {
-      name: "Jen Kins",
-      avatar: image.img,
-    },
-    {
-      name: "Jen Kins",
-      avatar: image.img,
-    },
-    {
-      name: "Jen Kins",
-      avatar: image.img,
-    },
-    {
-      name: "Jen Kins",
-      avatar: image.img,
-    },
-    {
-      name: "Jen Kins",
-      avatar: image.img,
-    },
-  ];
+  const toFeet = (cm) => {
+    const realFeets = (cm * 0.3937) / 12;
+    const feets = Math.floor(realFeets);
+    const inches = Math.round((realFeets - feets) * 12);
+    return `${feets}'${inches}"`;
+  };
   const theme = useTheme();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
+
+  useEffect(() => {
+    (async () => {
+      await axios
+        .all([
+          getMatchedUsers(),
+          iVisitedProfiles(),
+          visitedMeApi(),
+          likedMeApi(),
+        ])
+        .then(
+          axios.spread(function (res1, res2, res3, res4) {
+            dispatch(setMatches(res1.data.data));
+            setIVisited(res2.data.data);
+            setVisitedMe(res3.data.data);
+            setLikedMe(res4.data.data);
+          })
+        )
+        .catch((err) => console.log(err));
+    })();
+  }, []);
   return (
     <Grid container direction="column" className={classes.container}>
       <Grid item>
@@ -89,7 +100,7 @@ export const Home = () => {
                   >
                     <Grid item container justifyContent="space-between">
                       <span className={classes.badge}>
-                        {userState.height.height}
+                        {toFeet(userState.height.height)}
                       </span>
                       <span className={classes.badge}>
                         {userState.vices.smoke.smoke}
@@ -193,12 +204,20 @@ export const Home = () => {
                   see more
                 </Typography>
               </div>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Avatar className={classes.cardAvatar} src={image.img} />
-                <Avatar className={classes.cardAvatar} src={image.img} />
-                <Avatar className={classes.cardAvatar} src={image.img} />
-                <Avatar className={classes.cardAvatar} src={image.img} />
-                <Avatar className={classes.cardAvatar} src={image.img} />
+              <div style={{ overflowX: "auto" }} className={classes.scrollDiv}>
+                <div style={{ display: "flex" }}>
+                  {matched.length === 0 && (
+                    <span className={classes.notFound}>No Matches Found</span>
+                  )}
+                  {matched.map((item, index) => (
+                    <Avatar
+                      style={{ marginLeft: index === 0 ? "auto" : "" }}
+                      key={item.matched_ids.to}
+                      className={classes.cardAvatar}
+                      src={item.matched_images.to}
+                    />
+                  ))}
+                </div>
               </div>
             </Grid>
             <Grid item className={classes.card}>
@@ -210,12 +229,24 @@ export const Home = () => {
                   see more
                 </Typography>
               </div>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Avatar className={classes.cardAvatar} src={image.img} />
-                <Avatar className={classes.cardAvatar} src={image.img} />
-                <Avatar className={classes.cardAvatar} src={image.img} />
-                <Avatar className={classes.cardAvatar} src={image.img} />
-                <Avatar className={classes.cardAvatar} src={image.img} />
+              <div style={{ overflowX: "auto" }} className={classes.scrollDiv}>
+                <div style={{ display: "flex" }}>
+                  {visitedMe.length === 0 && (
+                    <span className={classes.notFound}>
+                      No One Visited You Yet
+                    </span>
+                  )}
+                  {visitedMe.map((item, index) => (
+                    <Avatar
+                      style={{ marginLeft: index === 0 ? "auto" : "" }}
+                      className={classes.cardAvatar}
+                      src={image.img}
+                      key={item.visited_from._id}
+                      className={classes.cardAvatar}
+                      src={item.visited_from_profile_image}
+                    />
+                  ))}
+                </div>
               </div>
             </Grid>
             <Grid item className={classes.card}>
@@ -227,12 +258,24 @@ export const Home = () => {
                   see more
                 </Typography>
               </div>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Avatar className={classes.cardAvatar} src={image.img} />
-                <Avatar className={classes.cardAvatar} src={image.img} />
-                <Avatar className={classes.cardAvatar} src={image.img} />
-                <Avatar className={classes.cardAvatar} src={image.img} />
-                <Avatar className={classes.cardAvatar} src={image.img} />
+              <div style={{ overflowX: "auto" }} className={classes.scrollDiv}>
+                <div style={{ display: "flex" }}>
+                  {iVisited.length === 0 && (
+                    <span className={classes.notFound}>
+                      You Haven't Visited Anyone Yet
+                    </span>
+                  )}
+                  {iVisited.map((item, index) => (
+                    <Avatar
+                      style={{ marginLeft: index === 0 ? "auto" : "" }}
+                      className={classes.cardAvatar}
+                      src={image.img}
+                      key={item.visited_to._id}
+                      className={classes.cardAvatar}
+                      src={item.visited_to_profile_image}
+                    />
+                  ))}
+                </div>
               </div>
             </Grid>
 
@@ -262,17 +305,25 @@ export const Home = () => {
           <Grid container>
             <Grid item className={classes.listContainer}>
               <Typography className={classes.likes}>Likes</Typography>
+              {likedMe.length === 0 && (
+                <span
+                  className={classes.notFound}
+                  style={{ width: "100%", textAlign: "center" }}
+                >
+                  No Likes Found
+                </span>
+              )}
               <List>
-                {likes.map((item, index) => (
+                {likedMe.map((item, index) => (
                   <ListItem
-                    key={index}
+                    key={item.liked_by}
                     dense
                     classes={{ root: classes.listItemRoot }}
                   >
                     <ListItemAvatar>
                       <Avatar
                         className={classes.listItemAvatar}
-                        src={item.avatar}
+                        src={item.liked_by_profile_image}
                       />
                     </ListItemAvatar>
                     <ListItemText

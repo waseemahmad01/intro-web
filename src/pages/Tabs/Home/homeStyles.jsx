@@ -142,6 +142,7 @@ export const useStyles = makeStyles((theme) => ({
     height: "65px",
     width: "65px",
     marginLeft: "10px",
+    display: "inline-block",
     [theme.breakpoints.down("lg")]: {
       height: "35px",
       width: "35px",
@@ -335,6 +336,29 @@ export const useStyles = makeStyles((theme) => ({
     right: 0,
     [theme.breakpoints.down("lg")]: {
       fontSize: "10px",
+    },
+  },
+  scrollDiv: {
+    scrollbarWidth: "thin",
+    paddingBottom: "5px",
+    "&::-webkit-scrollbar-track": {
+      background: "transparent",
+    },
+    "&::-webkit-scrollbar": {
+      height: "6px",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      background: theme.palette.common.darkPink,
+      borderRadius: "10px",
+    },
+  },
+  notFound: {
+    fontSize: "20px",
+    marginTop: "20px",
+    marginLeft: "auto",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "14px",
+      marginTop: "10px",
     },
   },
 }));

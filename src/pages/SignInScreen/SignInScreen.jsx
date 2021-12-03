@@ -267,12 +267,6 @@ export const SignInScreen = (props) => {
   const classes = useStyles();
   const socket = useContext(SocketContext);
   console.log(socket);
-
-  // const socket = io("http://104.154.205.129:8080");
-  // socket.disconnect();
-  // socket.on("connection", () => {
-  //   console.log("connected");
-  // });
   const [otp, setOtp] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
@@ -284,7 +278,6 @@ export const SignInScreen = (props) => {
   });
   const schema = {
     phonenumber: Joi.number().required().label("Phone number"),
-    // .messages({ "string.pattern.base": "dnaldkf" }),
   };
   const validate = () => {
     const result = Joi.validate(
@@ -319,7 +312,6 @@ export const SignInScreen = (props) => {
           phonenumber: number,
           channel: "sms",
         });
-        // console.log(data);
         setOpenDialog(true);
       } catch (err) {
         console.log(err);
@@ -350,7 +342,6 @@ export const SignInScreen = (props) => {
           phonenumber: number,
           code: "123456",
         });
-        // console.log(data);
         socket.emit("login", data.data._id);
         if (data.data.step === "/home") {
           props.history.push("home");

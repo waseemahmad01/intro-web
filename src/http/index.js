@@ -25,7 +25,6 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use((response) => {
-  console.log(response.data);
   if (response.data.access_token) {
     localStorage.setItem("token", response.data.access_token);
   }
@@ -53,6 +52,19 @@ export const vices = (data) => api.patch("/api/vices", data);
 export const profileImage = (data) => api.patch("/api/profileImage", data);
 export const step = (data) => api.patch("/api/step", data);
 export const getUser = () => api.get("/api/user");
+
+// matches
+
+export const getMatchedUsers = () => api.get("/api/match");
+
+// profile visited
+
+export const iVisitedProfiles = () => api.get("/api/ivisited");
+export const visitedMe = () => api.get("/api/visitedme");
+
+// liked me
+
+export const likedMeApi = () => api.get("/api/likedMe");
 
 // video apis
 

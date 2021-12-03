@@ -18,16 +18,10 @@ import { Battle } from "./pages/Battle/Battle";
 import { useDispatch, useSelector } from "react-redux";
 import { getUser } from "./http/index";
 import { submit } from "./store/user";
-// import io from "socket.io-client";
-
-// const socket = io(process.env.REACT_APP_API_URL);
-
-// socket.on('login', )
+import { SocketProvider } from "./http/socket";
 
 function App(props) {
   const dispatch = useDispatch();
-  // const user = useSelector((state) => state.auth.user.data);
-  // socket.on("login", user._id);
   const theme = useTheme();
   const lgScreen = useMediaQuery(theme.breakpoints.down("md"));
   const handleResize = () => {
@@ -42,7 +36,6 @@ function App(props) {
   const fetchUser = async () => {
     try {
       const { data } = await getUser();
-      console.log(data);
       dispatch(submit(data));
     } catch (err) {
       console.log(err);
@@ -61,53 +54,55 @@ function App(props) {
 
   return (
     <div className="App">
-      <Switch>
-        {/* {mdScreen ? (
+      <SocketProvider>
+        <Switch>
+          {/* {mdScreen ? (
 						<GuestRoute exact path="/" component={GetApp} />
 					) : ( */}
-        <>
-          <GuestRoute exact path="/getapp" component={GetApp} />
-          <Route path="/" exact>
-            <Login />
-          </Route>
-          <Route path="/signin" component={SignInScreen} />
-          <Route path="/register">
-            <Register />
-          </Route>
-          <Route path="/home">
-            <AllTabs />
-          </Route>
-          <Route path="/helpcenter" exact>
-            <HelpCenter />
-          </Route>
-          <Route
-            path="/helpcenter/profileandaccount"
-            exact
-            component={ProfileAccountHelp}
-          />
-          <Route
-            path="/helpcenter/billingandsubscription"
-            exact
-            component={BillingSubscription}
-          />
-          <Route
-            path="/helpcenter/safetyandprivacy"
-            exact
-            component={SafetyPrivacy}
-          />
-          <Route path="/helpcenter/features" exact component={Features} />
-          <Route path="/helpcenter/livefaq" exact component={LiveFAQ} />
-          <Route path="/live">
-            <Live />
-          </Route>
-          <Route path="/stream">
-            {/* <Stream /> */}
-            <Battle />
-          </Route>
-        </>
-        {/* )} */}
-      </Switch>
-      {/* <Slider /> */}
+          <>
+            <GuestRoute exact path="/getapp" component={GetApp} />
+            <Route path="/" exact>
+              <Login />
+            </Route>
+            <Route path="/signin" component={SignInScreen} />
+            <Route path="/register">
+              <Register />
+            </Route>
+            <Route path="/home">
+              <AllTabs />
+            </Route>
+            <Route path="/helpcenter" exact>
+              <HelpCenter />
+            </Route>
+            <Route
+              path="/helpcenter/profileandaccount"
+              exact
+              component={ProfileAccountHelp}
+            />
+            <Route
+              path="/helpcenter/billingandsubscription"
+              exact
+              component={BillingSubscription}
+            />
+            <Route
+              path="/helpcenter/safetyandprivacy"
+              exact
+              component={SafetyPrivacy}
+            />
+            <Route path="/helpcenter/features" exact component={Features} />
+            <Route path="/helpcenter/livefaq" exact component={LiveFAQ} />
+            <Route path="/live">
+              <Live />
+            </Route>
+            <Route path="/stream">
+              {/* <Stream /> */}
+              <Battle />
+            </Route>
+          </>
+          {/* )} */}
+        </Switch>
+        {/* <Slider /> */}
+      </SocketProvider>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useStyles } from "./InboxStyles";
 import {
   Grid,
@@ -13,6 +13,7 @@ import {
   ListItemAvatar,
   useTheme,
   useMediaQuery,
+  Collapse,
 } from "@material-ui/core";
 import img from "../../../assets/img.png";
 import {
@@ -28,16 +29,22 @@ export const Inbox = () => {
   const classes = useStyles();
   const theme = useTheme();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
-  //   const [one, setOne] = useState(false);
-  //   const [two, setTwo] = useState(false);
-  //   const handleOne = () => {
-  //     setOne(!one);
-  //     setTwo(false);
-  //   };
-  //   const handleTwo = () => {
-  //     setTwo(!two);
-  //     setOne(false);
-  //   };
+  const [one, setOne] = useState(false);
+  const [two, setTwo] = useState(false);
+  const refOne = useRef();
+  const refTwo = useRef();
+  const handleOne = () => {
+    setOne(!one);
+    setTwo(false);
+    refTwo.current.classList.remove(`${classes.rotate}`);
+    refOne.current.classList.toggle(`${classes.rotate}`);
+  };
+  const handleTwo = () => {
+    setTwo(!two);
+    setOne(false);
+    refOne.current.classList.remove(`${classes.rotate}`);
+    refTwo.current.classList.toggle(`${classes.rotate}`);
+  };
   return (
     <Grid container direction="column" className={classes.container}>
       <Grid item>
@@ -88,64 +95,88 @@ export const Inbox = () => {
                 </Button>
               </Grid>
             </Grid>
-            {/* <Accordion expanded={one}  square classes={{ root: classes.childAccordionRoot }}>
-							<AccordionSummary
-							onClick={handleOne}
-								expandIcon={
-									<ExpandMore  className={classes.childAccordionIcon} />
-								}
-								classes={{ root: classes.childaccordionSummary }}
-							>
-								<Typography className={classes.childAccordionHeading}>
-									Shared Media
-								</Typography>
-							</AccordionSummary>
-							<AccordionDetails>
-								<Grid container direction="column">
-									<Typography className={classes.accordionDetailsLink}>
-										Unmatch
-									</Typography>
-									<Typography className={classes.accordionDetailsLink}>
-										Block & Report
-									</Typography>
-									<Typography className={classes.accordionDetailsLink}>
-										Delete Chat
-									</Typography>
-									<Typography className={classes.accordionDetailsLink}>
-										Help Center
-									</Typography>
-								</Grid>
-							</AccordionDetails>
-						</Accordion>
-						<Accordion square expanded={two}  classes={{ root: classes.childAccordionRoot }}>
-							<AccordionSummary
-							onClick={handleTwo}
-								expandIcon={
-									<ExpandMore className={classes.childAccordionIcon} />
-								}
-								classes={{ root: classes.childaccordionSummary }}
-							>
-								<Typography className={classes.childAccordionHeading}>
-									Support
-								</Typography>
-							</AccordionSummary>
-							<AccordionDetails>
-								<Grid container direction="column">
-									<Typography className={classes.accordionDetailsLink}>
-										Unmatch
-									</Typography>
-									<Typography className={classes.accordionDetailsLink}>
-										Block & Report
-									</Typography>
-									<Typography className={classes.accordionDetailsLink}>
-										Delete Chat
-									</Typography>
-									<Typography className={classes.accordionDetailsLink}>
-										Help Center
-									</Typography>
-								</Grid>
-							</AccordionDetails>
-						</Accordion> */}
+            <Grid
+              item
+              container
+              onClick={handleOne}
+              className={classes.collapseContainer}
+            >
+              <Grid item container justifyContent="space-between">
+                <Typography className={classes.childAccordionHeading}>
+                  Shared Media
+                </Typography>
+                <IconButton
+                  className={classes.collapseButton}
+                  // onClick={handleOne}
+                >
+                  <ExpandMore
+                    ref={refOne}
+                    className={classes.childAccordionIcon}
+                  />
+                </IconButton>
+              </Grid>
+              <Collapse in={one} timeout="auto" unmountOnExit>
+                <Grid
+                  container
+                  className={classes.collapseInner}
+                  direction="column"
+                >
+                  <Typography className={classes.accordionDetailsLink}>
+                    Unmatch
+                  </Typography>
+                  <Typography className={classes.accordionDetailsLink}>
+                    Block & Report
+                  </Typography>
+                  <Typography className={classes.accordionDetailsLink}>
+                    Delete Chat
+                  </Typography>
+                  <Typography className={classes.accordionDetailsLink}>
+                    Help Center
+                  </Typography>
+                </Grid>
+              </Collapse>
+            </Grid>
+            <Grid
+              item
+              container
+              onClick={handleTwo}
+              className={classes.collapseContainer}
+            >
+              <Grid item container justifyContent="space-between">
+                <Typography className={classes.childAccordionHeading}>
+                  Support
+                </Typography>
+                <IconButton
+                  className={classes.collapseButton}
+                  // onClick={handleTwo}
+                >
+                  <ExpandMore
+                    ref={refTwo}
+                    className={classes.childAccordionIcon}
+                  />
+                </IconButton>
+              </Grid>
+              <Collapse in={two} timeout="auto" unmountOnExit>
+                <Grid
+                  container
+                  className={classes.collapseInner}
+                  direction="column"
+                >
+                  <Typography className={classes.accordionDetailsLink}>
+                    Unmatch
+                  </Typography>
+                  <Typography className={classes.accordionDetailsLink}>
+                    Block & Report
+                  </Typography>
+                  <Typography className={classes.accordionDetailsLink}>
+                    Delete Chat
+                  </Typography>
+                  <Typography className={classes.accordionDetailsLink}>
+                    Help Center
+                  </Typography>
+                </Grid>
+              </Collapse>
+            </Grid>
           </Grid>
         </Grid>
 

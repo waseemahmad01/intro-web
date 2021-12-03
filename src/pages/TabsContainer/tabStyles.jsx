@@ -7,6 +7,9 @@ export const useStyles = makeStyles((theme) => ({
     boxShadow: theme.shadows[10],
     zIndex: 0,
     height: "100vh",
+    [theme.breakpoints.down("lg")]: {
+      padding: "0px 25px",
+    },
   },
   exploreContainer: {
     padding: "1rem 4rem",
@@ -26,7 +29,7 @@ export const useStyles = makeStyles((theme) => ({
     overflowY: "auto",
     [theme.breakpoints.down("lg")]: {
       maxHeight: "calc(100vh - 90px)",
-      minHeight: "calc(100vh - 200px)",
+      minHeight: "calc(100vh - 150px)",
       borderRadius: "34px",
     },
     "&::-webkit-scrollbar-track": {
@@ -149,8 +152,8 @@ export const useStyles = makeStyles((theme) => ({
     marginTop: "40px",
     marginBottom: "10px",
     [theme.breakpoints.down("lg")]: {
-      marginTop: "1.5rem",
-      marginBottom: "0.8rem",
+      marginTop: "0.5rem",
+      marginBottom: "0rem",
     },
   },
   newIcon: {
