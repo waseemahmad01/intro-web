@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Grid,
   Checkbox,
   useTheme,
   useMediaQuery,
   Typography,
-  FormControlLabel,
 } from "@material-ui/core";
 import { useStyles } from "../Styles/registerStylesOne";
 import { Input } from "../../../components/Textfield/Input";
 import { CustomIconButton } from "../../../components/IconButton/CustomIconButton";
 import { Link } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { submit } from "../../../store/user";
 import { Header } from "../../../components/header/Header";
 import { dob, username } from "../../../http/index";
@@ -25,7 +24,6 @@ export const RegisterOne = ({ onNext }) => {
   const handleChange = (event) => {
     setChecked(event.target.checked);
   };
-  const userState = useSelector((state) => state.auth.user);
   const [type, setType] = useState("text");
   const [user, setUser] = useState({
     email: "",
@@ -70,6 +68,7 @@ export const RegisterOne = ({ onNext }) => {
     const obj = { [name]: value };
     const subSchema = { [name]: schema[name] };
     const { error } = Joi.validate(obj, subSchema);
+    // eslint-disable-next-line
     const it = error
       ? setErrors({ ...errors, [name]: error.details[0].message })
       : setErrors({ ...errors, [name]: "" });
@@ -111,9 +110,7 @@ export const RegisterOne = ({ onNext }) => {
         .catch((err) => console.log(err.message));
     }
   };
-  useEffect(() => {
-    console.log(user.dob.toString().split("-"));
-  }, [user.dob]);
+
   const theme = useTheme();
   const xsScreen = useMediaQuery(theme.breakpoints.down("xs"));
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));

@@ -125,9 +125,6 @@ export const useStyles = makeStyles((theme) => ({
       width: "300px",
     },
   },
-  switchContainer: {
-    width: "210px",
-  },
   formControlLabel: {
     border: `2px solid ${theme.palette.primary.main}`,
     width: "264px",

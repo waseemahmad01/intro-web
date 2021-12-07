@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Grid } from "@material-ui/core";
 import { useStyles } from "../../TabsContainer/tabStyles";
 import { StorySlider } from "../../../components/StorySlider/StroySlider";
@@ -6,7 +6,6 @@ import { Filter } from "../../../components/Filter/Filter";
 import { Post } from "../../../components/Post/Post";
 export const Explore = ({ videos, addToRefs, lastElementRef }) => {
   const classes = useStyles();
-  const [isMuted, setIsMuted] = useState(false);
   // const items = [1, 2, 3, 4, 5, 6];
   return (
     <>

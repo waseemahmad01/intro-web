@@ -205,7 +205,11 @@ export const Inbox = () => {
                   <img src={image.phone} className={classes.callIcon} alt="" />
                 </IconButton>
                 <IconButton className={classes.callButton}>
-                  <img src={image.video} className={classes.callIcon} alt="" />
+                  <img
+                    src={image.videoIcon}
+                    className={classes.callIcon}
+                    alt=""
+                  />
                 </IconButton>
               </Grid>
             </Grid>

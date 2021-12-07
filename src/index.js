@@ -6,13 +6,16 @@ import store from "./store/index";
 import { ThemeProvider } from "@material-ui/core";
 import theme from "./components/Theme/theme";
 import { BrowserRouter as Router, Route } from "react-router-dom";
+import { SocketProvider } from "./http/socket";
 ReactDOM.render(
   <ThemeProvider theme={theme}>
-    <Provider store={store}>
-      <Router>
-        <Route path="/" component={App} />
-      </Router>
-    </Provider>
+    <SocketProvider>
+      <Provider store={store}>
+        <Router>
+          <Route path="/" component={App} />
+        </Router>
+      </Provider>
+    </SocketProvider>
   </ThemeProvider>,
   document.getElementById("root")
 );

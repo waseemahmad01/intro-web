@@ -21,15 +21,17 @@ import {
   iVisitedProfiles,
   visitedMe as visitedMeApi,
   likedMeApi,
+  getLiveUsers,
 } from "../../../http";
 import { setMatches } from "../../../store/matches";
+import { setOnlineUsers } from "../../../store/user";
 import axios from "axios";
 
 export const Home = () => {
   const classes = useStyles();
   const userState = useSelector((state) => state.auth.user.data);
   const matched = useSelector((state) => state.matches.matches);
-  // console.log(matched);
+  const onlineUsers = useSelector((state) => state.auth.user.onlineUsers);
   const dispatch = useDispatch();
   const [iVisited, setIVisited] = useState([]);
   const [visitedMe, setVisitedMe] = useState([]);
@@ -52,17 +54,20 @@ export const Home = () => {
           iVisitedProfiles(),
           visitedMeApi(),
           likedMeApi(),
+          getLiveUsers(),
         ])
         .then(
-          axios.spread(function (res1, res2, res3, res4) {
+          axios.spread(function (res1, res2, res3, res4, res5) {
             dispatch(setMatches(res1.data.data));
             setIVisited(res2.data.data);
             setVisitedMe(res3.data.data);
             setLikedMe(res4.data.data);
+            dispatch(setOnlineUsers(res5.data.data));
           })
         )
         .catch((err) => console.log(err));
     })();
+    // eslint-disable-next-line
   }, []);
   return (
     <Grid container direction="column" className={classes.container}>
@@ -70,7 +75,7 @@ export const Home = () => {
         <Typography className={classes.title}>Online Users</Typography>
       </Grid>
       <Grid item style={{ width: "100%" }} className={classes.sliderContainer}>
-        <Slider />
+        <Slider users={onlineUsers} />
       </Grid>
       <Grid
         item
@@ -240,10 +245,8 @@ export const Home = () => {
                     <Avatar
                       style={{ marginLeft: index === 0 ? "auto" : "" }}
                       className={classes.cardAvatar}
-                      src={image.img}
-                      key={item.visited_from._id}
-                      className={classes.cardAvatar}
-                      src={item.visited_from_profile_image}
+                      key={item.visited_from}
+                      src={item.visited_by_profile_image}
                     />
                   ))}
                 </div>
@@ -269,9 +272,7 @@ export const Home = () => {
                     <Avatar
                       style={{ marginLeft: index === 0 ? "auto" : "" }}
                       className={classes.cardAvatar}
-                      src={image.img}
                       key={item.visited_to._id}
-                      className={classes.cardAvatar}
                       src={item.visited_to_profile_image}
                     />
                   ))}
@@ -328,7 +329,7 @@ export const Home = () => {
                     </ListItemAvatar>
                     <ListItemText
                       className={classes.listItemText}
-                      primary={item.name}
+                      primary={item.liked_by_name}
                     />
                     <ListItemSecondaryAction>
                       <img

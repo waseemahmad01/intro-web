@@ -53,6 +53,7 @@ const authSlice = createSlice({
         prompt: [{ question: "", url: "" }],
       },
       accessToken: "",
+      onlineUsers: [],
     },
   },
 
@@ -65,8 +66,11 @@ const authSlice = createSlice({
         state.user.accessToken = localStorage.getItem("token");
       }
     },
+    setOnlineUsers: (state, action) => {
+      state.user.onlineUsers = action.payload;
+    },
   },
 });
 
-export const { submit } = authSlice.actions;
+export const { submit, setOnlineUsers } = authSlice.actions;
 export default authSlice.reducer;

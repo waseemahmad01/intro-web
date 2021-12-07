@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Badge,
   InputBase,
@@ -22,7 +22,6 @@ import { useSelector } from "react-redux";
 export const TopBar = ({ live }) => {
   const classes = useStyles();
   const theme = useTheme();
-  const mdScreen = useMediaQuery(theme.breakpoints.down("md"));
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenu, setOpenMenu] = useState(false);

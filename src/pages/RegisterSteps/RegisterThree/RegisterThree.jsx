@@ -166,9 +166,6 @@ const useStyles = makeStyles((theme) => ({
       width: "300px",
     },
   },
-  switchContainer: {
-    width: "195px",
-  },
   formControlLabel: {
     border: `2px solid ${theme.palette.primary.main}`,
     width: "264px",
@@ -488,7 +485,7 @@ export const RegisterThree = ({ onNext }) => {
     const obj = { [name]: value };
     const subSchema = { [name]: schema[name] };
     const { error } = Joi.validate(obj, subSchema);
-    console.log(error);
+    // eslint-disable-next-line
     const it = error
       ? setErrors({
           ...errors,
@@ -506,6 +503,7 @@ export const RegisterThree = ({ onNext }) => {
     const obj = { ethinic: e.target.value };
     const subSchema = { ethinic: schema.ethinic };
     const { error } = Joi.validate(obj, subSchema);
+    // eslint-disable-next-line
     const it = error
       ? setErrors({
           ...errors,
@@ -513,6 +511,7 @@ export const RegisterThree = ({ onNext }) => {
         })
       : setErrors({ ...errors, ethinic: "" });
   };
+  // eslint-disable-next-line
   const handleChangeMultiple = (event) => {
     const { options } = event.target;
     const value = [];

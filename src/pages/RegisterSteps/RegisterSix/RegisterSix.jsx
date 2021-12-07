@@ -73,6 +73,7 @@ export const RegisterSix = ({ onNext }) => {
     const obj = { [name]: value };
     const subSchema = { [name]: schema[name] };
     const { error } = Joi.validate(obj, subSchema);
+    // eslint-disable-next-line
     const it = error
       ? setErrors({ ...errors, [name]: error.details[0].message })
       : setErrors({ ...errors, [name]: "" });
@@ -129,11 +130,10 @@ export const RegisterSix = ({ onNext }) => {
         // style={{ marginBottom: lgScreen ? "5rem" : "10rem" }}
       >
         <Grid item>
-          <form action="" autoComplete={false}>
+          <form action="" autoComplete="off">
             <Grid
               container
               direction="column"
-              aligItems="flex-end"
               className={classes.formContainer}
               // style={{ marginTop: lgScreen ? "3rem" : "8rem" }}
             >

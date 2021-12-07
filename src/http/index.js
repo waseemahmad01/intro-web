@@ -51,7 +51,11 @@ export const profession = (data) => api.patch("/api/profession", data);
 export const vices = (data) => api.patch("/api/vices", data);
 export const profileImage = (data) => api.patch("/api/profileImage", data);
 export const step = (data) => api.patch("/api/step", data);
+
+// users
+
 export const getUser = () => api.get("/api/user");
+export const getUserById = (id) => api.get(`/api/user/${id}`);
 
 // matches
 
@@ -61,6 +65,7 @@ export const getMatchedUsers = () => api.get("/api/match");
 
 export const iVisitedProfiles = () => api.get("/api/ivisited");
 export const visitedMe = () => api.get("/api/visitedme");
+export const visitedUser = (id) => api.post(`/api/visited/${id}`);
 
 // liked me
 
@@ -76,5 +81,16 @@ export const allVideos = (page, limit) =>
 // profile apis
 
 export const likedMe = () => api.get("/api/likedme");
+
+// live users
+
+export const getLiveUsers = () => api.get("api/onlineuser");
+
+// live stream
+
+export const liveStreamUsers = () => api.get("/api/liveusers");
+export const setLiveUser = (data) => api.post("/api/liveuser", data);
+
+// username =>string, userId=>string, image, gender=>number,userStatus=>string, channelId, location => object
 
 export default api;

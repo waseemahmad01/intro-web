@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 // import { useStyles } from "./selectOptionStyle";
 import { Grid, Typography, Select, MenuItem } from "@material-ui/core";
 import { Checkbox } from "../Checkbox/Checkbox";
@@ -121,10 +121,6 @@ export const SelectOption = ({
   ...rest
 }) => {
   const classes = useStyles();
-  const [age, setAge] = useState(1);
-  const handleChange = (event) => {
-    setAge(event.target.value);
-  };
 
   return (
     <Grid container spacing={2} direction="column">

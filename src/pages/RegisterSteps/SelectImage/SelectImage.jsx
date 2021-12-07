@@ -8,7 +8,7 @@ import { CustomIconButton } from "../../../components/IconButton/CustomIconButto
 import { useMediaQuery } from "@material-ui/core";
 import { useHistory } from "react-router-dom";
 import Webcam from "react-webcam";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { profileImage, step } from "../../../http";
 import { submit } from "../../../store/user";
 export const SelectImage = () => {
@@ -26,7 +26,6 @@ export const SelectImage = () => {
       to: "/helpcenter",
     },
   ];
-  const userState = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
   const [uploadImage, setUploadImage] = useState("");
   const [imageFile, setImageFile] = useState(null);
@@ -39,7 +38,6 @@ export const SelectImage = () => {
     setUploadImage("");
     setImageFile(e.target.files[0]);
     const image = URL.createObjectURL(e.target.files[0]);
-    console.log(e.target.files[0]);
     setUploadImage(image);
   };
   const takeScreenShot = useCallback(() => {
@@ -58,7 +56,6 @@ export const SelectImage = () => {
       imageData.append("profile_img", imageFile);
       let res = await profileImage(imageData);
       res = await step(stepData);
-      console.log(res);
       dispatch(submit(res.data));
       history.push("/home");
     } catch (err) {

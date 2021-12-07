@@ -46,7 +46,6 @@ export const RegisterSeven = ({ onNext }) => {
 
   const validate = () => {
     const result = Joi.validate(values, schema, { abortEarly: false });
-    console.log(result);
     if (!result.error) {
       setErrors({
         drink: "",
@@ -61,7 +60,6 @@ export const RegisterSeven = ({ onNext }) => {
         errorsObject[item.path[0]] = `"${
           item.path[0].charAt(0).toUpperCase() + item.path[0].slice(1)
         }" can not be empty`;
-      console.log(errorsObject);
       setErrors(errorsObject);
       return true;
     }
@@ -77,6 +75,7 @@ export const RegisterSeven = ({ onNext }) => {
     const obj = { [name]: value };
     const subSchema = { [name]: schema[name] };
     const { error } = Joi.validate(obj, subSchema);
+    // eslint-disable-next-line
     const it = error
       ? setErrors({
           ...errors,
@@ -102,7 +101,6 @@ export const RegisterSeven = ({ onNext }) => {
           step: "/profile",
         };
         const { data } = await vices(apiData);
-        console.log(data);
         dispatch(submit(data));
         onNext();
       } catch (err) {

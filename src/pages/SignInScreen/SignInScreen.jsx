@@ -266,7 +266,6 @@ const useStyles = makeStyles((theme) => ({
 export const SignInScreen = (props) => {
   const classes = useStyles();
   const socket = useContext(SocketContext);
-  console.log(socket);
   const [otp, setOtp] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
@@ -308,7 +307,7 @@ export const SignInScreen = (props) => {
     if (!err) {
       try {
         const number = countryCode + phoneNumber;
-        const { data } = await login({
+        await login({
           phonenumber: number,
           channel: "sms",
         });
@@ -330,6 +329,7 @@ export const SignInScreen = (props) => {
       phonenumber: Joi.number().required().label("Phone number"),
     };
     const { error } = Joi.validate(obj, subSchema);
+    // eslint-disable-next-line
     const it = error
       ? setError({ ...error, phonenumber: error.details[0].message })
       : setError({ ...error, phonenumber: "" });
@@ -418,7 +418,7 @@ export const SignInScreen = (props) => {
             placeholder="Phone Number"
             InputProps={{ className: classes.input }}
             onChange={handlePhoneNumber}
-            error={error.phonenumber}
+            error={Boolean(error.phonenumber)}
             helperText={error.phonenumber}
             FormHelperTextProps={{ className: classes.error }}
           />

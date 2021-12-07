@@ -19,15 +19,10 @@ import {
   useTheme,
   useMediaQuery,
 } from "@material-ui/core";
-import {
-  MuiPickersUtilsProvider,
-  KeyboardDatePicker,
-} from "@material-ui/pickers";
-import DateFnsUtils from "@date-io/date-fns";
 
 import AvatarGroup from "@material-ui/lab/AvatarGroup";
 import image from "../../assets/index";
-import { Favorite, Close, FavoriteBorder } from "@material-ui/icons";
+import { Favorite, Close } from "@material-ui/icons";
 import { likeVideo } from "../../http";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleMute } from "../../store/videoSound";
@@ -41,11 +36,13 @@ export const Post = React.forwardRef(
     const [quickMessage, setQuickMessage] = useState(false);
     const [date, setDate] = useState(false);
     const [sliderValue, setSliderValue] = useState([11, 23]);
+    // eslint-disable-next-line
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [openSuperDialog, setOpenSuperDialog] = useState(false);
     const isMuted = useSelector((state) => state.video.muted);
     const dispatch = useDispatch();
     const [isLiked, setIsLiked] = useState(like);
+    // eslint-disable-next-line
     const handleDateChange = (date) => {
       setSelectedDate(date);
     };
@@ -109,10 +106,10 @@ export const Post = React.forwardRef(
         <Grid
           sm={10}
           xs={12}
+          container
           justifyContent="flex-start"
           alignItems="center"
           item
-          container
           direction="column"
           className={classes.postAssetContainer}
           style={{ paddingLeft: meetMe ? "4.5rem" : undefined }}
@@ -300,7 +297,7 @@ export const Post = React.forwardRef(
                 Quick Message
               </Typography>
             </Grid>
-            <Grid item contianer direction="column">
+            <Grid item>
               <Grid item>
                 <Chip
                   className={classes.chip}

@@ -2,7 +2,7 @@ const image = {
   logo: require("./logo.png").default,
   logo2x: require("./logo2x.svg").default,
   phone: require("./phone.svg").default,
-  video: require("./video.svg").default,
+  videoIcon: require("./video.svg").default,
   img: require("./img.png").default,
   send: require("./buttonIcon.svg").default,
   liveuser: require("./liveuser.png").default,

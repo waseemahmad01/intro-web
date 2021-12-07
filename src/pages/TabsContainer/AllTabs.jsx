@@ -36,31 +36,26 @@ export const AllTabs = () => {
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const [videos, setVideos] = useState([]);
   const allVideos = useRef([]);
-  const [loading, setLoading] = useState(false);
   const pageNumber = useRef(1);
   const [changing, setChanging] = useState(1);
   const totalPages = useRef(0);
   allVideos.current = [];
 
   const observer = useRef();
-  const lastElementRef = useCallback(
-    (node) => {
-      if (loading) return;
-      if (observer.current) observer.current.disconnect();
-      observer.current = new IntersectionObserver((entries) => {
-        if (
-          entries[0].isIntersecting &&
-          pageNumber.current <= totalPages.current
-        ) {
-          pageNumber.current = pageNumber.current + 1;
-          console.log(pageNumber.current);
-          setChanging((prev) => prev + 1);
-        }
-      });
-      if (node) observer.current.observe(node);
-    },
-    [loading]
-  );
+  const lastElementRef = useCallback((node) => {
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver((entries) => {
+      if (
+        entries[0].isIntersecting &&
+        pageNumber.current <= totalPages.current
+      ) {
+        pageNumber.current = pageNumber.current + 1;
+        console.log(pageNumber.current);
+        setChanging((prev) => prev + 1);
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, []);
 
   const addToRefs = (e) => {
     if (e && !allVideos.current.includes(e) && !null) allVideos.current.push(e);
@@ -76,6 +71,7 @@ export const AllTabs = () => {
         lower: lgScreen ? 912 : 1441,
       },
     };
+    // eslint-disable-next-line
     allVideos.current.map((item) => {
       const video = item.lastChild.lastChild.lastChild.firstChild;
       const top = item.getBoundingClientRect().top;
@@ -109,6 +105,7 @@ export const AllTabs = () => {
       setVideos([]);
       pageNumber.current = 1;
     }
+    // eslint-disable-next-line
   }, [changing, url]);
   const tabItems = [
     {
@@ -227,7 +224,11 @@ export const AllTabs = () => {
               path="/home/premium"
               render={() => <h1>Not found</h1>}
             />
-            <Route exact path="/home/profile" render={() => <UserProfile />} />
+            <Route
+              exact
+              path="/home/profile/:id"
+              render={(props) => <UserProfile {...props} />}
+            />
             <Route exact path="/home/match" render={() => <ProfileMatched />} />
           </Grid>
         </Grid>

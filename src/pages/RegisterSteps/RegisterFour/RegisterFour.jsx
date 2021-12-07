@@ -9,7 +9,6 @@ import {
 } from "@material-ui/core";
 import image from "../../../assets/index";
 import { RadioButton } from "../../../components/RadioButton/RadioButton";
-import { Checkbox } from "../../../components/Checkbox/Checkbox";
 import { CustomIconButton } from "../../../components/IconButton/CustomIconButton";
 import { CustomButton } from "../../../components/CustomButton/CustomButton";
 import { Header } from "../../../components/header/Header";
@@ -22,7 +21,6 @@ export const RegisterFour = ({ onNext }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const theme = useTheme();
-  const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const mdScreen = useMediaQuery(theme.breakpoints.down("md"));
   const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [datePreference, setDatePrerence] = useState("");
@@ -42,7 +40,6 @@ export const RegisterFour = ({ onNext }) => {
       audience,
     };
     const result = Joi.validate(data, schema, { abortEarly: false });
-    console.log(result);
     if (!result.error) {
       setErrors({
         datePreference: "",
@@ -63,6 +60,7 @@ export const RegisterFour = ({ onNext }) => {
     const obj = { datePreference: e.target.value };
     const subSchema = { datePreference: schema.datePreference };
     const { error } = Joi.validate(obj, subSchema);
+    // eslint-disable-next-line
     const it = error
       ? setErrors({
           ...errors,
@@ -75,6 +73,7 @@ export const RegisterFour = ({ onNext }) => {
     const obj = { audience: e.target.value };
     const subSchema = { audience: schema.datePreference };
     const { error } = Joi.validate(obj, subSchema);
+    // eslint-disable-next-line
     const it = error
       ? setErrors({
           ...errors,
@@ -92,7 +91,6 @@ export const RegisterFour = ({ onNext }) => {
           visible: true,
           step: "/hometown",
         };
-        console.log(apiData);
         const { data } = await datePreferenceApi(apiData);
         dispatch(submit(data));
         onNext();

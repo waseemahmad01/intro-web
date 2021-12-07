@@ -112,7 +112,6 @@ export const Checkbox = ({ variant, style, show, handleShow, name }) => {
       type="checkbox"
       style={style}
       className={classes[variant]}
-      name=""
       id=""
       checked={show}
       name={name}

@@ -7,9 +7,8 @@ import {
   useTheme,
   useMediaQuery,
 } from "@material-ui/core";
-import { Filter } from "../../../components/Filter/Filter";
-import image from "../../../assets/index";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -89,19 +88,19 @@ const useStyles = makeStyles((theme) => ({
 
 export const Online = () => {
   const classes = useStyles();
-  const items = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
   const theme = useTheme();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
+  const onlineUsers = useSelector((state) => state.auth.user.onlineUsers);
   return (
-    <div className={classes.container}>
+    <div className={classes.container} style={{ width: "100%" }}>
       <h1 className={classes.title}>Online</h1>
       <Grid
         container
         className={classes.innerContainer}
         spacing={lgScreen ? 3 : 4}
       >
-        {items.map((item) => (
-          <Grid key={item} item className={classes.item}>
+        {onlineUsers.map((user) => (
+          <Grid key={user._id} item className={classes.item}>
             <Grid container direction="column" alignItems="center">
               <Grid item>
                 <Badge
@@ -116,14 +115,14 @@ export const Online = () => {
                 >
                   <Avatar
                     component={Link}
-                    to="/home/profile"
+                    to={`/home/profile/${user._id}`}
                     className={classes.avatar}
-                    src={image.img}
+                    src={user.profile_image}
                   />
                 </Badge>
               </Grid>
               <Grid item>
-                <span className={classes.avatarTxt}>@username</span>
+                <span className={classes.avatarTxt}>{user.username}</span>
               </Grid>
             </Grid>
           </Grid>

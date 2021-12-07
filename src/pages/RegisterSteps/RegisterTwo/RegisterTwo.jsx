@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useStyles } from "../Styles/registerStyles";
-import { Grid, useTheme, useMediaQuery } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import image from "../../../assets/index";
 import { SelectOption } from "../../../components/SelectOption/SelectOption";
 import { CustomIconButton } from "../../../components/IconButton/CustomIconButton";
@@ -20,8 +20,6 @@ import Joi from "joi-browser";
 
 export const RegisterTwo = ({ onNext }) => {
   const classes = useStyles();
-  const theme = useTheme();
-  const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const dispatch = useDispatch();
 
   const identifyOptions = gender;
@@ -98,7 +96,7 @@ export const RegisterTwo = ({ onNext }) => {
     const obj = { [name]: value };
     const subSchema = { [name]: schema[name] };
     const { error } = Joi.validate(obj, subSchema);
-    console.log(error);
+    // eslint-disable-next-line
     const it = error
       ? setErrors({
           ...errors,
@@ -110,7 +108,6 @@ export const RegisterTwo = ({ onNext }) => {
   };
   const handleNext = async () => {
     const error = validate();
-    console.log(error);
     if (!error) {
       const heightInCM = values.height.split(" ")[2].split("cm")[0];
       const identifyData = {
@@ -182,7 +179,7 @@ export const RegisterTwo = ({ onNext }) => {
                   name="identify"
                   onSelect={handleSelect}
                   value={values.identify}
-                  error={errors.identify}
+                  error={Boolean(errors.identify)}
                   errorText={errors.identify}
                 />
               </Grid>
@@ -197,8 +194,8 @@ export const RegisterTwo = ({ onNext }) => {
                   name="height"
                   onSelect={handleSelect}
                   value={values.height}
-                  height
-                  error={errors.height}
+                  height={true}
+                  error={Boolean(errors.height)}
                   errorText={errors.height}
                 />
               </Grid>
@@ -213,7 +210,7 @@ export const RegisterTwo = ({ onNext }) => {
                   name="bodyType"
                   onSelect={handleSelect}
                   value={values.bodyType}
-                  error={errors.bodyType}
+                  error={Boolean(errors.bodyType)}
                   errorText={errors.bodyType}
                 />
               </Grid>
@@ -228,7 +225,7 @@ export const RegisterTwo = ({ onNext }) => {
                   name="diet"
                   onSelect={handleSelect}
                   value={values.diet}
-                  error={errors.diet}
+                  error={Boolean(errors.diet)}
                   errorText={errors.diet}
                 />
               </Grid>
@@ -243,7 +240,7 @@ export const RegisterTwo = ({ onNext }) => {
                   name="fitness"
                   onSelect={handleSelect}
                   value={values.fitness}
-                  error={errors.fitness}
+                  error={Boolean(errors.fitness)}
                   errorText={errors.fitness}
                 />
               </Grid>

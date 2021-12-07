@@ -1,6 +1,5 @@
 import React from "react";
 import "react-multi-carousel/lib/styles.css";
-import image from "../../assets/index";
 import { makeStyles, Grid } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import { Splide, SplideSlide } from "@splidejs/react-splide";
@@ -40,33 +39,27 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const Slider = () => {
+export const Slider = ({ users }) => {
   const classes = useStyles();
-  const IMAGE_URL = image.img;
-  function createSlides(length = 10) {
-    return Array.apply(null, Array(length)).map((value, index) => {
-      return {
-        src: `${IMAGE_URL}`,
-        i: index,
-        alt: `Image ${index}`,
-      };
-    });
-  }
   return (
     <Grid className={classes.root}>
       <Splide
         options={{
-          type: "loop",
           perPage: 9,
           perMove: 1,
           gap: "1rem",
           pagination: false,
         }}
       >
-        {createSlides().map((slide) => (
-          <SplideSlide key={slide.i}>
+        {users.map((user) => (
+          <SplideSlide key={user._id}>
             <Link to="/home/online">
-              <img src={slide.src} className={classes.image} alt="" />
+              <img
+                src={user.profile_image}
+                style={{ borderRadius: "50%", objectFit: "cover" }}
+                className={classes.image}
+                alt=""
+              />
             </Link>
           </SplideSlide>
         ))}

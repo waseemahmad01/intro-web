@@ -7,7 +7,6 @@ import {
   useTheme,
   useMediaQuery,
 } from "@material-ui/core";
-import image from "../../../assets/index";
 import { Link } from "react-router-dom";
 import { likedMe } from "../../../http";
 
@@ -66,7 +65,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const items = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 export const MyLikes = () => {
   const classes = useStyles();
   const theme = useTheme();
@@ -77,6 +75,7 @@ export const MyLikes = () => {
       const { data } = await likedMe();
       setLikes(data.data);
     })();
+    // eslint-disable-next-line
   }, []);
   return (
     <div className={classes.container}>
@@ -87,8 +86,8 @@ export const MyLikes = () => {
         spacing={lgScreen ? 3 : 5}
         className={classes.likesContainer}
       >
-        {likes.map((item) => (
-          <Grid key={item} sm={3} item container spacing={2}>
+        {likes.map((like) => (
+          <Grid key={like.liked_by} sm={3} item container spacing={2}>
             <Grid item>
               <Grid
                 container
@@ -99,20 +98,22 @@ export const MyLikes = () => {
                 <Grid item>
                   <Avatar
                     component={Link}
-                    to="/home/profile"
+                    to={`/home/profile/${like.liked_by}`}
                     className={classes.avatar}
-                    src={image.img}
+                    src={like.liked_by_profile_image}
                   />
                 </Grid>
                 <Grid item>
-                  <span className={classes.avatarTxt}>@username</span>
+                  <span className={classes.avatarTxt}>
+                    {like.liked_by_name}
+                  </span>
                 </Grid>
               </Grid>
             </Grid>
             <Grid item>
               <Grid container alignItems="flex-start" direction="column">
                 <Typography className={classes.userInfoTitle}>
-                  @username
+                  {like.liked_by_name}
                 </Typography>
                 <Typography className={classes.userInfo}>26</Typography>
                 <Typography className={classes.userInfo}>New York</Typography>

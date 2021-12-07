@@ -281,7 +281,7 @@ export const StorySlider = () => {
                   <ChevronLeft className={classes.backIcon} />
                 </IconButton>
               </Grid>
-              <Grid item contianer direction="column" alignItems="center">
+              <Grid item>
                 <Grid item>
                   <Avatar className={classes.profilePic} src={image.img} />
                 </Grid>

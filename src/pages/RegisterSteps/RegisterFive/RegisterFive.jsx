@@ -88,7 +88,7 @@ export const RegisterFive = ({ onNext }) => {
     const obj = { [name]: value };
     const subSchema = { [name]: schema[name] };
     const { error } = Joi.validate(obj, subSchema);
-    console.log(error);
+    // eslint-disable-next-line
     const it = error
       ? setErrors({
           ...errors,
@@ -104,6 +104,7 @@ export const RegisterFive = ({ onNext }) => {
     const obj = { [name]: value };
     const subSchema = { [name]: schema[name] };
     const { error } = Joi.validate(obj, subSchema);
+    // eslint-disable-next-line
     const it = error
       ? setErrors({
           ...errors,
@@ -196,7 +197,7 @@ export const RegisterFive = ({ onNext }) => {
                   name="live"
                   onSelect={handleSelect}
                   value={values.live}
-                  error={errors.live}
+                  error={Boolean(errors.live)}
                   errorText={errors.live}
                 />
               </Grid>
@@ -215,7 +216,7 @@ export const RegisterFive = ({ onNext }) => {
                     value={details.hometown}
                     onChange={handleDetails}
                     name="hometown"
-                    error={errors.hometown}
+                    error={Boolean(errors.hometown)}
                     helperText={errors.hometown}
                   />
                 </Grid>
@@ -246,7 +247,7 @@ export const RegisterFive = ({ onNext }) => {
                     value={details.school}
                     onChange={handleDetails}
                     name="school"
-                    error={errors.school}
+                    error={Boolean(errors.school)}
                     helperText={errors.school}
                   />
                 </Grid>
@@ -279,7 +280,7 @@ export const RegisterFive = ({ onNext }) => {
                   name="degree"
                   onSelect={handleSelect}
                   value={values.degree}
-                  error={errors.degree}
+                  error={Boolean(errors.degree)}
                   errorText={errors.degree}
                 />
               </Grid>
