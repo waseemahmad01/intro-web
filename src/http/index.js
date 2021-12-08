@@ -88,8 +88,10 @@ export const getLiveUsers = () => api.get("api/onlineuser");
 
 // live stream
 
-export const liveStreamUsers = () => api.get("/api/liveusers");
+export const liveStreamUsers = (filter) => api.get(`/api/liveuser${filter}`);
 export const setLiveUser = (data) => api.post("/api/liveuser", data);
+export const goLive = (data) => api.post("/api/liveuser", data);
+export const deleteLiveUser = (data) => api.delete("/api/deleteliveuser", data);
 
 // username =>string, userId=>string, image, gender=>number,userStatus=>string, channelId, location => object
 

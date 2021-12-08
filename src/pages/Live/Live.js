@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   makeStyles,
   Grid,
@@ -20,6 +20,8 @@ import {
 } from "@material-ui/icons";
 import { TopBar } from "../../components/TopBar/TopBar";
 import { LiveFilter } from "../../components/LiveFilter/LiveFilter";
+import { liveStreamUsers } from "../../http/index";
+import { useSelector } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -35,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: theme.shadows[5],
     marginBottom: "5px",
     padding: "2rem 0rem 0rem 0rem",
-    height: "calc(100vh - 120px)",
+    height: "calc(100vh - 128px)",
     [theme.breakpoints.down("lg")]: {
       borderRadius: "33px",
       height: "calc(100vh - 90px)",
@@ -324,12 +326,12 @@ const useStyles = makeStyles((theme) => ({
   overflowContainer: {
     paddingTop: "1rem",
     marginTop: "1rem",
-    maxHeight: "calc(100% - 76px)",
-    overflowY: "scroll",
+    maxHeight: "calc(100% - 100px)",
+    overflowY: "auto",
     overflowX: "hidden",
     [theme.breakpoints.down("lg")]: {
       paddingTop: "1rem",
-      maxHeight: "calc(100% - 64px)",
+      // maxHeight: "calc(100% - 64px)",
     },
     "&::-webkit-scrollbar-track": {
       background: "transparent",
@@ -351,6 +353,19 @@ const useStyles = makeStyles((theme) => ({
 }));
 export const Live = () => {
   const classes = useStyles();
+  const [liveUsers, setLiveUsers] = useState([]);
+  const user = useSelector((state) => state.auth.user.data);
+  let preference = user.date_preference.interested_gender;
+  const getPreference = () => {
+    if (preference === "men") {
+      return 1;
+    } else if (preference === "women") {
+      return 0;
+    } else {
+      return 2;
+    }
+  };
+
   const [tab, setTab] = useState(0);
   const [openDialog, setOpenDialog] = useState(false);
   const toggleDialog = () => {
@@ -363,15 +378,22 @@ export const Live = () => {
   const handleTabs = (event, newTab) => {
     setTab(newTab);
   };
+  const fetchData = async (query) => {
+    const { data } = await liveStreamUsers(query);
+    setLiveUsers(data.data);
+    console.log(data.data);
+  };
   const tabs = {
     0: LiveFilter,
     1: LiveFilter,
     2: LiveFilter,
     3: LiveFilter,
     4: LiveFilter,
-    5: LiveFilter,
   };
   const Component = tabs[tab];
+  useEffect(() => {
+    fetchData(`?trending=${true}}`);
+  }, []);
   return (
     <Grid container className={classes.container}>
       <Grid item className={classes.topbarContainer}>
@@ -393,39 +415,51 @@ export const Live = () => {
                 scrollButtons="on"
               >
                 <Tab
-                  label="New"
-                  classes={{ root: classes.tabsRoot }}
-                  className={classes.tab}
-                />
-                <Tab
+                  onClick={() => fetchData(`?trending=${true}`)}
                   label="Trending"
                   className={classes.tab}
                   classes={{ root: classes.tabsRoot }}
                 />
                 <Tab
+                  onClick={() => fetchData(`?date=${getPreference()}`)}
                   label="Date"
                   className={classes.tab}
                   classes={{ root: classes.tabsRoot }}
                 />
                 <Tab
+                  onClick={() =>
+                    fetchData(
+                      `?nearby=${true}&lat=${user.location.lat}&long=${
+                        user.location.lon
+                      }&distance=10`
+                    )
+                  }
                   label="Nearby"
                   className={classes.tab}
                   classes={{ root: classes.tabsRoot }}
                 />
+
                 <Tab
-                  label="For you"
-                  className={classes.tab}
+                  onClick={() => fetchData(`?status=${true}`)}
+                  label="New"
                   classes={{ root: classes.tabsRoot }}
+                  className={classes.tab}
                 />
                 <Tab
+                  onClick={() => fetchData(`?favorites=${true}`)}
                   label="Favourite"
                   className={classes.tab}
                   classes={{ root: classes.tabsRoot }}
                 />
               </Tabs>
             </Grid>
-            <Grid item container className={classes.overflowContainer}>
-              <Component />
+            <Grid
+              item
+              container
+              style={{ flexGrow: 1 }}
+              className={classes.overflowContainer}
+            >
+              <Component liveUsers={liveUsers} />
             </Grid>
             <Dialog
               classes={{ root: classes.dialog }}
@@ -537,9 +571,7 @@ export const Live = () => {
                         color="primary"
                         onClick={toggleDialog}
                         component={Link}
-                        to="/stream"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        to={`/stream`}
                         disabled={!checked}
                       >
                         Got it

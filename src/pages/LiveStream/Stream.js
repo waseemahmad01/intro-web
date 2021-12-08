@@ -18,8 +18,13 @@ import {
 } from "@material-ui/icons";
 import { StreamerBox } from "../../components/ViewBox/StreamerBox";
 import { Close } from "@material-ui/icons";
+import { useSelector } from "react-redux";
+import { goLive, deleteLiveUser } from "../../http";
 
-export const Stream = () => {
+export const Stream = (props) => {
+  const { audience } = props;
+  const channelName = props.match.params.id;
+  const user = useSelector((state) => state.auth.user.data);
   const classes = useStyles();
   const liveRef = useRef();
   // eslint-disable-next-line
@@ -43,8 +48,8 @@ export const Stream = () => {
   };
   let options = {
     appId: "eb25ec81a8bc477ebb4673ba983ceb13",
-    channel: "ahsan92",
-    role: "audience",
+    channel: audience ? channelName : user.username,
+    role: audience ? "audience" : "host",
     token: null,
     uid: null,
   };
@@ -53,24 +58,51 @@ export const Stream = () => {
   };
 
   rtc.client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
+  const getGender = () => {
+    const gender = user.identify.gender;
+    if (gender.toLowerCase() === "male") {
+      return 1;
+    } else if (gender.toLowerCase() === "female") {
+      return 0;
+    } else {
+      return 2;
+    }
+  };
   const joinLiveStream = async () => {
     rtc.client.on("user-published", handleRemote);
     rtc.client.setClientRole(options.role);
     if (options.role === "host") {
-      [options.uid, rtc.localAudioTrack, rtc.localVideoTrack] =
-        await Promise.all([
-          rtc.client.join(
-            options.appId,
-            options.channel,
-            options.token,
-            options.uid
-          ),
-          AgoraRTC.createMicrophoneAudioTrack(),
-          AgoraRTC.createCameraVideoTrack(),
-        ]);
+      try {
+        [options.uid, rtc.localAudioTrack, rtc.localVideoTrack] =
+          await Promise.all([
+            rtc.client.join(
+              options.appId,
+              options.channel,
+              options.token,
+              options.uid
+            ),
+            AgoraRTC.createMicrophoneAudioTrack(),
+            AgoraRTC.createCameraVideoTrack(),
+          ]);
 
-      rtc.localVideoTrack.play(liveRef.current);
-      await rtc.client.publish([rtc.localAudioTrack, rtc.localVideoTrack]);
+        rtc.localVideoTrack.play(liveRef.current);
+        await rtc.client.publish([rtc.localAudioTrack, rtc.localVideoTrack]);
+
+        const goLiveData = {
+          username: user.username,
+          userId: user._id,
+          image: user.profile_image,
+          channelId: options.uid,
+          gender: getGender(),
+          userStatus: user.current_status,
+          location: {
+            coordinates: [user.location.lon, user.location.lat],
+          },
+        };
+        await goLive(goLiveData);
+      } catch (err) {
+        console.log(err.message);
+      }
     } else if (options.role === "audience") {
       rtc.client.setClientRole(options.role, clientRoleOptions);
       await rtc.client.join(
@@ -94,6 +126,24 @@ export const Stream = () => {
       remoteAudioTrack.play();
     }
   };
+  const handleHostLeft = async () => {
+    try {
+      if (rtc.localAudioTrack && rtc.localVideoTrack) {
+        rtc.localVideoTrack.stop();
+        rtc.localAudioTrack.stop();
+        rtc.localAudioTrack.close();
+        rtc.localVideoTrack.close();
+      }
+      await rtc.client.leave();
+      const data = {
+        username: user.username,
+      };
+      await deleteLiveUser(data);
+      props.history.goBack();
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
 
   useEffect(() => {
     joinLiveStream();
@@ -108,7 +158,7 @@ export const Stream = () => {
       <Grid item container direction="column" className={classes.left}>
         <Grid item>
           <Typography className={classes.username} variant="h4">
-            Jhondoe_00
+            {audience ? channelName : user.username}
           </Typography>
         </Grid>
         <Grid item container>
@@ -137,8 +187,14 @@ export const Stream = () => {
         </Grid>
         <Grid item>
           <div className={classes.streamContainer} ref={liveRef}>
-            {isStarted ? undefined : (
-              <div className={classes.description}>
+            <IconButton
+              onClick={handleHostLeft}
+              className={classes.endStreamButton}
+            >
+              <Close className={classes.endStreamIcon} />
+            </IconButton>
+            {isStarted || audience ? undefined : (
+              <div style={{ zIndex: 1 }} className={classes.description}>
                 <TextField
                   classes={{ root: classes.fieldRoot }}
                   variant="standard"

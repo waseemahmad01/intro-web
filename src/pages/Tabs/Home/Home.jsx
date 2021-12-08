@@ -71,12 +71,22 @@ export const Home = () => {
   }, []);
   return (
     <Grid container direction="column" className={classes.container}>
-      <Grid item>
-        <Typography className={classes.title}>Online Users</Typography>
-      </Grid>
-      <Grid item style={{ width: "100%" }} className={classes.sliderContainer}>
-        <Slider users={onlineUsers} />
-      </Grid>
+      {onlineUsers.length !== 0 ? (
+        <>
+          <Grid item>
+            <Typography className={classes.title}>Online Users</Typography>
+          </Grid>
+          <Grid
+            item
+            style={{ width: "100%" }}
+            className={classes.sliderContainer}
+          >
+            <Slider users={onlineUsers} />
+          </Grid>
+        </>
+      ) : (
+        <></>
+      )}
       <Grid
         item
         container

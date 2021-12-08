@@ -24,6 +24,7 @@
     "moment": "^2.29.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-geocode": "^0.2.3",
     "react-multi-carousel": "^2.6.3",
     "react-otp-input": "^2.4.0",
     "react-redux": "^7.2.4",

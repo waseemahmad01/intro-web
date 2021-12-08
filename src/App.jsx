@@ -20,11 +20,13 @@ import { getUser } from "./http/index";
 import { submit } from "./store/user";
 import { SocketContext } from "./http/socket";
 import { getToken, onMessageListener } from "./firebaseInit";
+import { useSelector } from "react-redux";
 
 function App(props) {
   const dispatch = useDispatch();
   const socket = useContext(SocketContext);
   // const lgScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const userState = useSelector((state) => state.auth.user.data);
   const handleResize = () => {
     if (window.innerWidth <= 1200) {
       props.history.push("/getapp");
@@ -50,7 +52,7 @@ function App(props) {
       console.log(data);
     })();
     return () => {
-      if (socket !== null) socket.emit("disconnect");
+      if (socket !== null) socket.emit("disconnect", userState._id);
     };
     // eslint-disable-next-line
   }, []);
@@ -103,10 +105,11 @@ function App(props) {
           <Route path="/live">
             <Live />
           </Route>
-          <Route path="/stream">
-            <Stream />
-            {/* <Battle /> */}
-          </Route>
+          <Route path="/stream" render={(props) => <Stream {...props} />} />
+          <Route
+            path="/joinstream/:id"
+            render={(props) => <Stream audience {...props} />}
+          />
         </>
         {/* )} */}
       </Switch>
