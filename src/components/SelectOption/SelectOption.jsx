@@ -1,6 +1,13 @@
 import React from "react";
 // import { useStyles } from "./selectOptionStyle";
-import { Grid, Typography, Select, MenuItem } from "@material-ui/core";
+import {
+  Grid,
+  Typography,
+  Select,
+  MenuItem,
+  useTheme,
+  useMediaQuery,
+} from "@material-ui/core";
 import { Checkbox } from "../Checkbox/Checkbox";
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 
@@ -26,6 +33,7 @@ export const useStyles = makeStyles((theme) => ({
   },
   select: {
     width: "456px",
+
     borderRadius: "34px",
     backgroundColor: "#fff",
     fontSize: "22px",
@@ -118,12 +126,23 @@ export const SelectOption = ({
   onSelect,
   value,
   errorText,
+  identify,
   ...rest
 }) => {
   const classes = useStyles();
+  const theme = useTheme();
+  const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
   return (
-    <Grid container spacing={2} direction="column">
+    <Grid
+      container
+      spacing={2}
+      style={{
+        paddingInline: identify ? "1rem 0.8rem" : "",
+        marginBottom: identify ? (lgScreen ? "15px" : "30px") : "",
+      }}
+      direction="column"
+    >
       <Grid item style={{ paddingBottom: "0" }}>
         <Typography className={classes.inputLabel} variant="h3">
           {label}
@@ -187,6 +206,7 @@ export const SelectOption = ({
           alignItems="center"
           justifyContent="flex-start"
           className={classes.switchContainer}
+          style={{ marginLeft: identify ? "auto" : "" }}
         >
           <span>Show on profile</span>
           <Checkbox

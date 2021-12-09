@@ -24,7 +24,7 @@ export const LiveFilter = ({ liveUsers }) => {
     }
   };
   const getCityName = (lat, long) => {
-    Geocode.setApiKey("AIzaSyBxOe5RS4eCqljuY7N8kHrUGMaN1DuyD9U");
+    Geocode.setApiKey("AIzaSyB_BAN0LhB9Psr2Xi8q4je-4wz05TOZ8sM");
     Geocode.fromLatLng(lat, long).then(
       (response) => {
         const address = response.results[0].formatted_address;
@@ -48,6 +48,8 @@ export const LiveFilter = ({ liveUsers }) => {
                 break;
               case "country":
                 country = response.results[0].address_components[i].long_name;
+                break;
+              default:
                 break;
             }
           }
@@ -117,11 +119,10 @@ export const LiveFilter = ({ liveUsers }) => {
                   </Grid>
                   <Grid item style={{ width: "100%" }}>
                     <Typography className={classes.userCity}>
-                      {/* {getCityName(
+                      {getCityName(
                         user.location.coordinates[1],
                         user.location.coordinates[0]
-                      )} */}
-                      New York
+                      )}
                     </Typography>
                   </Grid>
                 </Grid>

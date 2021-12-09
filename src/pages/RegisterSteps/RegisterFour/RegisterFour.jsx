@@ -10,12 +10,17 @@ import {
 import image from "../../../assets/index";
 import { RadioButton } from "../../../components/RadioButton/RadioButton";
 import { CustomIconButton } from "../../../components/IconButton/CustomIconButton";
-import { CustomButton } from "../../../components/CustomButton/CustomButton";
 import { Header } from "../../../components/header/Header";
 import { useDispatch } from "react-redux";
 import { submit } from "../../../store/user";
-import { datePreference as datePreferenceApi, step } from "../../../http";
+import {
+  datePreference as datePreferenceApi,
+  identify as identifyApi,
+} from "../../../http";
 import Joi from "joi-browser";
+import { SelectOption } from "../../../components/SelectOption/SelectOption";
+import { gender } from "../../../data";
+import axios from "axios";
 
 export const RegisterFour = ({ onNext }) => {
   const classes = useStyles();
@@ -23,25 +28,32 @@ export const RegisterFour = ({ onNext }) => {
   const theme = useTheme();
   const mdScreen = useMediaQuery(theme.breakpoints.down("md"));
   const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const identifyOptions = gender;
   const [datePreference, setDatePrerence] = useState("");
   const [audience, setAudience] = useState("");
+  const [identify, setIdentify] = useState("0");
+  const [identifyShow, setIdentifyShow] = useState(true);
   const [errors, setErrors] = useState({
+    identify: "",
     datePreference: "",
     audience: "",
   });
   const schema = {
+    identify: Joi.string().min(2).required().label("Identify"),
     datePreference: Joi.string().required().label("Date Preference"),
     audience: Joi.string().required().label("Intent"),
   };
 
   const validate = () => {
     const data = {
+      identify,
       datePreference,
       audience,
     };
     const result = Joi.validate(data, schema, { abortEarly: false });
     if (!result.error) {
       setErrors({
+        identify: "",
         datePreference: "",
         audience: "",
       });
@@ -49,12 +61,30 @@ export const RegisterFour = ({ onNext }) => {
     } else {
       const errorsObject = {};
       for (let item of result.error.details)
-        errorsObject[item.path[0]] = item.message;
+        errorsObject[item.path[0]] = `"${
+          item.path[0].charAt(0).toUpperCase() + item.path[0].slice(1)
+        }" can not be empty`;
       setErrors(errorsObject);
       return true;
     }
   };
 
+  const handleShow = (e) => {
+    setIdentifyShow(e.target.checked);
+  };
+  const handleSelect = (e) => {
+    setIdentify(e.target.value);
+    const obj = { identify: e.target.value };
+    const subSchema = { identify: schema.identify };
+    const { error } = Joi.validate(obj, subSchema);
+    // eslint-disable-next-line
+    const it = error
+      ? setErrors({
+          ...errors,
+          identify: `"Identify" is not allowed to be empty`,
+        })
+      : setErrors({ ...errors, identify: "" });
+  };
   const handleDatePreference = (e) => {
     setDatePrerence(e.target.value);
     const obj = { datePreference: e.target.value };
@@ -84,38 +114,33 @@ export const RegisterFour = ({ onNext }) => {
   const handleNext = async () => {
     const error = validate();
     if (!error) {
-      try {
-        const apiData = {
-          interested_gender: datePreference,
-          interested_audience: audience,
-          visible: true,
-          step: "/hometown",
-        };
-        const { data } = await datePreferenceApi(apiData);
-        dispatch(submit(data));
-        onNext();
-      } catch (e) {
-        console.log(e.message);
-      }
+      const identifyData = {
+        gender: identify,
+        visible: identifyShow,
+        step: "/preference",
+      };
+      const apiData = {
+        interested_gender: datePreference,
+        interested_audience: audience,
+        visible: true,
+        step: "/height",
+      };
+      await axios
+        .all([identifyApi(identifyData), datePreferenceApi(apiData)])
+        .then(
+          axios.spread((res1, res2) => {
+            dispatch(submit(res2.data));
+            onNext();
+          })
+        )
+        .catch((err) => console.log(err.message));
     }
   };
-  const handleSkip = async () => {
-    const stepData = {
-      step: "/",
-    };
-    try {
-      const { data } = await step(stepData);
-      dispatch(submit(data));
-      onNext();
-    } catch (err) {
-      console.log(err);
-    }
-  };
+
   return (
     <Grid
       container
       className={classes.container}
-      alignItems="center"
       style={{
         backgroundImage: `url(${image.heart})`,
         backgroundPosition: "100% 100%",
@@ -124,7 +149,6 @@ export const RegisterFour = ({ onNext }) => {
       <Header transparent />
       <Grid
         container
-        justifyContent="center"
         alignItems="center"
         direction="column"
         className={classes.form}
@@ -132,9 +156,25 @@ export const RegisterFour = ({ onNext }) => {
         <form action="">
           <Grid
             container
-            className={classes.registerFourContainer}
+            // className={classes.registerFourContainer}
             direction="column"
           >
+            <Grid item sm={12}>
+              <SelectOption
+                checkboxVaraint="switch"
+                label="How do you identify?"
+                options={identifyOptions}
+                placeholder="Choose"
+                show={identifyShow}
+                handleShow={handleShow}
+                name="identify"
+                onSelect={handleSelect}
+                value={identify}
+                error={Boolean(errors.identify)}
+                errorText={errors.identify}
+                identify
+              />
+            </Grid>
             <Grid item>
               <Typography className={classes.title} variant="h3">
                 Dating Preferences
@@ -220,9 +260,6 @@ export const RegisterFour = ({ onNext }) => {
             >
               <Grid item container alignItems="center" justifyContent="center">
                 <CustomIconButton onClick={handleNext} />
-                <CustomButton onClick={handleSkip} variant="outlineButton">
-                  Skip
-                </CustomButton>
               </Grid>
             </Grid>
           </Grid>

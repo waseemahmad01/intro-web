@@ -15,7 +15,7 @@ import { CustomButton } from "../../components/CustomButton/CustomButton";
 import { Header } from "../../components/header/Header";
 import image from "../../assets/index";
 import OtpInput from "react-otp-input";
-import { login, verify, getUser } from "../../http";
+import { login, verify, getUser, step } from "../../http";
 import { submit } from "../../store/user";
 import { useDispatch } from "react-redux";
 import Joi from "joi-browser";
@@ -342,13 +342,17 @@ export const SignInScreen = (props) => {
           phonenumber: number,
           code: "123456",
         });
+        socket.connect();
         socket.emit("login", data.data._id);
         const res = await getUser();
         if (data.data.step === "/home") {
           props.history.push("home");
-        } else props.history.push("register");
-        dispatch(submit(res.data));
-        setOpenDialog(false);
+        } else {
+          props.history.push("register");
+          await step({ step: "/dob" });
+          dispatch(submit(res.data));
+          setOpenDialog(false);
+        }
       } else {
         setError({ ...error, otp: "Invalid otp code." });
       }

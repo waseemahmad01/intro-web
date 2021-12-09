@@ -381,7 +381,6 @@ export const Live = () => {
   const fetchData = async (query) => {
     const { data } = await liveStreamUsers(query);
     setLiveUsers(data.data);
-    console.log(data.data);
   };
   const tabs = {
     0: LiveFilter,

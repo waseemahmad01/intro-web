@@ -17,9 +17,11 @@ import {
   ReportProblemOutlined as WarningIcon,
 } from "@material-ui/icons";
 import { StreamerBox } from "../../components/ViewBox/StreamerBox";
+import { ViewerBox } from "../../components/ViewBox/ViewerBox";
 import { Close } from "@material-ui/icons";
 import { useSelector } from "react-redux";
-import { goLive, deleteLiveUser } from "../../http";
+import { goLive } from "../../http";
+import api from "../../http";
 
 export const Stream = (props) => {
   const { audience } = props;
@@ -27,6 +29,7 @@ export const Stream = (props) => {
   const user = useSelector((state) => state.auth.user.data);
   const classes = useStyles();
   const liveRef = useRef();
+  const username = user.username;
   // eslint-disable-next-line
   const [guestWindow, setGuestWindow] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
@@ -128,17 +131,21 @@ export const Stream = (props) => {
   };
   const handleHostLeft = async () => {
     try {
-      if (rtc.localAudioTrack && rtc.localVideoTrack) {
-        rtc.localVideoTrack.stop();
+      if (rtc.localAudioTrack) {
         rtc.localAudioTrack.stop();
         rtc.localAudioTrack.close();
+      }
+      if (rtc.localVideoTrack) {
+        rtc.localVideoTrack.stop();
         rtc.localVideoTrack.close();
       }
       await rtc.client.leave();
-      const data = {
-        username: user.username,
-      };
-      await deleteLiveUser(data);
+      const res = api.delete("/api/deleteliveuser", {
+        data: {
+          username: username,
+        },
+      });
+      console.log(res.data);
       props.history.goBack();
     } catch (err) {
       console.log(err.message);
@@ -391,9 +398,7 @@ export const Stream = (props) => {
         justifyContent={lgScreen ? "center" : "flex-start"}
         className={classes.utilityContainer}
       >
-        <StreamerBox />
-        {/* <Gift /> */}
-        {/* <ViewerBox /> */}
+        {audience ? <ViewerBox /> : <StreamerBox />}
       </Grid>
     </Grid>
   );

@@ -1,54 +1,45 @@
 import React, { useState } from "react";
 import { useStyles } from "../Styles/registerStyles";
-import { Grid } from "@material-ui/core";
+import { Grid, useTheme, useMediaQuery } from "@material-ui/core";
 import image from "../../../assets/index";
 import { SelectOption } from "../../../components/SelectOption/SelectOption";
 import { CustomIconButton } from "../../../components/IconButton/CustomIconButton";
 import { Header } from "../../../components/header/Header";
-import { bodyType, identify, heightApi } from "../../../http";
+import { bodyType, heightApi } from "../../../http";
 import { useDispatch } from "react-redux";
 import { submit } from "../../../store/user";
-import {
-  gender,
-  height,
-  bodyType as bType,
-  diet,
-  fitness,
-} from "../../../data";
+import { height, bodyType as bType, diet, fitness } from "../../../data";
 import axios from "axios";
 import Joi from "joi-browser";
 
 export const RegisterTwo = ({ onNext }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const theme = useTheme();
+  const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
-  const identifyOptions = gender;
   const heightOptions = height;
   const bodyTypeOptions = bType;
 
   const [show, setShow] = useState({
-    identify: true,
     height: true,
     bodyType: true,
     diet: true,
     fitness: true,
   });
   const [values, setValues] = useState({
-    identify: "0",
     height: "0",
     bodyType: "0",
     diet: "0",
     fitness: "0",
   });
   const [errors, setErrors] = useState({
-    identify: "",
     height: "",
     bodyType: "",
     diet: "",
     fitness: "",
   });
   const schema = {
-    identify: Joi.string().min(2).required().label("Identify"),
     height: Joi.string().min(2).required().label("Height"),
     bodyType: Joi.string().min(2).required().label("Body Type"),
     diet: Joi.string().min(2).required().label("Diet"),
@@ -60,7 +51,6 @@ export const RegisterTwo = ({ onNext }) => {
     // console.log(result);
     if (!result.error) {
       setErrors({
-        identify: "",
         height: "",
         bodyType: "",
         diet: "",
@@ -110,11 +100,6 @@ export const RegisterTwo = ({ onNext }) => {
     const error = validate();
     if (!error) {
       const heightInCM = values.height.split(" ")[2].split("cm")[0];
-      const identifyData = {
-        gender: values.identify,
-        visible: show.identify,
-        step: "/height",
-      };
       const heightData = {
         height: heightInCM,
         visible: show.height,
@@ -126,14 +111,10 @@ export const RegisterTwo = ({ onNext }) => {
         step: "/ethnicity-page",
       };
       await axios
-        .all([
-          identify(identifyData),
-          heightApi(heightData),
-          bodyType(bodyTypeData),
-        ])
+        .all([heightApi(heightData), bodyType(bodyTypeData)])
         .then(
-          axios.spread(function (res1, res2, res3) {
-            dispatch(submit(res3.data));
+          axios.spread(function (res1, res2) {
+            dispatch(submit(res2.data));
             onNext();
           })
         )
@@ -157,7 +138,6 @@ export const RegisterTwo = ({ onNext }) => {
         container
         alignItems="center"
         direction="column"
-        justifyContent="center"
         className={classes.form}
       >
         <Grid item>
@@ -165,24 +145,8 @@ export const RegisterTwo = ({ onNext }) => {
             <Grid
               container
               direction="column"
-              alignItems="flex-end"
               className={classes.formContainer}
             >
-              <Grid item sm={12}>
-                <SelectOption
-                  checkboxVaraint="switch"
-                  label="How do you identify?"
-                  options={identifyOptions}
-                  placeholder="Choose"
-                  show={show.identify}
-                  handleShow={handleShow}
-                  name="identify"
-                  onSelect={handleSelect}
-                  value={values.identify}
-                  error={Boolean(errors.identify)}
-                  errorText={errors.identify}
-                />
-              </Grid>
               <Grid item sm={12}>
                 <SelectOption
                   checkboxVaraint="switch"
@@ -244,7 +208,12 @@ export const RegisterTwo = ({ onNext }) => {
                   errorText={errors.fitness}
                 />
               </Grid>
-              <Grid item container justifyContent="center">
+              <Grid
+                item
+                container
+                style={{ marginTop: lgScreen ? "1rem" : "1.5rem" }}
+                justifyContent="center"
+              >
                 <CustomIconButton onClick={handleNext} />
               </Grid>
             </Grid>

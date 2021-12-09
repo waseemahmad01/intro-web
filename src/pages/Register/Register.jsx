@@ -12,15 +12,15 @@ import { SelectImage } from "../RegisterSteps/SelectImage/SelectImage";
 export const Register = () => {
   const Steps = {
     1: RegisterOne,
-    2: RegisterTwo,
-    3: RegisterThree,
-    4: RegisterFour,
+    2: RegisterFour,
+    3: RegisterTwo,
+    4: RegisterThree,
     5: RegisterFive,
     6: RegisterSix,
     7: RegisterSeven,
     8: SelectImage,
   };
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(3);
   const Step = Steps[step];
   const onNext = () => {
     setStep(step + 1);

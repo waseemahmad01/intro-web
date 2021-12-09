@@ -98,7 +98,7 @@ export const RegisterSeven = ({ onNext }) => {
           w_visible: show.weed,
           drugs: values.drugs,
           dr_visible: show.drugs,
-          step: "/profile",
+          step: "/get-user-photos",
         };
         const { data } = await vices(apiData);
         dispatch(submit(data));
@@ -110,7 +110,7 @@ export const RegisterSeven = ({ onNext }) => {
   };
   const handleSkip = async () => {
     const stepData = {
-      step: "/",
+      step: "/get-user-photos",
     };
     try {
       const { data } = await step(stepData);
@@ -132,7 +132,6 @@ export const RegisterSeven = ({ onNext }) => {
       <Header transparent />
       <Grid
         container
-        justifyContent="center"
         alignItems="center"
         direction="column"
         className={classes.form}

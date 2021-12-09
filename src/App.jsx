@@ -60,6 +60,7 @@ function App(props) {
     window.addEventListener("resize", handleResize);
 
     return () => {
+      if (socket !== null) socket.emit("disconnect", userState._id);
       window.removeEventListener("resize", handleResize);
     };
   });

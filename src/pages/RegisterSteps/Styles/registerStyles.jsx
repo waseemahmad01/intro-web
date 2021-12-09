@@ -12,21 +12,21 @@ export const useStyles = makeStyles((theme) => ({
 
   form: {
     padding: "0 8rem",
-    marginTop: "5rem",
+    marginTop: "237px",
     [theme.breakpoints.down("lg")]: {
       padding: "0 5rem",
       marginTop: "7rem",
     },
   },
   formContainer: {
-    width: "860px",
+    // width: "860px",
     // backgroundColor: "red",
-    marginTop: "2rem",
+    // marginTop: "2rem",
     padding: "10px",
     [theme.breakpoints.down("lg")]: {
       marginTop: "1rem",
       // padding: "5px 10px",
-      width: "680px",
+      // width: "680px",
     },
     zIndex: 1,
   },
@@ -108,6 +108,7 @@ export const useStyles = makeStyles((theme) => ({
     },
   },
   checkboxContainer: {
+    marginTop: "0.8rem",
     marginBottom: "1rem",
     paddingLeft: "16px",
     width: "880px",
@@ -173,7 +174,7 @@ export const useStyles = makeStyles((theme) => ({
     borderRadius: "34px",
     backgroundColor: "#fff",
     fontSize: "22px",
-    marginBottom: "10px",
+    marginBottom: "15px",
     height: "62px",
     textAlign: "left",
     paddingLeft: "0.4rem",

@@ -22,24 +22,14 @@ import { SelectOption } from "../../../components/SelectOption/SelectOption";
 import { CustomIconButton } from "../../../components/IconButton/CustomIconButton";
 import { CustomButton } from "../../../components/CustomButton/CustomButton";
 import { Header } from "../../../components/header/Header";
-import {
-  religion as religionApi,
-  children,
-  ethnicityApi,
-  step,
-} from "../../../http";
+import { hometown as hometownApi, ethnicityApi, step } from "../../../http";
 import { useDispatch } from "react-redux";
 import { submit } from "../../../store/user";
 import * as allCounrtry from "country-flag-emoji-json";
-import {
-  religion,
-  politics,
-  haveChild,
-  wantChild,
-  ethnicityList,
-} from "../../../data";
+import { ethnicityList, homeTown } from "../../../data";
 import ChipRadio from "../../../components/chipRadioButton/ChipRadio";
 import Joi from "joi-browser";
+import { Input } from "../../../components/Textfield/Input";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -54,20 +44,19 @@ const useStyles = makeStyles((theme) => ({
 
   form: {
     padding: "0 8rem",
-    marginTop: "5rem",
+    marginTop: "237px",
     [theme.breakpoints.down("lg")]: {
       padding: "0 5rem",
       marginTop: "7rem",
     },
   },
   formContainer: {
-    width: "860px",
-    marginTop: "2rem",
+    // width: "860px",
     padding: "10px",
     [theme.breakpoints.down("lg")]: {
       marginTop: "1rem",
       // padding: "5px 10px",
-      width: "680px",
+      // width: "680px",
     },
     zIndex: 1,
   },
@@ -420,48 +409,54 @@ export const RegisterThree = ({ onNext }) => {
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [ethinic, setEthinic] = useState([]);
-
   const [show, setShow] = useState({
     origin: true,
     ethnic: true,
-    religion: true,
-    politics: true,
-    haveChildren: true,
-    wantChildren: true,
+    hometown: true,
+    home: true,
   });
   const [values, setValues] = useState({
     origin: "0",
-    religion: "0",
-    politics: "0",
-    haveChildren: "0",
-    wantChildren: "0",
+    hometown: "0",
   });
+  const [home, setHome] = useState("");
   const [errors, setErrors] = useState({
     origin: "",
-    religion: "",
-    politics: "",
-    haveChildren: "",
-    wantChildren: "",
+    hometown: "",
+    ethinic: "",
+    home: "",
   });
   const schema = {
     origin: Joi.string().min(2).required(),
-    religion: Joi.string().min(2).required(),
-    politics: Joi.string().min(2).required(),
-    wantChildren: Joi.string().min(2).required(),
-    haveChildren: Joi.string().min(2).required(),
+    hometown: Joi.string().min(2).required(),
+    home: Joi.string().required(),
     ethinic: Joi.array().items(Joi.string().required()).required(),
   };
+  const handleChange = (e) => {
+    setHome(e.target.value);
+    const obj = {
+      home: home,
+    };
+    const subSchema = { home: schema.home };
+    const { error } = Joi.validate(obj, subSchema);
+    // eslint-disable-next-line
+    const it = error
+      ? setErrors({
+          ...errors,
+          home: `"Home " is not allowed to be empty`,
+        })
+      : setErrors({ ...errors, home: "" });
+  };
   const validate = () => {
-    const data = { ...values, ethinic };
+    const data = { ...values, ethinic, home };
     const result = Joi.validate(data, schema, { abortEarly: false });
 
     if (!result.error) {
       setErrors({
         origin: "",
-        religion: "",
-        politics: "",
-        haveChildren: "",
-        wantChildren: "",
+        hometown: "",
+        ethinic: "",
+        home: "",
       });
       return false;
     } else {
@@ -470,7 +465,6 @@ export const RegisterThree = ({ onNext }) => {
         errorsObject[item.path[0]] = `"${
           item.path[0].charAt(0).toUpperCase() + item.path[0].slice(1)
         }" is not allowed to be empty`;
-      console.log(errorsObject);
       setErrors(errorsObject);
       return true;
     }
@@ -530,28 +524,20 @@ export const RegisterThree = ({ onNext }) => {
         race: values.origin,
         c_visible: show.ethnic,
         r_visible: show.origin,
-        step: "/hometown",
+        step: "/get-user-home-town",
       };
-      const religionData = {
-        religion: values.religion,
-        visible: show.religion,
-        step: "/vices",
-      };
-      const childData = {
-        have_children: values.haveChildren,
-        want_children: values.wantChildren,
-        visible: show.haveChildren,
-        step: "/dp",
+      const hometownData = {
+        home_town: home,
+        visible: show.home,
+        live_with: values.hometown,
+        live_with_visible: show.hometown,
+        step: "/get-user-education",
       };
       await axios
-        .all([
-          ethnicityApi(ethnicityApiData),
-          religionApi(religionData),
-          children(childData),
-        ])
+        .all([ethnicityApi(ethnicityApiData), hometownApi(hometownData)])
         .then(
-          axios.spread(function (res1, res2, res3) {
-            dispatch(submit(res3.data));
+          axios.spread(function (res1, res2) {
+            dispatch(submit(res2.data));
             onNext();
           })
         )
@@ -561,7 +547,7 @@ export const RegisterThree = ({ onNext }) => {
 
   const handleSkip = async () => {
     const stepData = {
-      step: "/",
+      step: "/get-user-education",
     };
     try {
       const { data } = await step(stepData);
@@ -584,7 +570,6 @@ export const RegisterThree = ({ onNext }) => {
       <Header transparent />
       <Grid
         container
-        justifyContent="center"
         alignItems="center"
         direction="column"
         className={classes.form}
@@ -595,10 +580,7 @@ export const RegisterThree = ({ onNext }) => {
             <Grid
               container
               direction="column"
-              alignItems="flex-end"
-              justifyContent="center"
               className={classes.formContainer}
-              style={{ marginTop: lgScreen ? "3.25rem" : "9.5rem" }}
               spacing={lgScreen ? 0 : 2}
             >
               <Grid item sm={12}>
@@ -851,63 +833,57 @@ export const RegisterThree = ({ onNext }) => {
               <Grid item sm={12}>
                 <SelectOption
                   checkboxVaraint="switch"
-                  label="Religion"
-                  options={religion}
-                  placeholder="Choose Religion"
-                  show={show.religion}
+                  label="Who do you live with?"
+                  options={homeTown}
+                  placeholder="Select an Option"
+                  show={show.hometown}
                   handleShow={handleShow}
-                  name="religion"
+                  name="hometown"
                   onSelect={handleSelect}
-                  value={values.religion}
-                  error={errors.religion}
-                  errorText={errors.religion}
+                  value={values.hometown}
+                  error={Boolean(errors.hometown)}
+                  errorText={errors.hometown}
                 />
               </Grid>
               <Grid item sm={12}>
-                <SelectOption
-                  checkboxVaraint="switch"
-                  label="Politics"
-                  options={politics}
-                  placeholder="Choose an option"
-                  show={show.politics}
-                  handleShow={handleShow}
-                  name="politics"
-                  onSelect={handleSelect}
-                  value={values.politics}
-                  error={errors.politics}
-                  errorText={errors.politics}
-                />
+                <Grid
+                  item
+                  container
+                  style={{ marginBottom: lgScreen ? "0.5rem" : "1rem" }}
+                  justifyContent="flex-end"
+                >
+                  <Grid item className={classes.inputContainer}>
+                    <Input
+                      label="Your Hometown?"
+                      type="text"
+                      placeholder="Enter details"
+                      value={values.home}
+                      onChange={handleChange}
+                      name="home"
+                      error={Boolean(errors.home)}
+                      helperText={errors.home}
+                    />
+                  </Grid>
+                  <Grid
+                    item
+                    container
+                    style={{ marginTop: "10px" }}
+                    alignItems="center"
+                    className={classes.switchContainer}
+                  >
+                    <span className={classes.showProfileText}>
+                      Show in profile
+                    </span>
+                    <Checkbox
+                      variant="switch"
+                      name="work"
+                      show={show.home}
+                      handleShow={handleShow}
+                    />
+                  </Grid>
+                </Grid>
               </Grid>
-              <Grid item sm={12}>
-                <SelectOption
-                  checkboxVaraint="switch"
-                  label="Have children?"
-                  options={haveChild}
-                  placeholder="Choose an option"
-                  show={show.haveChildren}
-                  handleShow={handleShow}
-                  name="haveChildren"
-                  onSelect={handleSelect}
-                  value={values.haveChildren}
-                  error={errors.haveChildren}
-                  errorText={errors.haveChildren}
-                />
-              </Grid>
-              <Grid item sm={12}>
-                <SelectOption
-                  checkboxVaraint="switch"
-                  label="Want children?"
-                  options={wantChild}
-                  placeholder="Choose an option"
-                  show={show.wantChildren}
-                  handleShow={handleShow}
-                  name="wantChildren"
-                  onSelect={handleSelect}
-                  value={values.wantChildren}
-                  error={errors.wantChildren}
-                  errorText={errors.wantChildren}
-                />
-              </Grid>
+
               <Grid item container alignItems="center" justifyContent="center">
                 <CustomIconButton onClick={handleNext} />
                 <CustomButton onClick={handleSkip} variant="outlineButton">

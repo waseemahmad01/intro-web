@@ -10,7 +10,7 @@ export const SocketProvider = ({ children }) => {
       autoConnect: false,
       transports: ["websocket"],
     });
-    webSocket.connect();
+    // webSocket.connect();
     setSocket(webSocket);
   }, []);
   return (

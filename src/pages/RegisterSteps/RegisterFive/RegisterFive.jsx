@@ -8,8 +8,8 @@ import { CustomButton } from "../../../components/CustomButton/CustomButton";
 import { Header } from "../../../components/header/Header";
 import { Input } from "../../../components/Textfield/Input";
 import { Checkbox } from "../../../components/Checkbox/Checkbox";
-import { homeTown, schoolDegree } from "../../../data";
-import { hometown, education, step } from "../../../http";
+import { schoolDegree } from "../../../data";
+import { profession, education, step } from "../../../http";
 import { useDispatch } from "react-redux";
 import { submit } from "../../../store/user";
 import axios from "axios";
@@ -22,48 +22,54 @@ export const RegisterFive = ({ onNext }) => {
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
   const [values, setValues] = useState({
-    live: "0",
     degree: "0",
   });
   const [details, setDetails] = useState({
-    hometown: "",
     school: "",
+    work: "",
+    job: "",
+    occupation: "",
   });
   const [show, setShow] = useState({
-    live: true,
-    hometown: true,
     school: true,
     degree: true,
+    work: true,
+    job: true,
+    occupation: true,
   });
 
   const [errors, setErrors] = useState({
-    live: "",
-    hometown: "",
     school: "",
     degree: "",
+    work: "",
+    job: "",
+    occupation: "",
   });
 
   const schema = {
-    live: Joi.string().min(2).required(),
-    hometown: Joi.string().required(),
     school: Joi.string().required(),
     degree: Joi.string().min(2).required(),
+    work: Joi.string().required(),
+    job: Joi.string().required(),
+    occupation: Joi.string().required(),
   };
 
   const validate = () => {
     const data = {
-      live: values.live,
-      hometown: details.hometown[0],
       school: details.school[0],
       degree: values.degree,
+      work: details.work[0],
+      job: details.job[0],
+      occupation: details.occupation[0],
     };
     const result = Joi.validate(data, schema, { abortEarly: false });
     if (!result.error) {
       setErrors({
-        live: "",
-        hometown: "",
         school: "",
         degree: "",
+        work: "",
+        job: "",
+        occupation: "",
       });
       return false;
     } else {
@@ -117,22 +123,24 @@ export const RegisterFive = ({ onNext }) => {
   const handleNext = async () => {
     const error = validate();
     if (!error) {
-      const hometownData = {
-        home_town: details.hometown,
-        visible: show.hometown,
-        live_with: values.live,
-        live_with_visible: show.live,
-        step: "/step",
-      };
       const educationData = {
         school: details.school,
         s_visible: show.school,
         degree: values.degree,
         d_visible: show.degree,
-        step: "/step",
+        step: "/get-user-profession",
+      };
+      const professionData = {
+        company: details.work,
+        job_title: details.job,
+        occupation: details.occupation,
+        c_visible: show.work,
+        j_visible: show.job,
+        o_visible: show.occupation,
+        step: "/get-user-religion",
       };
       await axios
-        .all([hometown(hometownData), education(educationData)])
+        .all([education(educationData), profession(professionData)])
         .then(
           axios.spread(function (res1, res2) {
             dispatch(submit(res2.data));
@@ -146,7 +154,7 @@ export const RegisterFive = ({ onNext }) => {
   };
   const handleSkip = async () => {
     const stepData = {
-      step: "/",
+      step: "/get-user-religion",
     };
     try {
       const { data } = await step(stepData);
@@ -168,7 +176,6 @@ export const RegisterFive = ({ onNext }) => {
       <Header transparent />
       <Grid
         container
-        justifyContent="center"
         alignItems="center"
         direction="column"
         className={classes.form}
@@ -181,67 +188,12 @@ export const RegisterFive = ({ onNext }) => {
               direction="column"
               alignItems="flex-end"
               className={classes.formContainer}
-              style={{
-                marginTop: lgScreen ? "1rem" : "5rem",
-              }}
               spacing={lgScreen ? 0 : 2}
             >
-              <Grid item sm={12}>
-                <SelectOption
-                  checkboxVaraint="switch"
-                  label="Who do you live with?"
-                  options={homeTown}
-                  placeholder="Select an option"
-                  show={show.live}
-                  handleShow={handleShow}
-                  name="live"
-                  onSelect={handleSelect}
-                  value={values.live}
-                  error={Boolean(errors.live)}
-                  errorText={errors.live}
-                />
-              </Grid>
-              <Grid
-                item
-                container
-                justifyContent="flex-end"
-                sm={12}
-                style={{ marginBottom: lgScreen ? "2rem" : "4rem" }}
-              >
+              <Grid item container sm={12}>
                 <Grid item className={classes.inputContainer}>
                   <Input
-                    label="Your Hometown (optional)"
-                    type="text"
-                    placeholder="Enter details"
-                    value={details.hometown}
-                    onChange={handleDetails}
-                    name="hometown"
-                    error={Boolean(errors.hometown)}
-                    helperText={errors.hometown}
-                  />
-                </Grid>
-                <Grid
-                  item
-                  container
-                  style={{ marginTop: "10px" }}
-                  alignItems="center"
-                  className={classes.switchContainer}
-                >
-                  <span className={classes.showProfileText}>
-                    Show in profile
-                  </span>
-                  <Checkbox
-                    variant="switch"
-                    name="work"
-                    show={show.hometown}
-                    handleShow={handleShow}
-                  />
-                </Grid>
-              </Grid>
-              <Grid item container justifyContent="flex-end" sm={12}>
-                <Grid item className={classes.inputContainer}>
-                  <Input
-                    label="Where did you go to school?"
+                    label="School"
                     type="text"
                     placeholder="Enter details"
                     value={details.school}
@@ -284,6 +236,100 @@ export const RegisterFive = ({ onNext }) => {
                   errorText={errors.degree}
                 />
               </Grid>
+              <Grid item container sm={12}>
+                <Grid item className={classes.inputContainer}>
+                  <Input
+                    label="Workplace"
+                    type="text"
+                    placeholder="Enter details"
+                    value={details.work}
+                    onChange={handleDetails}
+                    name="work"
+                    error={Boolean(errors.work)}
+                    helperText={errors.work}
+                  />
+                </Grid>
+                <Grid
+                  item
+                  container
+                  style={{ marginTop: "10px" }}
+                  alignItems="center"
+                  className={classes.switchContainer}
+                >
+                  <span className={classes.showProfileText}>
+                    Show in profile
+                  </span>
+                  <Checkbox
+                    variant="switch"
+                    name="work"
+                    show={show.work}
+                    handleShow={handleShow}
+                  />
+                </Grid>
+              </Grid>
+              <Grid item container sm={12}>
+                <Grid item className={classes.inputContainer}>
+                  <Input
+                    label="Job Title"
+                    type="text"
+                    placeholder="Enter details"
+                    value={details.job}
+                    onChange={handleDetails}
+                    name="job"
+                    error={Boolean(errors.job)}
+                    helperText={errors.job}
+                  />
+                </Grid>
+                <Grid
+                  item
+                  container
+                  style={{ marginTop: "10px" }}
+                  alignItems="center"
+                  className={classes.switchContainer}
+                >
+                  <span className={classes.showProfileText}>
+                    Show in profile
+                  </span>
+                  <Checkbox
+                    variant="switch"
+                    name="job"
+                    show={show.job}
+                    handleShow={handleShow}
+                  />
+                </Grid>
+              </Grid>
+              <Grid item container sm={12}>
+                <Grid item className={classes.inputContainer}>
+                  <Input
+                    label="Occupation"
+                    type="text"
+                    placeholder="Enter details"
+                    value={details.occupation}
+                    onChange={handleDetails}
+                    name="occupation"
+                    error={Boolean(errors.occupation)}
+                    helperText={errors.occupation}
+                  />
+                </Grid>
+                <Grid
+                  item
+                  container
+                  style={{ marginTop: "10px" }}
+                  alignItems="center"
+                  className={classes.switchContainer}
+                >
+                  <span className={classes.showProfileText}>
+                    Show in profile
+                  </span>
+                  <Checkbox
+                    variant="switch"
+                    name="occupation"
+                    show={show.occupation}
+                    handleShow={handleShow}
+                  />
+                </Grid>
+              </Grid>
+
               <Grid item container justifyContent="center">
                 <CustomIconButton onClick={handleNext} />
                 <CustomButton onClick={handleSkip} variant="outlineButton">
