@@ -342,7 +342,6 @@ export const SignInScreen = (props) => {
           phonenumber: number,
           code: "123456",
         });
-        socket.connect();
         socket.emit("login", data.data._id);
         const res = await getUser();
         if (data.data.step === "/home") {

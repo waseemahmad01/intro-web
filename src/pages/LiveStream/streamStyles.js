@@ -432,4 +432,24 @@ export const useStyles = makeStyles((theme) => ({
   endStreamIcon: {
     fontSize: "40px",
   },
+  endStreamContainer: {
+    height: "400px",
+    width: "450px",
+  },
+  endTitle: {
+    margin: "0",
+    color: "#000000",
+  },
+  endSubtitle: {
+    margin: "0",
+    color: "#000000",
+  },
+  endStreamButton: {
+    margin: "0",
+    width: "260px",
+    height: "60px",
+    fontSize: "20px",
+    textTransform: "none",
+    borderRadius: "35px",
+  },
 }));

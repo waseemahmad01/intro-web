@@ -13,13 +13,22 @@ import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { submit } from "../../../store/user";
 import { Header } from "../../../components/header/Header";
-import { dob, username } from "../../../http/index";
+import {
+  dob,
+  username,
+  setLocation as setLocationApi,
+} from "../../../http/index";
 import axios from "axios";
 import Joi from "joi-browser";
+import { useEffect } from "react";
 
 export const RegisterOne = ({ onNext }) => {
   const classes = useStyles();
 
+  const [location, setLocation] = useState({
+    lon: "",
+    lat: "",
+  });
   const [checked, setChecked] = useState(false);
   const handleChange = (event) => {
     setChecked(event.target.checked);
@@ -42,6 +51,7 @@ export const RegisterOne = ({ onNext }) => {
   };
 
   const validate = () => {
+    console.log(location);
     const data = {
       email: user.email[0],
       firstname: user.firstname[0],
@@ -99,17 +109,36 @@ export const RegisterOne = ({ onNext }) => {
         username: user.username[0],
         step: "/gender-selection",
       };
+      const locationData = {
+        lon: location.lon,
+        lat: location.lat,
+        geoHash: "geoHash",
+        visible: true,
+        step: "/gender-selection",
+      };
       await axios
-        .all([dob(dateOfBirth), username(userInfo)])
+        .all([
+          dob(dateOfBirth),
+          setLocationApi(locationData),
+          username(userInfo),
+        ])
         .then(
-          axios.spread(function (res1, res2) {
-            dispatch(submit(res2.data));
+          axios.spread(function (res1, res2, res3) {
+            dispatch(submit(res3.data));
             onNext();
           })
         )
         .catch((err) => console.log(err.message));
     }
   };
+
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        setLocation({ lon: pos.coords.longitude, lat: pos.coords.latitude });
+      });
+    }
+  }, []);
 
   const theme = useTheme();
   const xsScreen = useMediaQuery(theme.breakpoints.down("xs"));

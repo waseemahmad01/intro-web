@@ -15,6 +15,7 @@
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "agora-rtc-sdk-ng": "^4.7.3",
+    "agora-rtm-sdk": "^1.4.3-203",
     "axios": "^0.21.4",
     "country-flag-emoji-json": "^2.0.0",
     "date-fns": "^2.23.0",

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useStyles } from "./streamStyles";
 import AgoraRTC from "agora-rtc-sdk-ng";
+import AgoraRTM from "agora-rtm-sdk";
 import {
   Grid,
   Typography,
@@ -37,30 +38,17 @@ export const Stream = (props) => {
   const [exit, setExit] = useState(false);
   const [blueWindow, setBlueWindow] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
+  const [members, setMembers] = useState(null);
+  const roleRef = useRef();
   const theme = useTheme();
   const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const lgScreen = useMediaQuery(theme.breakpoints.down(1680));
-
-  // Agora setUp
-
-  let rtc = {
-    // For the local audio and video tracks.
-    localAudioTrack: null,
-    localVideoTrack: null,
-    client: null,
-  };
-  let options = {
-    appId: "eb25ec81a8bc477ebb4673ba983ceb13",
-    channel: audience ? channelName : user.username,
-    role: audience ? "audience" : "host",
-    token: null,
-    uid: null,
-  };
-  let clientRoleOptions = {
-    level: 1,
-  };
-
-  rtc.client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
+  const [userUid, setUserUid] = useState(null);
+  const [location, setLocation] = useState({
+    lon: "",
+    lat: "",
+  });
+  const [closeStream, setCloseStream] = useState(false);
   const getGender = () => {
     const gender = user.identify.gender;
     if (gender.toLowerCase() === "male") {
@@ -71,89 +59,240 @@ export const Stream = (props) => {
       return 2;
     }
   };
-  const joinLiveStream = async () => {
-    rtc.client.on("user-published", handleRemote);
-    rtc.client.setClientRole(options.role);
+  // Agora setUp
+
+  let client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  let localTracks = {
+    videoTrack: null,
+    audioTrack: null,
+  };
+
+  let remoteUsers = {};
+
+  // Agora client options
+
+  const options = {
+    appId: "eb25ec81a8bc477ebb4673ba983ceb13",
+    channel: audience ? channelName : user.username,
+    uid: null,
+    token: null,
+    accountName: null,
+    role: audience ? "audience" : "host",
+  };
+
+  const rtmSetup = () => {
+    RTMJoin();
+    options.role = audience ? "audience" : "host";
+  };
+
+  const join = async () => {
+    client.setClientRole(options.role);
+    if (options.role === "audience") {
+      client.on("user-published", handleUserPublished);
+      client.on("user-joined", handleUserJoined);
+      client.on("user-left", handleUserLeft);
+      client.on("client-role-changed", handleClientRoleChanged);
+    }
+    options.uid = await client.join(
+      options.appId,
+      options.channel,
+      options.token || null,
+      options.uid || null
+    );
+    setUserUid(options.uid);
     if (options.role === "host") {
-      try {
-        [options.uid, rtc.localAudioTrack, rtc.localVideoTrack] =
-          await Promise.all([
-            rtc.client.join(
-              options.appId,
-              options.channel,
-              options.token,
-              options.uid
-            ),
-            AgoraRTC.createMicrophoneAudioTrack(),
-            AgoraRTC.createCameraVideoTrack(),
-          ]);
-
-        rtc.localVideoTrack.play(liveRef.current);
-        await rtc.client.publish([rtc.localAudioTrack, rtc.localVideoTrack]);
-
-        const goLiveData = {
-          username: user.username,
-          userId: user._id,
-          image: user.profile_image,
-          channelId: options.uid,
-          gender: getGender(),
-          userStatus: user.current_status,
-          location: {
-            coordinates: [user.location.lon, user.location.lat],
-          },
-        };
-        await goLive(goLiveData);
-      } catch (err) {
-        console.log(err.message);
-      }
-    } else if (options.role === "audience") {
-      rtc.client.setClientRole(options.role, clientRoleOptions);
-      await rtc.client.join(
-        options.appId,
-        options.channel,
-        options.token,
-        options.uid
-      );
+      client.on("user-published", handleUserPublished);
+      client.on("user-joined", handleUserJoined);
+      client.on("user-left", handleUserLeft);
+      client.on("client-role-changed", handleClientRoleChanged);
+      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+      localTracks.videoTrack.play(liveRef.current);
+      await client.publish(Object.values(localTracks));
+      console.log("Successfully Published");
     }
   };
-  const handleRemote = async (user, mediaType) => {
-    await rtc.client.subscribe(user, mediaType);
-    console.log("subscribe success");
-    if (mediaType === "video") {
-      const remoteVideoTrack = user.videoTrack;
 
-      remoteVideoTrack.play(liveRef.current);
+  const leave = async () => {
+    for (let trackName in localTracks) {
+      let track = localTracks[trackName];
+      if (track) {
+        track.stop();
+        track.close();
+        localTracks[trackName] = undefined;
+      }
+    }
+    remoteUsers = {};
+    await client.leave();
+    console.log("Client successfuly left the channel");
+    const res = api.delete("/api/deleteliveuser", {
+      data: {
+        username: username,
+      },
+    });
+  };
+
+  const subscribe = async (user, mediaType) => {
+    const uid = user.uid;
+    await client.subscribe(user, mediaType);
+    console.log("Successfully Subscribes.");
+
+    if (mediaType === "video") {
+      user.videoTrack.play(liveRef.current);
     }
     if (mediaType === "audio") {
-      const remoteAudioTrack = user.audioTrack;
-      remoteAudioTrack.play();
-    }
-  };
-  const handleHostLeft = async () => {
-    try {
-      if (rtc.localAudioTrack) {
-        rtc.localAudioTrack.stop();
-        rtc.localAudioTrack.close();
-      }
-      if (rtc.localVideoTrack) {
-        rtc.localVideoTrack.stop();
-        rtc.localVideoTrack.close();
-      }
-      await rtc.client.leave();
-      const res = api.delete("/api/deleteliveuser", {
-        data: {
-          username: username,
-        },
-      });
-      console.log(res.data);
-      props.history.goBack();
-    } catch (err) {
-      console.log(err.message);
+      user.audioTrack.play();
     }
   };
 
+  const handleUserPublished = (user, mediaType) => {
+    const id = user.uid;
+    remoteUsers[id] = user;
+    subscribe(user, mediaType);
+  };
+
+  const handleUserJoined = (user, mediaType) => {
+    const id = user.uid;
+    remoteUsers[id] = user;
+    subscribe(user, mediaType);
+  };
+
+  const handleUserLeft = (user) => {
+    const id = user.uid;
+    delete remoteUsers[id];
+    // removePlayer();
+  };
+  const handleClientRoleChanged = () => {};
+  // let clientRTM;
+  const clientRTM = AgoraRTM.createInstance(options.appId, {
+    enableLogUpload: false,
+  });
+  const RTMJoin = async () => {
+    let accountName = audience ? channelName : user.username;
+    // login
+    clientRTM
+      .login({
+        uid: accountName,
+      })
+      .then(() => {
+        console.log("AgoraRTM client login success. username : " + accountName);
+        setIsLoggedIn(true);
+        // RTM channel join
+        let channelName = options.channel;
+        let channel = clientRTM.createChannel(channelName);
+        channel
+          .join()
+          .then(() => {
+            console.log("AgoraRTM client channel join success");
+            // get all members in RTM channel
+            channel.getMembers().then((memberNames) => {
+              setMembers(memberNames);
+
+              clientRTM.on("MessageFromPeer", ({ text }, peerId) => {
+                console.log(peerId + "changed your role to " + text);
+                if (text === "host") {
+                  leave();
+                  options.role = "host";
+                  console.log("Role Changed to host");
+                  client.setClientRole("host");
+                  join();
+                } else if (text === "audience") {
+                  leave();
+                  options.role = "audience";
+                  console.log("Role changed to audience");
+                  client.setClientRole("audience");
+                  join();
+                }
+              });
+
+              channel.on("MemberJoined", () => {
+                // get all members in RTM channel
+                channel.getMembers().then((memberNames) => {
+                  setMembers(memberNames);
+                  console.log(memberNames);
+                });
+              });
+
+              channel.on("MemberLeft", () => {
+                channel.getMembers().then((memberNames) => {
+                  setMembers(memberNames);
+                });
+              });
+            });
+          })
+          .catch((err) => console.log(err.message));
+      })
+      .catch((err) => console.log(err.message));
+  };
+  const roleChange = () => {
+    const peerId = options.uid;
+    let peerMessage = options.role === "host" ? "audience" : "host";
+    clientRTM
+      .sendMessageToPeer(
+        {
+          text: peerMessage,
+        },
+        peerId
+      )
+      .then((sendResult) => {
+        if (sendResult.hasPeerReceived) {
+          console.log("message recieved by " + peerId);
+        } else {
+          console.log("message sent to " + peerId);
+        }
+      });
+  };
+
+  const handleStreamStarted = async () => {
+    try {
+      console.log(location);
+      const goLiveData = {
+        username: user.username,
+        userId: user._id,
+        image: user.profile_image,
+        channelId: userUid,
+        gender: getGender(),
+        userStatus: 2,
+        location: {
+          coordinates: [
+            location.lon || user.location.lon,
+            location.lat || user.location.lat,
+          ],
+        },
+      };
+      await goLive(goLiveData);
+      setIsStarted(true);
+    } catch (err) {
+      console.log("Something went wrong");
+      props.history.goBack();
+    }
+  };
+
+  const handleHostLeft = () => {
+    props.history.goBack();
+  };
+
+  const RTMLeave = async () => {
+    console.log("Client logged out of RTM");
+
+    await clientRTM.logout();
+    setIsLoggedIn(false);
+  };
   useEffect(() => {
-    joinLiveStream();
+    join();
+    rtmSetup();
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        setLocation({ lon: pos.coords.longitude, lat: pos.coords.latitude });
+      });
+    }
+    return () => {
+      leave();
+      RTMLeave();
+    };
     // eslint-disable-next-line
   }, []);
   return (
@@ -195,11 +334,54 @@ export const Stream = (props) => {
         <Grid item>
           <div className={classes.streamContainer} ref={liveRef}>
             <IconButton
-              onClick={handleHostLeft}
+              // onClick={handleHostLeft}
               className={classes.endStreamButton}
             >
               <Close className={classes.endStreamIcon} />
             </IconButton>
+            <Dialog
+              open={true}
+              onOpen={() => setCloseStream(true)}
+              onClose={() => setCloseStream(false)}
+            >
+              <Grid
+                container
+                alignItems="center"
+                className={classes.endStreamContainer}
+                direction="column"
+                justifyContent="space-between"
+              >
+                <Grid item container direction="column">
+                  <Grid item>
+                    <Typography className={classes.endTitle}>
+                      Are you sure?
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography className={classes.endSubtitle}>
+                      This will end your stream.
+                    </Typography>
+                  </Grid>
+                </Grid>
+                <Grid item container alignItems="center" direction="column">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    className={classes.endStreamButton}
+                    style={{ marginBottom: "1rem" }}
+                  >
+                    End Stream
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    className={classes.endStreamButton}
+                  >
+                    Not Now
+                  </Button>
+                </Grid>
+              </Grid>
+            </Dialog>
             {isStarted || audience ? undefined : (
               <div style={{ zIndex: 1 }} className={classes.description}>
                 <TextField
@@ -213,7 +395,7 @@ export const Stream = (props) => {
                   className={classes.startButton}
                   variant="contained"
                   color="primary"
-                  onClick={() => setIsStarted(true)}
+                  onClick={handleStreamStarted}
                 >
                   Start
                 </Button>
@@ -236,12 +418,18 @@ export const Stream = (props) => {
                 </div>
               </div>
             ) : undefined}
-            <IconButton
-              onClick={() => setOpenDialog(true)}
-              className={classes.warningButton}
-            >
-              <WarningIcon className={classes.warningIcon} />
-            </IconButton>
+            {audience ? (
+              <IconButton
+                style={{ zIndex: 1 }}
+                onClick={() => setOpenDialog(true)}
+                className={classes.warningButton}
+              >
+                <WarningIcon className={classes.warningIcon} />
+              </IconButton>
+            ) : (
+              <></>
+            )}
+
             <Dialog open={openDialog} className={classes.dialog}>
               <Grid
                 container

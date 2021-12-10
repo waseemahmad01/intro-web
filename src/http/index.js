@@ -51,6 +51,7 @@ export const profession = (data) => api.patch("/api/profession", data);
 export const vices = (data) => api.patch("/api/vices", data);
 export const profileImage = (data) => api.patch("/api/profileImage", data);
 export const step = (data) => api.patch("/api/step", data);
+export const setLocation = (data) => api.patch("/api/location", data);
 
 // users
 

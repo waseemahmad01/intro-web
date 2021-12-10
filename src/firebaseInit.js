@@ -14,24 +14,41 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
-const publicKey =
-  "BAsWxzh4bLcZjfXQ9nTTAP5dQd1rePBfiLJaQECPY955S0zz7W8BRkxfRgOTCqA5UU1sHccwq53mh_TvCcR3cdg";
 
-export const getToken = async () => {
-  let currentToken = "";
+export const getToken = () => {
   try {
-    currentToken = await messaging.getToken({ vapidKey: publicKey });
-    console.log(currentToken);
+    messaging
+      .getToken({ vapidKey: process.env.REACT_APP_VAPID_KEY })
+      .then((currentToken) => {
+        subscribeTokenToTopic(currentToken, "liveuser");
+      });
   } catch (err) {
     console.log(err);
   }
 };
+function subscribeTokenToTopic(token, topic) {
+  fetch(`https://iid.googleapis.com/iid/v1/${token}/rel/topics/${topic}`, {
+    method: "POST",
+    headers: new Headers({
+      Authorization: `key=${process.env.REACT_APP_FCM_SERVER_KEY}`,
+    }),
+  })
+    .then((response) => {
+      if (response.status < 200 || response.status >= 400) {
+        console.log(response.status, response);
+      }
+      console.log(`"${topic}" is subscribed`);
+    })
+    .catch((error) => {
+      console.error(error.result);
+    });
+  return true;
+}
 
 export const onMessageListener = () => {
-  new Promise((resolve) => {
+  return new Promise((resolve) => {
     messaging.onMessage((payload) => {
       resolve(payload);
-      console.log("notification", payload);
     });
   });
 };

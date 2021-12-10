@@ -19,7 +19,7 @@ import { useDispatch } from "react-redux";
 import { getUser } from "./http/index";
 import { submit } from "./store/user";
 import { SocketContext } from "./http/socket";
-import { getToken, onMessageListener } from "./firebaseInit";
+import { onMessageListener } from "./firebaseInit";
 import { useSelector } from "react-redux";
 
 function App(props) {
@@ -47,10 +47,10 @@ function App(props) {
   useEffect(() => {
     fetchUser();
     (async () => {
-      await getToken();
       const data = onMessageListener();
-      console.log(data);
+      // console.log(data);
     })();
+
     return () => {
       if (socket !== null) socket.emit("disconnect", userState._id);
     };

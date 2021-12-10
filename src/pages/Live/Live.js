@@ -22,6 +22,7 @@ import { TopBar } from "../../components/TopBar/TopBar";
 import { LiveFilter } from "../../components/LiveFilter/LiveFilter";
 import { liveStreamUsers } from "../../http/index";
 import { useSelector } from "react-redux";
+import { onMessageListener } from "../../firebaseInit";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -367,7 +368,9 @@ export const Live = () => {
   };
 
   const [tab, setTab] = useState(0);
+  const [query, setQuery] = useState(`?trending=${true}`);
   const [openDialog, setOpenDialog] = useState(false);
+  const [fetchQuery, setFetchQuery] = useState(false);
   const toggleDialog = () => {
     setOpenDialog(!openDialog);
   };
@@ -391,8 +394,18 @@ export const Live = () => {
   };
   const Component = tabs[tab];
   useEffect(() => {
-    fetchData(`?trending=${true}}`);
-  }, []);
+    fetchData(query);
+  }, [query]);
+  useEffect(() => {
+    (async () => {
+      const message = await onMessageListener();
+      if (message) {
+        fetchData(query);
+        setFetchQuery(!fetchQuery);
+      }
+    })();
+    // eslint-disable-next-line
+  }, [fetchQuery]);
   return (
     <Grid container className={classes.container}>
       <Grid item className={classes.topbarContainer}>
@@ -414,20 +427,20 @@ export const Live = () => {
                 scrollButtons="on"
               >
                 <Tab
-                  onClick={() => fetchData(`?trending=${true}`)}
+                  onClick={() => setQuery(`?trending=${true}`)}
                   label="Trending"
                   className={classes.tab}
                   classes={{ root: classes.tabsRoot }}
                 />
                 <Tab
-                  onClick={() => fetchData(`?date=${getPreference()}`)}
+                  onClick={() => setQuery(`?date=${getPreference()}`)}
                   label="Date"
                   className={classes.tab}
                   classes={{ root: classes.tabsRoot }}
                 />
                 <Tab
                   onClick={() =>
-                    fetchData(
+                    setQuery(
                       `?nearby=${true}&lat=${user.location.lat}&long=${
                         user.location.lon
                       }&distance=10`
@@ -439,13 +452,13 @@ export const Live = () => {
                 />
 
                 <Tab
-                  onClick={() => fetchData(`?status=${true}`)}
+                  onClick={() => setQuery(`?status=${true}`)}
                   label="New"
                   classes={{ root: classes.tabsRoot }}
                   className={classes.tab}
                 />
                 <Tab
-                  onClick={() => fetchData(`?favorites=${true}`)}
+                  onClick={() => setQuery(`?favorites=${true}`)}
                   label="Favourite"
                   className={classes.tab}
                   classes={{ root: classes.tabsRoot }}

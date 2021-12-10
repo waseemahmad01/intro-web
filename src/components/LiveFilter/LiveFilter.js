@@ -119,10 +119,11 @@ export const LiveFilter = ({ liveUsers }) => {
                   </Grid>
                   <Grid item style={{ width: "100%" }}>
                     <Typography className={classes.userCity}>
-                      {getCityName(
+                      {/* {getCityName(
                         user.location.coordinates[1],
                         user.location.coordinates[0]
-                      )}
+                      )} */}
+                      New York
                     </Typography>
                   </Grid>
                 </Grid>
