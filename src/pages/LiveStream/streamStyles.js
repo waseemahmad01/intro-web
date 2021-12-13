@@ -81,7 +81,7 @@ export const useStyles = makeStyles((theme) => ({
     backgroundSize: "cover",
     backgroundPosition: "center",
     [theme.breakpoints.down(1680)]: {
-      height: "470px",
+      height: "500px",
     },
     "& img": {
       width: "100%",
@@ -432,24 +432,56 @@ export const useStyles = makeStyles((theme) => ({
   endStreamIcon: {
     fontSize: "40px",
   },
+  endStreamDialog: {
+    "& .MuiDialog-paper": {
+      backgroundColor: theme.palette.common.lightPink,
+      borderRadius: "10px",
+    },
+  },
   endStreamContainer: {
-    height: "400px",
-    width: "450px",
+    height: "586px",
+    width: "540px",
+    paddingBlock: "134px 89px",
+    [theme.breakpoints.down("lg")]: {
+      height: "340px",
+      width: "350px",
+      paddingBlock: "60px 40px",
+    },
   },
   endTitle: {
     margin: "0",
     color: "#000000",
+    fontSize: "32px",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "25px",
+    },
   },
   endSubtitle: {
     margin: "0",
     color: "#000000",
+    fontSize: "22px",
+    marginTop: "18px",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "18px",
+      marginTop: "8px",
+    },
   },
-  endStreamButton: {
+  endStreamButtons: {
     margin: "0",
-    width: "260px",
-    height: "60px",
-    fontSize: "20px",
+    width: "265px",
+    height: "63px",
+    fontSize: "22px",
+    fontWeight: "500",
     textTransform: "none",
-    borderRadius: "35px",
+    borderRadius: "38px",
+    border: `2px solid ${theme.palette.primary.main}`,
+    "&:hover": {
+      border: `2px solid ${theme.palette.primary.dark}`,
+    },
+    [theme.breakpoints.down("lg")]: {
+      width: "220px",
+      height: "50px",
+      fontSize: "16px",
+    },
   },
 }));

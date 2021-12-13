@@ -356,7 +356,7 @@ export const StreamerBox = () => {
                   </IconButton>
                 </Grid>
                 <Grid item className={classes.sheetContent}>
-                  <TabComponent />
+                  <TabComponent setLiveLoop={setLiveLoop} liveLoop={LiveLoop} />
                 </Grid>
               </Grid>
             </animated.div>
@@ -379,7 +379,12 @@ export const StreamerBox = () => {
                       alt="down-arrow"
                     />
                   </IconButton>
-                  <SheetTab />
+                  <SheetTab
+                    handleSheetClose={handleSheetClose}
+                    setLiveLoop={setLiveLoop}
+                    setTab={setTab}
+                    setSheetVisible={setSheetVisible}
+                  />
                 </Grid>
               </Grid>
             </animated.div>
@@ -463,7 +468,7 @@ export const StreamerBox = () => {
               disableRipple
               icon={
                 <img
-                  src={image.stopwatch}
+                  src={tab === 2 ? image.liveloopActive : image.stopwatch}
                   alt="camera-icon"
                   className={classes.tabIcon}
                 />

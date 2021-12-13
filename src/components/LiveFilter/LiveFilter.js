@@ -63,8 +63,8 @@ export const LiveFilter = ({ liveUsers }) => {
     );
   };
 
-  const handleJoinStream = (username) => {
-    history.push(`joinstream/${username}`);
+  const handleJoinStream = (username, id) => {
+    history.push(`joinstream/${username}/${id}`);
   };
 
   useEffect(() => {
@@ -85,7 +85,7 @@ export const LiveFilter = ({ liveUsers }) => {
         <Grid
           item
           key={user._id}
-          onClick={() => handleJoinStream(user.username)}
+          onClick={() => handleJoinStream(user.username, user._id)}
         >
           <div className={classes.liveUser}>
             <img

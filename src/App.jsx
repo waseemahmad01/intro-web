@@ -108,7 +108,7 @@ function App(props) {
           </Route>
           <Route path="/stream" render={(props) => <Stream {...props} />} />
           <Route
-            path="/joinstream/:id"
+            path="/joinstream/:id/:sId"
             render={(props) => <Stream audience {...props} />}
           />
         </>

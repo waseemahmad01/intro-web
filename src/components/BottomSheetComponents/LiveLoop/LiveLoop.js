@@ -3,10 +3,11 @@ import {
   makeStyles,
   Grid,
   Typography,
-  Chip,
   Slider,
   Button,
 } from "@material-ui/core";
+import ChipRadio from "../../chipRadioButton/ChipRadio";
+import { useSelector } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -125,10 +126,17 @@ const useStyles = makeStyles((theme) => ({
     border: "2px solid blue",
   },
 }));
-export const LiveLoop = () => {
+export const LiveLoop = ({
+  setLiveLoop,
+  handleSheetClose,
+  setTab,
+  setSheetVisible,
+}) => {
   const classes = useStyles();
+  const user = useSelector((state) => state.auth.user.data);
   const [age, setAge] = useState([22, 32]);
-  const [distance, setDistance] = useState(1);
+  const [distance, setDistance] = useState(2);
+  const [gender, setGender] = useState("");
   const handleAge = (event, age) => {
     setAge(age);
   };
@@ -140,6 +148,29 @@ export const LiveLoop = () => {
   };
   const handleClick = (e) => {
     e.target.classList.toggle(classes.active);
+  };
+  const dateFilters = ["men", "women", "everyone"];
+  const handleGender = (e) => {
+    setGender(e.target.value);
+  };
+  const getGender = (gender) => {
+    if (gender.toLowerCase() === "male") {
+      return 1;
+    } else if (gender.toLowerCase() === "female") {
+      return 0;
+    } else {
+      return 2;
+    }
+  };
+  const getGenderIdentifier = () => {
+    const profile = getGender(user.identify.gender);
+    const search = getGender(gender);
+    if (profile == 1 && search == 1) return "A";
+    else if (profile == 1 && search == 0) return "B";
+    else if (profile == 1 && search == 2) return "C";
+    else if (profile == 0 && search == 1) return "D";
+    else if (profile == 0 && search == 0) return "E";
+    else if (profile == 0 && search == 2) return "F";
   };
   return (
     <Grid
@@ -165,19 +196,18 @@ export const LiveLoop = () => {
         className={classes.chipContainer}
         justifyContent="space-between"
       >
-        <Grid item>
-          <Chip className={classes.chip} label="Men" onClick={handleClick} />
-        </Grid>
-        <Grid item>
-          <Chip className={classes.chip} label="Women" onClick={handleClick} />
-        </Grid>
-        <Grid item>
-          <Chip
-            className={classes.chip}
-            label="Everyone"
-            onClick={handleClick}
-          />
-        </Grid>
+        {dateFilters.map((item) => (
+          <Grid key={item}>
+            <ChipRadio
+              name="gender"
+              id={item}
+              label={item}
+              value={item}
+              handleShow={handleGender}
+              liveloop
+            />
+          </Grid>
+        ))}
       </Grid>
       <Typography className={classes.allowText}>Only Allow</Typography>
       <Grid
@@ -233,6 +263,12 @@ export const LiveLoop = () => {
           variant="contained"
           color="primary"
           className={classes.startButton}
+          onClick={() => {
+            setLiveLoop(true);
+            handleSheetClose();
+            setTab(1);
+            setSheetVisible(true);
+          }}
         >
           Start
         </Button>

@@ -54,6 +54,7 @@ const authSlice = createSlice({
       },
       accessToken: "",
       onlineUsers: [],
+      liveloopSearchGenderIdentifier: "",
     },
   },
 
@@ -69,8 +70,12 @@ const authSlice = createSlice({
     setOnlineUsers: (state, action) => {
       state.user.onlineUsers = action.payload;
     },
+    setLiveloopSearchGenderIdentifier: (state, action) => {
+      state.user.liveloopSearchGenderIdentifier = action.payload;
+    },
   },
 });
 
-export const { submit, setOnlineUsers } = authSlice.actions;
+export const { submit, setOnlineUsers, setLiveloopSearchGenderIdentifier } =
+  authSlice.actions;
 export default authSlice.reducer;

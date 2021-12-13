@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import { useStyles } from "./streamStyles";
 import AgoraRTC from "agora-rtc-sdk-ng";
 import AgoraRTM from "agora-rtm-sdk";
@@ -23,14 +23,18 @@ import { Close } from "@material-ui/icons";
 import { useSelector } from "react-redux";
 import { goLive } from "../../http";
 import api from "../../http";
+import { SocketContext } from "../../http/socket";
+import { Gift } from "../../components/Gift/Gift";
 
 export const Stream = (props) => {
   const { audience } = props;
   const channelName = props.match.params.id;
+  const streamId = props.match.params.id;
   const user = useSelector((state) => state.auth.user.data);
   const classes = useStyles();
   const liveRef = useRef();
   const username = user.username;
+  const socket = useContext(SocketContext);
   // eslint-disable-next-line
   const [guestWindow, setGuestWindow] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
@@ -38,8 +42,7 @@ export const Stream = (props) => {
   const [exit, setExit] = useState(false);
   const [blueWindow, setBlueWindow] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
-  const [members, setMembers] = useState(null);
-  const roleRef = useRef();
+  const [members, setMembers] = useState(0);
   const theme = useTheme();
   const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const lgScreen = useMediaQuery(theme.breakpoints.down(1680));
@@ -210,15 +213,24 @@ export const Stream = (props) => {
 
               channel.on("MemberJoined", () => {
                 // get all members in RTM channel
+                const data = {
+                  id: streamId,
+                  count: +1,
+                };
+                socket.emit("livestreamcount", data);
                 channel.getMembers().then((memberNames) => {
-                  setMembers(memberNames);
-                  console.log(memberNames);
+                  setMembers(memberNames.length);
                 });
               });
 
               channel.on("MemberLeft", () => {
+                const data = {
+                  id: streamId,
+                  count: -1,
+                };
+                socket.emit("livestreamcount", data);
                 channel.getMembers().then((memberNames) => {
-                  setMembers(memberNames);
+                  setMembers(memberNames.length);
                 });
               });
             });
@@ -255,7 +267,7 @@ export const Stream = (props) => {
         image: user.profile_image,
         channelId: userUid,
         gender: getGender(),
-        userStatus: 2,
+        userStatus: user.current_status,
         location: {
           coordinates: [
             location.lon || user.location.lon,
@@ -263,7 +275,8 @@ export const Stream = (props) => {
           ],
         },
       };
-      await goLive(goLiveData);
+      const { data } = await goLive(goLiveData);
+      console.log("Api res ==>", data);
       setIsStarted(true);
     } catch (err) {
       console.log("Something went wrong");
@@ -282,16 +295,16 @@ export const Stream = (props) => {
     setIsLoggedIn(false);
   };
   useEffect(() => {
-    join();
-    rtmSetup();
+    // join();
+    // rtmSetup();
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition((pos) => {
         setLocation({ lon: pos.coords.longitude, lat: pos.coords.latitude });
       });
     }
     return () => {
-      leave();
-      RTMLeave();
+      // leave();
+      // RTMLeave();
     };
     // eslint-disable-next-line
   }, []);
@@ -326,21 +339,26 @@ export const Stream = (props) => {
                   className={classes.eyeIcon}
                   alt="eye-icon"
                 />
-                <span className={classes.count}>558</span>
+                <span className={classes.count}>
+                  {members.length ? members.length - 1 : 0}
+                </span>
               </div>
             </Grid>
           </Grid>
         </Grid>
         <Grid item>
           <div className={classes.streamContainer} ref={liveRef}>
-            <IconButton
-              // onClick={handleHostLeft}
-              className={classes.endStreamButton}
-            >
-              <Close className={classes.endStreamIcon} />
-            </IconButton>
+            {!audience && (
+              <IconButton
+                onClick={() => setCloseStream(true)}
+                className={classes.endStreamButton}
+              >
+                <Close className={classes.endStreamIcon} />
+              </IconButton>
+            )}
             <Dialog
-              open={true}
+              className={classes.endStreamDialog}
+              open={closeStream}
               onOpen={() => setCloseStream(true)}
               onClose={() => setCloseStream(false)}
             >
@@ -367,15 +385,17 @@ export const Stream = (props) => {
                   <Button
                     variant="contained"
                     color="primary"
-                    className={classes.endStreamButton}
+                    className={classes.endStreamButtons}
                     style={{ marginBottom: "1rem" }}
+                    onClick={() => props.history.goBack()}
                   >
                     End Stream
                   </Button>
                   <Button
                     variant="outlined"
                     color="primary"
-                    className={classes.endStreamButton}
+                    className={classes.endStreamButtons}
+                    onClick={() => setCloseStream(false)}
                   >
                     Not Now
                   </Button>
@@ -583,9 +603,12 @@ export const Stream = (props) => {
         item
         container
         alignItems={smScreen ? undefined : "flex-end"}
-        justifyContent={lgScreen ? "center" : "flex-start"}
+        justifyContent={
+          lgScreen ? (audience ? "flex-start" : "center") : "flex-start"
+        }
         className={classes.utilityContainer}
       >
+        {audience && <Gift />}
         {audience ? <ViewerBox /> : <StreamerBox />}
       </Grid>
     </Grid>
