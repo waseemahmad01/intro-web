@@ -48,7 +48,7 @@ function App(props) {
     fetchUser();
     (async () => {
       const data = onMessageListener();
-      // console.log(data);
+      console.log(data);
     })();
 
     return () => {

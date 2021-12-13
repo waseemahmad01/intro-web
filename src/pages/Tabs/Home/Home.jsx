@@ -324,7 +324,7 @@ export const Home = () => {
                   No Likes Found
                 </span>
               )}
-              <List>
+              <List className={classes.likeList}>
                 {likedMe.map((item, index) => (
                   <ListItem
                     key={item.liked_by}

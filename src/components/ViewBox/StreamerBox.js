@@ -101,6 +101,7 @@ const useStyles = makeStyles((theme) => ({
   tab: {
     minWidth: "30px",
     marginInline: "22px",
+    opacity: 1,
     [theme.breakpoints.down(1680)]: {
       minWidth: "20px",
       marginInline: "11px",
@@ -211,7 +212,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-export const StreamerBox = () => {
+export const StreamerBox = ({ channelId }) => {
   const classes = useStyles();
   const [tab, setTab] = useState(0);
   const [liveLoop, setLiveLoop] = useState(false);
@@ -384,6 +385,7 @@ export const StreamerBox = () => {
                     setLiveLoop={setLiveLoop}
                     setTab={setTab}
                     setSheetVisible={setSheetVisible}
+                    channelId={channelId}
                   />
                 </Grid>
               </Grid>

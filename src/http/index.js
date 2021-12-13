@@ -97,7 +97,7 @@ export const deleteLiveUser = (data) => api.delete("/api/deleteliveuser", data);
 // liveloop
 export const createLiveloop = (data) => api.post("/api/liveloop", data);
 // data ==> username, image,location, channelId,gender_identifier,age
-export const getLiveLoopRequests = (query) => api.get("/api/liveloop", query);
+export const getLiveLoopRequests = (query) => api.get(`/api/liveloop?${query}`);
 
 //   data={} 'age=${ageRange[0]}&age=${ageRange[1]}&long=$lng&lat=$lat&distance=$distance&gender_identifier=$genderIdentifier'
 

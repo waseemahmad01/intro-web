@@ -15,18 +15,21 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
+export let token = "";
+
 export const getToken = () => {
   try {
     messaging
       .getToken({ vapidKey: process.env.REACT_APP_VAPID_KEY })
       .then((currentToken) => {
         subscribeTokenToTopic(currentToken, "liveuser");
+        token = currentToken;
       });
   } catch (err) {
     console.log(err);
   }
 };
-function subscribeTokenToTopic(token, topic) {
+export function subscribeTokenToTopic(token, topic) {
   fetch(`https://iid.googleapis.com/iid/v1/${token}/rel/topics/${topic}`, {
     method: "POST",
     headers: new Headers({

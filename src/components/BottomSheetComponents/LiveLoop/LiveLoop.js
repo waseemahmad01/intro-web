@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   makeStyles,
   Grid,
@@ -7,7 +7,9 @@ import {
   Button,
 } from "@material-ui/core";
 import ChipRadio from "../../chipRadioButton/ChipRadio";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { createLiveloop } from "../../../http/index";
+import { setFilters } from "../../../store/utils";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -134,6 +136,11 @@ export const LiveLoop = ({
 }) => {
   const classes = useStyles();
   const user = useSelector((state) => state.auth.user.data);
+  const dispatch = useDispatch();
+  const [location, setLocation] = useState({
+    lon: "",
+    lat: "",
+  });
   const [age, setAge] = useState([22, 32]);
   const [distance, setDistance] = useState(2);
   const [gender, setGender] = useState("");
@@ -154,9 +161,12 @@ export const LiveLoop = ({
     setGender(e.target.value);
   };
   const getGender = (gender) => {
-    if (gender.toLowerCase() === "male") {
+    if (gender.toLowerCase() === "male" || gender.toLowerCase() === "men") {
       return 1;
-    } else if (gender.toLowerCase() === "female") {
+    } else if (
+      gender.toLowerCase() === "female" ||
+      gender.toLowerCase() === "women"
+    ) {
       return 0;
     } else {
       return 2;
@@ -172,6 +182,45 @@ export const LiveLoop = ({
     else if (profile == 0 && search == 0) return "E";
     else if (profile == 0 && search == 2) return "F";
   };
+  const startLiveLoop = async () => {
+    try {
+      dispatch(
+        setFilters({
+          gender_identifier: getGenderIdentifier(),
+          age: age,
+          distance: distance,
+          location: {
+            coordinates: [location.lon, location.lat],
+          },
+        })
+      );
+      const apiData = {
+        username: user.username,
+        image: user.profile_image,
+        location: {
+          coordinates: [location.lon, location.lat],
+        },
+        channelId: user.username,
+        gender_identifier: getGenderIdentifier(),
+        age: user.date_of_birth.age,
+      };
+      const { data } = await createLiveloop(apiData);
+
+      setLiveLoop(true);
+      handleSheetClose();
+      setTab(1);
+      setSheetVisible(true);
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        setLocation({ lon: pos.coords.longitude, lat: pos.coords.latitude });
+      });
+    }
+  });
   return (
     <Grid
       container
@@ -263,12 +312,7 @@ export const LiveLoop = ({
           variant="contained"
           color="primary"
           className={classes.startButton}
-          onClick={() => {
-            setLiveLoop(true);
-            handleSheetClose();
-            setTab(1);
-            setSheetVisible(true);
-          }}
+          onClick={startLiveLoop}
         >
           Start
         </Button>

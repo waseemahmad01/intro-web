@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { makeStyles, Grid } from "@material-ui/core";
 import image from "../../../assets/index";
+import { getLiveLoopRequests } from "../../../http/index";
+import { useSelector } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -33,8 +35,18 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
+
 export const Guest = () => {
   const classes = useStyles();
+  const filters = useSelector((state) => state.utils.liveloop.filters);
+  useEffect(() => {
+    (async () => {
+      const query = `age=${filters.age[0]}&age=${filters.age[1]}&long=${filters.location.coordinates[0]}&lat=${filters.location.coordinates[1]}&distance=${filters.distance}&gender_identifier=${filters.gender_identifier}`;
+      console.log(query);
+      const { data } = await getLiveLoopRequests(query);
+      console.log(data);
+    })();
+  }, []);
   return (
     <Grid
       className={classes.container}

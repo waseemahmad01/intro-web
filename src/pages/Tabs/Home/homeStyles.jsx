@@ -361,4 +361,11 @@ export const useStyles = makeStyles((theme) => ({
       marginTop: "10px",
     },
   },
+  likeList: {
+    maxHeight: "480px",
+    overflowY: "auto",
+    [theme.breakpoints.down("lg")]: {
+      maxHeight: "320px",
+    },
+  },
 }));

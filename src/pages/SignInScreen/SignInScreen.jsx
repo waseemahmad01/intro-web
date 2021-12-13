@@ -20,6 +20,7 @@ import { submit } from "../../store/user";
 import { useDispatch } from "react-redux";
 import Joi from "joi-browser";
 import { SocketContext } from "../../http/socket";
+import { token, subscribeTokenToTopic } from "../../firebaseInit";
 // import io from "socket.io-client";
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -343,6 +344,7 @@ export const SignInScreen = (props) => {
           code: "123456",
         });
         socket.emit("login", data.data._id);
+        subscribeTokenToTopic(token, `${data.data._id}_liveloop`);
         const res = await getUser();
         if (data.data.step === "/home") {
           props.history.push("home");
