@@ -66,7 +66,6 @@ export const useStyles = makeStyles((theme) => ({
     width: "428px",
     overflow: "hidden",
     borderRadius: "35px",
-    background: "#000000",
     [theme.breakpoints.down("lg")]: {
       width: "300px",
       height: "447.97px",

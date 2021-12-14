@@ -20,6 +20,7 @@ import { UserProfile } from "../Tabs/UserProfile/UserProfile";
 import { MeetMe } from "../Tabs/MeetMe/MeetMe";
 import { Route, NavLink } from "react-router-dom";
 import { ProfileMatched } from "../Tabs/ProfileMatched/ProfileMatched";
+import { getStories } from "../../http/index";
 import {
   HomeRounded,
   PublicRounded,
@@ -29,7 +30,8 @@ import {
   PersonRounded,
 } from "@material-ui/icons";
 import { allVideos as getAllVideos } from "../../http/index";
-
+import { setStories } from "../../store/stories";
+import { useDispatch } from "react-redux";
 export const AllTabs = () => {
   const classes = useStyles();
   const theme = useTheme();
@@ -39,6 +41,7 @@ export const AllTabs = () => {
   const pageNumber = useRef(1);
   const [changing, setChanging] = useState(1);
   const totalPages = useRef(0);
+  const dispatch = useDispatch();
   allVideos.current = [];
 
   const observer = useRef();
@@ -50,7 +53,6 @@ export const AllTabs = () => {
         pageNumber.current <= totalPages.current
       ) {
         pageNumber.current = pageNumber.current + 1;
-        console.log(pageNumber.current);
         setChanging((prev) => prev + 1);
       }
     });
@@ -82,7 +84,10 @@ export const AllTabs = () => {
         bottom > boundry.bottom.upper &&
         bottom < boundry.bottom.lower
       ) {
-        video.play();
+        if (video.readyState >= 2) {
+          video.play();
+        }
+        // console.log(video.readyState);
       } else {
         video.pause();
       }
@@ -107,6 +112,12 @@ export const AllTabs = () => {
     }
     // eslint-disable-next-line
   }, [changing, url]);
+  useEffect(() => {
+    (async () => {
+      const { data } = await getStories();
+      dispatch(setStories(data.data));
+    })();
+  }, []);
   const tabItems = [
     {
       label: "Home",

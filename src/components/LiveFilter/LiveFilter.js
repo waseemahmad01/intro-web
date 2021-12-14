@@ -69,8 +69,10 @@ export const LiveFilter = ({ liveUsers }) => {
 
   useEffect(() => {
     (async () => {
-      const { data } = await liveStreamUsers();
-      console.log(data);
+      try {
+        const { data } = await liveStreamUsers();
+        console.log(data);
+      } catch (err) {}
     })();
   }, []);
   return (

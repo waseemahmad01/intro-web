@@ -117,7 +117,7 @@ export const RegisterFour = ({ onNext }) => {
       const identifyData = {
         gender: identify,
         visible: identifyShow,
-        step: "/preference",
+        step: "/choose-date-characters",
       };
       const apiData = {
         interested_gender: datePreference,
@@ -208,7 +208,7 @@ export const RegisterFour = ({ onNext }) => {
                   <RadioButton value="women" label="Women" />
                   <RadioButton value="everyone" label="Everyone" />
                 </Grid>
-                {errors.datePreference && (
+                {Boolean(errors.datePreference) && (
                   <span className={classes.error}>{errors.datePreference}</span>
                 )}
               </RadioGroup>
@@ -247,7 +247,7 @@ export const RegisterFour = ({ onNext }) => {
                   <RadioButton value="Anything" label="Anything" />
                 </Grid>
               </RadioGroup>
-              {errors.audience && (
+              {Boolean(errors.audience) && (
                 <span className={classes.error}>{errors.audience}</span>
               )}
             </Grid>

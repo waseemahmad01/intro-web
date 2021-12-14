@@ -25,7 +25,6 @@ import { useSelector } from "react-redux";
 function App(props) {
   const dispatch = useDispatch();
   const socket = useContext(SocketContext);
-  // const lgScreen = useMediaQuery(theme.breakpoints.down("md"));
   const userState = useSelector((state) => state.auth.user.data);
   const handleResize = () => {
     if (window.innerWidth <= 1200) {
@@ -38,8 +37,10 @@ function App(props) {
   };
   const fetchUser = async () => {
     try {
-      const { data } = await getUser();
-      dispatch(submit(data));
+      if (localStorage.getItem("token")) {
+        const { data } = await getUser();
+        dispatch(submit(data));
+      }
     } catch (err) {
       console.log(err);
     }

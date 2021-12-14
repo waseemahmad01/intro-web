@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { makeStyles } from "@material-ui/core";
 import {
   Grid,
@@ -8,7 +8,9 @@ import {
   useMediaQuery,
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { getLiveUsers } from "../../../http";
+import { setOnlineUsers } from "../../../store/user";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -89,8 +91,19 @@ const useStyles = makeStyles((theme) => ({
 export const Online = () => {
   const classes = useStyles();
   const theme = useTheme();
+  const dispatch = useDispatch();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const onlineUsers = useSelector((state) => state.auth.user.onlineUsers);
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await getLiveUsers();
+        dispatch(setOnlineUsers(data.data));
+      } catch (err) {
+        console.log(err.message);
+      }
+    })();
+  }, []);
   return (
     <div className={classes.container} style={{ width: "100%" }}>
       <h1 className={classes.title}>Online</h1>

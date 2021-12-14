@@ -129,7 +129,7 @@ export const RegisterTwo = ({ onNext }) => {
       container
       className={classes.container}
       style={{
-        backgroundImage: `url(${image.comb}),url(${image.gender})`,
+        backgroundImage: `url(${image.comb}))`,
         backgroundPosition: "100% 100%, 0% 100%",
       }}
     >
@@ -220,9 +220,6 @@ export const RegisterTwo = ({ onNext }) => {
           </form>
         </Grid>
       </Grid>
-      {/* <div className={classes.bgImage2}>
-				<img src={bgImage2} alt="" />
-			</div> */}
     </Grid>
   );
 };

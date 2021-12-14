@@ -186,7 +186,7 @@ export const RegisterOne = ({ onNext }) => {
                   name="email"
                   onChange={handleUser}
                   value={user.email}
-                  error={errors.email ? true : false}
+                  error={Boolean(errors.email)}
                   helperText={errors.email}
                 />
               </Grid>
@@ -199,7 +199,7 @@ export const RegisterOne = ({ onNext }) => {
                     name="firstname"
                     onChange={handleUser}
                     value={user.firstname}
-                    error={errors.firstname ? true : false}
+                    error={Boolean(errors.firstname)}
                     helperText={errors.firstname}
                   />
                 </Grid>
@@ -211,7 +211,7 @@ export const RegisterOne = ({ onNext }) => {
                     name="lastname"
                     onChange={handleUser}
                     value={user.lastname}
-                    error={errors.lastname ? true : false}
+                    error={Boolean(errors.lastname)}
                     helperText={errors.lastname}
                   />
                 </Grid>
@@ -224,7 +224,7 @@ export const RegisterOne = ({ onNext }) => {
                   name="username"
                   onChange={handleUser}
                   value={user.username}
-                  error={errors.username ? true : false}
+                  error={Boolean(errors.username)}
                   helperText={errors.username}
                 />
               </Grid>
@@ -249,7 +249,7 @@ export const RegisterOne = ({ onNext }) => {
                     value={
                       type === "text" && user.dob !== "" ? showDate() : user.dob
                     }
-                    error={errors.dob ? true : false}
+                    error={Boolean(errors.dob)}
                     helperText={errors.dob}
                   />
                 </Grid>

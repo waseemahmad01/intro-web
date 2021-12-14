@@ -175,12 +175,12 @@ export const LiveLoop = ({
   const getGenderIdentifier = () => {
     const profile = getGender(user.identify.gender);
     const search = getGender(gender);
-    if (profile == 1 && search == 1) return "A";
-    else if (profile == 1 && search == 0) return "B";
-    else if (profile == 1 && search == 2) return "C";
-    else if (profile == 0 && search == 1) return "D";
-    else if (profile == 0 && search == 0) return "E";
-    else if (profile == 0 && search == 2) return "F";
+    if (profile === 1 && search === 1) return "A";
+    else if (profile === 1 && search === 0) return "B";
+    else if (profile === 1 && search === 2) return "C";
+    else if (profile === 0 && search === 1) return "D";
+    else if (profile === 0 && search === 0) return "E";
+    else if (profile === 0 && search === 2) return "F";
   };
   const startLiveLoop = async () => {
     try {

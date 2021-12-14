@@ -10,14 +10,7 @@ import {
   Button,
   Chip,
   Slider,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  ListItemSecondaryAction as Action,
   TextField,
-  useTheme,
-  useMediaQuery,
 } from "@material-ui/core";
 
 import AvatarGroup from "@material-ui/lab/AvatarGroup";
@@ -27,10 +20,7 @@ import { likeVideo } from "../../http";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleMute } from "../../store/videoSound";
 export const Post = React.forwardRef(
-  (
-    { meetMe, username, profile_img, video_url, video_id, title, like },
-    ref
-  ) => {
+  ({ username, profile_img, video_url, video_id, title, like }, ref) => {
     const classes = useStyles();
     const [openDialog, setOpenDialog] = useState(false);
     const [quickMessage, setQuickMessage] = useState(false);
@@ -38,7 +28,6 @@ export const Post = React.forwardRef(
     const [sliderValue, setSliderValue] = useState([11, 23]);
     // eslint-disable-next-line
     const [selectedDate, setSelectedDate] = useState(new Date());
-    const [openSuperDialog, setOpenSuperDialog] = useState(false);
     const isMuted = useSelector((state) => state.video.muted);
     const dispatch = useDispatch();
     const [isLiked, setIsLiked] = useState(like);
@@ -66,9 +55,6 @@ export const Post = React.forwardRef(
       console.log(data);
       setOpenDialog(data.matched);
     };
-    const theme = useTheme();
-    const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
-    // console.log(ref);
     return (
       <Grid
         item
@@ -76,10 +62,6 @@ export const Post = React.forwardRef(
         alignItems="flex-start"
         className={classes.postContainer}
         ref={ref}
-        style={{
-          marginBottom: meetMe ? (lgScreen ? undefined : "0.75rem") : undefined,
-          height: meetMe ? (lgScreen ? "485px" : "730px") : undefined,
-        }}
       >
         <Grid
           item
@@ -90,16 +72,16 @@ export const Post = React.forwardRef(
         >
           <Grid item container style={{ padding: "0.5rem" }}>
             <Grid item>
-              <Avatar
-                component={Link}
-                to={meetMe ? "/home/match" : "/home/profile"}
-                src={meetMe ? image.img : profile_img}
-                className={classes.postAvatar}
-              />
+              <Grid item container direction="column" alignItems="center">
+                <Avatar
+                  component={Link}
+                  to="/home/profile"
+                  src={profile_img}
+                  className={classes.postAvatar}
+                />
 
-              <p className={classes.postAvatarText}>
-                {meetMe ? "@username" : username}
-              </p>
+                <p className={classes.postAvatarText}>{username}</p>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
@@ -112,35 +94,23 @@ export const Post = React.forwardRef(
           item
           direction="column"
           className={classes.postAssetContainer}
-          style={{ paddingLeft: meetMe ? "4.5rem" : undefined }}
         >
           <Grid item>
-            <h2 className={classes.postTitle}>
-              {meetMe ? "Worst Idea I ever had?" : title}
-            </h2>
+            <h2 className={classes.postTitle}>{title}</h2>
           </Grid>
           <Grid item>
             <div
               className={classes.imageContianer}
               style={{
-                height: meetMe ? (lgScreen ? "420px" : "667px") : undefined,
-                width: meetMe ? (lgScreen ? "295px" : "447px") : undefined,
-                marginBottom: meetMe
-                  ? lgScreen
-                    ? "0.2rem"
-                    : "3rem"
-                  : undefined,
-                borderRadius: meetMe ? (lgScreen ? "22px" : "35px") : undefined,
                 overflow: "hidden",
               }}
             >
-              {/* <img src={image.post} className={classes.postAsset} alt="" /> */}
               <video
                 playsInline
-                autoPlay={meetMe ? true : false}
+                autoPlay={false}
                 loop
                 muted={isMuted}
-                src={meetMe ? image.video : video_url}
+                src={video_url}
                 className={classes.postAsset}
               ></video>
               <div className={classes.iconContainer}>
@@ -163,41 +133,13 @@ export const Post = React.forwardRef(
                     </IconButton>
                   </Grid>
                   <Grid item>
-                    {meetMe ? undefined : (
-                      <IconButton onClick={handleLike}>
-                        <Favorite
-                          style={{ color: isLiked ? "red" : "" }}
-                          className={classes.likeIcon}
-                        />
-                      </IconButton>
-                    )}
+                    <IconButton onClick={handleLike}>
+                      <Favorite
+                        style={{ color: isLiked ? "red" : "" }}
+                        className={classes.likeIcon}
+                      />
+                    </IconButton>
                   </Grid>
-                  {meetMe ? (
-                    <Grid
-                      container
-                      justifyContent={lgScreen ? "center" : "space-evenly"}
-                      className={classes.superIcons}
-                    >
-                      <Grid item>
-                        <IconButton className={classes.superIcon}>
-                          <img src={image.noButton} alt="" />
-                        </IconButton>
-                      </Grid>
-                      <Grid item>
-                        <IconButton
-                          onClick={() => setOpenSuperDialog(true)}
-                          className={classes.superIcon}
-                        >
-                          <img src={image.superLikePink} alt="" />
-                        </IconButton>
-                      </Grid>
-                      <Grid item>
-                        <IconButton className={classes.superIcon}>
-                          <img src={image.dedicatedHeart} alt="" />
-                        </IconButton>
-                      </Grid>
-                    </Grid>
-                  ) : undefined}
                 </Grid>
               </div>
             </div>
@@ -388,22 +330,6 @@ export const Post = React.forwardRef(
                   inputProps={{ className: classes.date }}
                   type="date"
                 />
-                {/* <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                  <KeyboardDatePicker
-                    className={classes.datePicker}
-                    disableToolbar
-                    variant="inline"
-                    format="MM/dd/yyyy"
-                    margin="normal"
-                    id="date-picker-inline"
-                    label="Date picker inline"
-                    value={selectedDate}
-                    onChange={handleDateChange}
-                    KeyboardButtonProps={{
-                      "aria-label": "change date",
-                    }}
-                  />
-                </MuiPickersUtilsProvider> */}
               </Grid>
               <Grid item container>
                 <Slider
@@ -456,137 +382,6 @@ export const Post = React.forwardRef(
                   Continue
                 </Button>
               </Grid>
-            </Grid>
-          </Grid>
-        </Dialog>
-        <Dialog
-          className={classes.superDialog}
-          open={openSuperDialog}
-          onClose={() => setOpenSuperDialog(false)}
-        >
-          <Grid
-            container
-            direction="column"
-            alignItems="center"
-            className={classes.superDialogContainer}
-          >
-            <Grid item container justifyContent="flex-end">
-              <IconButton
-                onClick={() => setOpenSuperDialog(false)}
-                className={classes.closeButton}
-              >
-                <Close className={classes.closeIcon} />
-              </IconButton>
-            </Grid>
-            <Grid item>
-              <Typography className={classes.superDialogTitle}>
-                Get Instant Spark
-              </Typography>
-            </Grid>
-            <Grid item>
-              <Typography className={classes.superDialogSubtitle}>
-                Buy instant spark to get their attention
-              </Typography>
-            </Grid>
-            <Grid item container>
-              <List
-                dense
-                disableGutters
-                style={{ width: "90%", marginInline: "auto" }}
-              >
-                <ListItem divider className={classes.listItem}>
-                  <ListItemAvatar>
-                    <img
-                      className={classes.image}
-                      src={image.superLikePink}
-                      alt=""
-                    />
-                  </ListItemAvatar>
-                  <ListItemText
-                    className={classes.listItemText}
-                    primary="500"
-                    secondary="$4.99"
-                  />
-                  <Action className={classes.action}>
-                    <Button
-                      className={classes.button}
-                      variant="contained"
-                      color="primary"
-                    >
-                      Select
-                    </Button>
-                  </Action>
-                </ListItem>
-                <ListItem className={classes.listItem} divider>
-                  <ListItemAvatar>
-                    <img
-                      className={classes.image}
-                      src={image.superLikePink}
-                      alt=""
-                    />
-                  </ListItemAvatar>
-                  <ListItemText
-                    className={classes.listItemText}
-                    primary="500"
-                    secondary="$4.99"
-                  />
-                  <Action className={classes.action}>
-                    <Button
-                      className={classes.button}
-                      variant="contained"
-                      color="primary"
-                    >
-                      Select
-                    </Button>
-                  </Action>
-                </ListItem>
-                <ListItem className={classes.listItem} divider>
-                  <ListItemAvatar>
-                    <img
-                      className={classes.image}
-                      src={image.superLikePink}
-                      alt=""
-                    />
-                  </ListItemAvatar>
-                  <ListItemText
-                    className={classes.listItemText}
-                    primary="500"
-                    secondary="$4.99"
-                  />
-                  <Action className={classes.action}>
-                    <Button
-                      className={classes.button}
-                      variant="contained"
-                      color="primary"
-                    >
-                      Select
-                    </Button>
-                  </Action>
-                </ListItem>
-                <ListItem className={classes.listItem} divider>
-                  <ListItemAvatar>
-                    <img
-                      className={classes.image}
-                      src={image.superLikePink}
-                      alt=""
-                    />
-                  </ListItemAvatar>
-                  <ListItemText
-                    className={classes.listItemText}
-                    primary="500"
-                    secondary="$4.99"
-                  />
-                  <Action className={classes.action}>
-                    <Button
-                      className={classes.button}
-                      variant="contained"
-                      color="primary"
-                    >
-                      Select
-                    </Button>
-                  </Action>
-                </ListItem>
-              </List>
             </Grid>
           </Grid>
         </Dialog>

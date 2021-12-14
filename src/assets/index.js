@@ -86,5 +86,8 @@ const image = {
   video: require("./video.mp4").default,
   unMute: require("./unMute.png").default,
   liveloopActive: require("./liveloopActive.png").default,
+  v1: require("./1.mp4").default,
+  v2: require("./2.mp4").default,
+  v3: require("./3.mp4").default,
 };
 export default image;

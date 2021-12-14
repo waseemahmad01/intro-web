@@ -158,7 +158,7 @@ export const RegisterSeven = ({ onNext }) => {
                   name="drink"
                   onSelect={handleSelect}
                   value={values.drink}
-                  error={errors.drink}
+                  error={Boolean(errors.drink)}
                   errorText={errors.drink}
                 />
               </Grid>
@@ -173,7 +173,7 @@ export const RegisterSeven = ({ onNext }) => {
                   name="smoke"
                   onSelect={handleSelect}
                   value={values.smoke}
-                  error={errors.smoke}
+                  error={Boolean(errors.smoke)}
                   errorText={errors.smoke}
                 />
               </Grid>
@@ -188,7 +188,7 @@ export const RegisterSeven = ({ onNext }) => {
                   name="weed"
                   onSelect={handleSelect}
                   value={values.weed}
-                  error={errors.weed}
+                  error={Boolean(errors.weed)}
                   errorText={errors.weed}
                 />
               </Grid>
@@ -203,7 +203,7 @@ export const RegisterSeven = ({ onNext }) => {
                   name="drugs"
                   onSelect={handleSelect}
                   value={values.drugs}
-                  error={errors.drugs}
+                  error={Boolean(errors.drugs)}
                   errorText={errors.drugs}
                 />
               </Grid>

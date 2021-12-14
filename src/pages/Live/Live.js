@@ -382,8 +382,12 @@ export const Live = () => {
     setTab(newTab);
   };
   const fetchData = async (query) => {
-    const { data } = await liveStreamUsers(query);
-    setLiveUsers(data.data);
+    try {
+      const { data } = await liveStreamUsers(query);
+      setLiveUsers(data.data);
+    } catch (err) {
+      console.log(err.message);
+    }
   };
   const tabs = {
     0: LiveFilter,
@@ -397,14 +401,10 @@ export const Live = () => {
     fetchData(query);
   }, [query]);
   useEffect(() => {
-    (async () => {
-      const message = await onMessageListener();
-      if (message) {
-        fetchData(query);
-        setFetchQuery(!fetchQuery);
-      }
-    })();
-    // eslint-disable-next-line
+    onMessageListener().then((message) => {
+      fetchData(query);
+      setFetchQuery(!fetchQuery);
+    });
   }, [fetchQuery]);
   return (
     <Grid container className={classes.container}>

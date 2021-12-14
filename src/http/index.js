@@ -79,6 +79,10 @@ export const likeVideo = (data) => api.post("/api/video/like", data);
 export const allVideos = (page, limit) =>
   api.get(`/api/allVideos?page=${page}&limit=${limit}`);
 
+// story
+
+export const getStories = () => api.get("/api/story");
+
 // profile apis
 
 export const likedMe = () => api.get("/api/likedme");

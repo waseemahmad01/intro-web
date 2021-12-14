@@ -605,7 +605,7 @@ export const RegisterThree = ({ onNext }) => {
                         className={classes.select}
                         color="primary"
                         name="origin"
-                        error={errors.origin}
+                        error={Boolean(errors.origin)}
                         MenuProps={{
                           className: classes.menuOrigin,
                         }}
@@ -634,7 +634,7 @@ export const RegisterThree = ({ onNext }) => {
                           </MenuItem>
                         ))}
                       </Select>
-                      {errors.origin && (
+                      {Boolean(errors.origin) && (
                         <span className={classes.error}>{errors.origin}</span>
                       )}
                     </Grid>
@@ -808,7 +808,7 @@ export const RegisterThree = ({ onNext }) => {
                         </span>
                       ) : undefined}
 
-                      {errors.ethinic && (
+                      {Boolean(errors.ethinic) && (
                         <span className={classes.error}>{errors.ethinic}</span>
                       )}
                     </Grid>

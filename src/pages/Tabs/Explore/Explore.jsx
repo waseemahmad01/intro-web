@@ -1,12 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { Grid } from "@material-ui/core";
 import { useStyles } from "../../TabsContainer/tabStyles";
 import { StorySlider } from "../../../components/StorySlider/StroySlider";
 import { Filter } from "../../../components/Filter/Filter";
 import { Post } from "../../../components/Post/Post";
+import { useSelector } from "react-redux";
+// import { getStories } from "../../../http/index";
 export const Explore = ({ videos, addToRefs, lastElementRef }) => {
   const classes = useStyles();
-  // const items = [1, 2, 3, 4, 5, 6];
+  const stories = useSelector((state) => state.stories.stories);
+  const [allStories, setAllStories] = useState(stories || []);
+
   return (
     <>
       <Grid container className={classes.exploreContainer} direction="column">
@@ -14,9 +18,8 @@ export const Explore = ({ videos, addToRefs, lastElementRef }) => {
           item
           style={{ width: "100%" }}
           className={classes.sliderContainer}
-          //   ref={ref}
         >
-          <StorySlider />
+          {allStories.length !== 0 && <StorySlider />}
         </Grid>
         <Grid item style={{ marginTop: "3rem", width: "100%" }}>
           <Grid container justifyContent={"space-between"}>

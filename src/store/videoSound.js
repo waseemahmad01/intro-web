@@ -9,8 +9,11 @@ const videoSlice = createSlice({
     toggleMute: (state, action) => {
       state.muted = !state.muted;
     },
+    setMute: (state, action) => {
+      state.muted = action.payload;
+    },
   },
 });
 
-export const { toggleMute } = videoSlice.actions;
+export const { toggleMute, setMute } = videoSlice.actions;
 export default videoSlice.reducer;

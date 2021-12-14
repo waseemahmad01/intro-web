@@ -340,12 +340,12 @@ export const useStyles = makeStyles((theme) => ({
   },
   scrollDiv: {
     scrollbarWidth: "thin",
-    paddingBottom: "5px",
+    paddingBottom: "6px",
     "&::-webkit-scrollbar-track": {
       background: "transparent",
     },
     "&::-webkit-scrollbar": {
-      height: "6px",
+      height: "5px",
     },
     "&::-webkit-scrollbar-thumb": {
       background: theme.palette.common.darkPink,

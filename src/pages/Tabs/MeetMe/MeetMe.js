@@ -1,6 +1,7 @@
 import React from "react";
 import { makeStyles, Grid, Typography } from "@material-ui/core";
 import { Post } from "../../../components/Post/Post";
+import { MeetPost } from "../../../components/meetme/MeetPost";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -35,7 +36,7 @@ export const MeetMe = () => {
         <Typography className={classes.title}>Meet Me</Typography>
       </Grid>
       <Grid item container className={classes.postContainer}>
-        <Post meetMe />
+        <MeetPost />
       </Grid>
     </Grid>
   );
