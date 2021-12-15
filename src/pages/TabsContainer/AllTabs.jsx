@@ -20,7 +20,8 @@ import { UserProfile } from "../Tabs/UserProfile/UserProfile";
 import { MeetMe } from "../Tabs/MeetMe/MeetMe";
 import { Route, NavLink } from "react-router-dom";
 import { ProfileMatched } from "../Tabs/ProfileMatched/ProfileMatched";
-import { getStories } from "../../http/index";
+import { UnMatch } from "../Tabs/UnMatch/UnMatch";
+// import { getStories } from "../../http/index";
 import {
   HomeRounded,
   PublicRounded,
@@ -30,8 +31,7 @@ import {
   PersonRounded,
 } from "@material-ui/icons";
 import { allVideos as getAllVideos } from "../../http/index";
-import { setStories } from "../../store/stories";
-import { useDispatch } from "react-redux";
+// import { setStories } from "../../store/stories";
 export const AllTabs = () => {
   const classes = useStyles();
   const theme = useTheme();
@@ -41,7 +41,6 @@ export const AllTabs = () => {
   const pageNumber = useRef(1);
   const [changing, setChanging] = useState(1);
   const totalPages = useRef(0);
-  const dispatch = useDispatch();
   allVideos.current = [];
 
   const observer = useRef();
@@ -95,7 +94,9 @@ export const AllTabs = () => {
   };
   useEffect(() => {
     if (allVideos.current.length > 0) {
-      allVideos.current[0].lastChild.lastChild.lastChild.firstChild.play();
+      const video =
+        allVideos.current[0].lastChild.lastChild.lastChild.firstChild;
+      video.play();
     }
   });
   const url = window.location.pathname;
@@ -112,12 +113,6 @@ export const AllTabs = () => {
     }
     // eslint-disable-next-line
   }, [changing, url]);
-  useEffect(() => {
-    (async () => {
-      const { data } = await getStories();
-      dispatch(setStories(data.data));
-    })();
-  }, []);
   const tabItems = [
     {
       label: "Home",
@@ -240,7 +235,16 @@ export const AllTabs = () => {
               path="/home/profile/:id"
               render={(props) => <UserProfile {...props} />}
             />
-            <Route exact path="/home/match" render={() => <ProfileMatched />} />
+            <Route
+              exact
+              path="/home/match/:id"
+              render={(props) => <ProfileMatched {...props} />}
+            />
+            <Route
+              exact
+              path="/home/unmatch/:id"
+              render={(props) => <UnMatch {...props} />}
+            />
           </Grid>
         </Grid>
       </Grid>

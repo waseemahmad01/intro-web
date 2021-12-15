@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   makeStyles,
   Typography,
@@ -6,10 +6,12 @@ import {
   Grid,
   IconButton,
   Menu,
+  useTheme,
+  useMediaQuery,
 } from "@material-ui/core";
 import image from "../../../assets/index";
 import { FavoriteBorder, Close } from "@material-ui/icons";
-import { getUserById, visitedUser } from "../../../http";
+import { getUserById, visitedUser, otherUserVideos } from "../../../http";
 import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
@@ -17,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
     // padding: "0rem 3rem",
   },
   left: {
-    width: "28.62%",
+    width: "30.62%",
     boxSizing: "border-box",
     paddingTop: "4rem",
     paddingInline: "2.5rem",
@@ -31,19 +33,14 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: "#fbfbfb",
     boxSizing: "border-box",
     border: "1px solid rgba(112, 112, 112, 0.17)",
-    padding: "2rem",
-    [theme.breakpoints.down("lg")]: {
-      padding: "1rem",
-    },
   },
   right: {
-    width: "32.15%",
+    width: "30.15%",
     boxSizing: "border-box",
     padding: "3rem",
   },
   userName: {
     fontSize: "29px",
-    fontWeight: 700,
     marginBottom: 0,
     color: "#000",
     [theme.breakpoints.down("lg")]: {
@@ -52,7 +49,6 @@ const useStyles = makeStyles((theme) => ({
   },
   userCity: {
     fontSize: "20px",
-    fontWeight: 700,
     marginBottom: 0,
     margin: 0,
     color: "#000",
@@ -166,9 +162,12 @@ const useStyles = makeStyles((theme) => ({
     height: "596px",
     borderRadius: "16px",
     position: "relative",
-    "& img": {
+    borderRadius: "16px",
+    overflow: "hidden",
+    "& video": {
       width: "100%",
       height: "100%",
+      objectFit: "cover",
     },
     [theme.breakpoints.down("lg")]: {
       width: "220px",
@@ -180,13 +179,11 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     left: 0,
     right: 0,
-    top: 0,
     bottom: 0,
-    borderRadius: "16px",
   },
   icons: {
     height: "100%",
-    padding: "1rem",
+    padding: "0.5rem",
     [theme.breakpoints.down("lg")]: {
       padding: "0.25rem",
     },
@@ -221,14 +218,23 @@ const useStyles = makeStyles((theme) => ({
   },
   closeButton: {
     position: "absolute",
-    top: "10px",
-    right: "10px",
-    width: "23px",
-    height: "23px",
+    top: "20px",
+    right: "20px",
+    width: "35px",
+    height: "35px",
+    [theme.breakpoints.down("lg")]: {
+      width: "30px",
+      height: "30px",
+      top: "10px",
+      right: "10px",
+    },
   },
   closeIcon: {
     color: "#fff",
-    fontSize: "2rem",
+    fontSize: "2.5rem",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "2rem",
+    },
   },
   rootMenu: {
     "& .MuiMenu-paper": {
@@ -285,11 +291,24 @@ const useStyles = makeStyles((theme) => ({
       marginTop: "0.35rem",
     },
   },
+  scrollDiv: {
+    height: "880px",
+    padding: "2rem",
+    overflowY: "auto",
+    [theme.breakpoints.down("lg")]: {
+      padding: "1rem",
+      height: "580px",
+    },
+  },
 }));
 
 export const UserProfile = (props) => {
   const id = props.match.params.id;
   const classes = useStyles();
+  const theme = useTheme();
+  const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
+  const videosRef = useRef([]);
+  videosRef.current = [];
   const [anchorEl, setAnchorEl] = useState(null);
   const [user, setUser] = useState({
     phonenumber: "",
@@ -339,6 +358,7 @@ export const UserProfile = (props) => {
     children: { have_children: "", want_children: "", visible: false },
     prompt: [{ question: "", url: "" }],
   });
+  const [videos, setVideos] = useState([]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -353,13 +373,48 @@ export const UserProfile = (props) => {
     const inches = Math.round((realFeets - feets) * 12);
     return `${feets}'${inches}"`;
   };
+  const handleScroll = () => {
+    const boundry = {
+      top: {
+        upper: lgScreen ? -147 : -370,
+        lower: lgScreen ? 382 : 530,
+      },
+      bottom: {
+        upper: lgScreen ? 385 : 540,
+        lower: lgScreen ? 912 : 1441,
+      },
+    };
+    // eslint-disable-next-line
+    videosRef.current.map((item) => {
+      const top = item.getBoundingClientRect().top;
+      const bottom = item.getBoundingClientRect().bottom;
+      if (
+        top > boundry.top.upper &&
+        top < boundry.top.lower &&
+        bottom > boundry.bottom.upper &&
+        bottom < boundry.bottom.lower
+      ) {
+        if (item.readyState >= 2) {
+          item.play();
+        }
+        // console.log(video.readyState);
+      } else {
+        item.pause();
+      }
+    });
+  };
+  const addToRef = (e) => {
+    if (e && !videosRef.current.includes(e) && !null) videosRef.current.push(e);
+  };
   useEffect(() => {
     (async function () {
       await axios
-        .all([getUserById(id), visitedUser(id)])
+        .all([getUserById(id), visitedUser(id), otherUserVideos(id)])
         .then(
-          axios.spread((res1, res2) => {
+          axios.spread((res1, res2, res3) => {
             setUser(res1.data.data);
+            console.log(res3.data);
+            setVideos(res3.data.data);
           })
         )
         .catch((err) => {
@@ -368,6 +423,11 @@ export const UserProfile = (props) => {
     })();
     // eslint-disable-next-line
   }, []);
+  useEffect(() => {
+    if (videosRef.current.length > 0) {
+      videosRef.current[0].play();
+    }
+  });
   return (
     <Grid container className={classes.container}>
       <Grid
@@ -443,7 +503,7 @@ export const UserProfile = (props) => {
               onClose={handleClose}
               className={classes.rootMenu}
             >
-              <Grid contianer className={classes.menu}>
+              <Grid className={classes.menu}>
                 <Grid item className={classes.menuItem}>
                   <Grid item container>
                     <h1 className={classes.menuTitle}>Basics</h1>
@@ -621,88 +681,107 @@ export const UserProfile = (props) => {
         <Grid
           item
           container
-          className={classes.post}
-          direction="column"
-          alignItems="center"
+          onScroll={handleScroll}
+          className={classes.scrollDiv}
         >
-          <Grid item>
-            <Typography className={classes.postTitle}>
-              Worst idea ever has?
-            </Typography>
-            <div className={classes.postContainer}>
-              <img src={image.post} alt="" />
-              <IconButton className={classes.closeButton}>
-                <Close className={classes.closeIcon} />
-              </IconButton>
-              <div className={classes.iconContainer}>
-                <Grid
-                  container
-                  className={classes.icons}
-                  justifyContent="space-between"
-                  alignItems="flex-end"
-                >
-                  <Grid item>
-                    <IconButton>
-                      <img
-                        src={image.mute}
-                        className={classes.muteIcon}
-                        alt=""
-                      />
-                    </IconButton>
+          {videos.map((video, index) => (
+            <Grid
+              item
+              container
+              className={classes.post}
+              direction="column"
+              alignItems="center"
+              key={index}
+            >
+              <Grid item>
+                <Typography className={classes.postTitle}>
+                  {video.video_title}
+                </Typography>
+                <div className={classes.postContainer}>
+                  <video
+                    ref={addToRef}
+                    playsInline
+                    loop
+                    className={classes.video}
+                    src={`http://104.154.205.129:8080/${video.video_url}`}
+                  ></video>
+                  <IconButton className={classes.closeButton}>
+                    <Close className={classes.closeIcon} />
+                  </IconButton>
+                  <div className={classes.iconContainer}>
+                    <Grid
+                      container
+                      className={classes.icons}
+                      justifyContent="space-between"
+                      alignItems="flex-end"
+                    >
+                      <Grid item>
+                        <IconButton>
+                          <img
+                            src={image.mute}
+                            className={classes.muteIcon}
+                            alt=""
+                          />
+                        </IconButton>
+                      </Grid>
+                      <Grid item>
+                        <IconButton>
+                          <span className={classes.likeCount}>
+                            {video.likes}
+                          </span>
+                          <FavoriteBorder className={classes.likeIcon} />
+                        </IconButton>
+                      </Grid>
+                    </Grid>
+                  </div>
+                </div>
+              </Grid>
+            </Grid>
+          ))}
+
+          {/* <Grid
+            item
+            container
+            className={classes.post}
+            direction="column"
+            alignItems="center"
+          >
+            <Grid item>
+              <Typography className={classes.postTitle}>
+                Worst idea ever has?
+              </Typography>
+              <div className={classes.postContainer}>
+                <img src={image.post} alt="" />
+                <div className={classes.iconContainer}>
+                  <IconButton className={classes.closeButton}>
+                    <Close className={classes.closeIcon} />
+                  </IconButton>
+                  <Grid
+                    container
+                    className={classes.icons}
+                    justifyContent="space-between"
+                    alignItems="flex-end"
+                  >
+                    <Grid item>
+                      <IconButton>
+                        <img
+                          src={image.mute}
+                          className={classes.muteIcon}
+                          alt=""
+                        />
+                      </IconButton>
+                    </Grid>
+                    <Grid item>
+                      <IconButton>
+                        <span className={classes.likeCount}>60</span>
+                        <FavoriteBorder className={classes.likeIcon} />
+                      </IconButton>
+                    </Grid>
                   </Grid>
-                  <Grid item>
-                    <IconButton>
-                      <span className={classes.likeCount}>60</span>
-                      <FavoriteBorder className={classes.likeIcon} />
-                    </IconButton>
-                  </Grid>
-                </Grid>
+                </div>
               </div>
-            </div>
-          </Grid>
-        </Grid>
-        <Grid
-          item
-          container
-          className={classes.post}
-          direction="column"
-          alignItems="center"
-        >
-          <Grid item>
-            <Typography className={classes.postTitle}>
-              Worst idea ever has?
-            </Typography>
-            <div className={classes.postContainer}>
-              <img src={image.post} alt="" />
-              <div className={classes.iconContainer}>
-                <IconButton className={classes.closeButton}>
-                  <Close className={classes.closeIcon} />
-                </IconButton>
-                <Grid
-                  container
-                  className={classes.icons}
-                  justifyContent="space-between"
-                  alignItems="flex-end"
-                >
-                  <Grid item>
-                    <IconButton>
-                      <img
-                        src={image.mute}
-                        className={classes.muteIcon}
-                        alt=""
-                      />
-                    </IconButton>
-                  </Grid>
-                  <Grid item>
-                    <IconButton>
-                      <span className={classes.likeCount}>60</span>
-                      <FavoriteBorder className={classes.likeIcon} />
-                    </IconButton>
-                  </Grid>
-                </Grid>
-              </div>
-            </div>
-          </Grid>
+            </Grid>
+          </Grid> */}
         </Grid>
       </Grid>
       <Grid item container className={classes.right}></Grid>

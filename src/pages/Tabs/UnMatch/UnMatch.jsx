@@ -6,7 +6,6 @@ import {
   Grid,
   IconButton,
   InputBase,
-  Button,
 } from "@material-ui/core";
 import image from "../../../assets/index";
 import { Favorite } from "@material-ui/icons";
@@ -318,7 +317,7 @@ const useStyles = makeStyles((theme) => ({
   },
   inputBase: {
     margin: "auto 0",
-    marginLeft: "31px",
+    marginLeft: "41px",
     fontSize: "21px",
     color: "#000",
     [theme.breakpoints.down("lg")]: {
@@ -333,7 +332,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   sendIcon: {
-    marginRight: "15px",
+    marginRight: "20px",
     [theme.breakpoints.down("lg")]: {
       maxWidth: "25px",
     },
@@ -354,33 +353,8 @@ const useStyles = makeStyles((theme) => ({
       paddingBottom: "3rem",
     },
   },
-  dateButton: {
-    width: "100%",
-    marginTop: "2rem",
-    borderRadius: "29px",
-    textTransform: "none",
-    fontSize: "22px",
-    color: "#fff",
-    backgroundColor: theme.palette.common.darkPink,
-    height: "57px",
-    "&:first-child": {
-      display: "flex",
-      justifyContent: "space-between",
-      padding: "1rem",
-    },
-    [theme.breakpoints.down(1400)]: {
-      fontSize: "16px",
-      height: "45px",
-      marginTop: "1rem",
-    },
-  },
-  dotedwatch: {
-    [theme.breakpoints.down(1400)]: {
-      width: "1.5rem",
-    },
-  },
 }));
-export const ProfileMatched = () => {
+export const UnMatch = () => {
   const classes = useStyles();
   return (
     <Grid container className={classes.container}>
@@ -480,11 +454,13 @@ export const ProfileMatched = () => {
                     </IconButton>
                   </Grid>
                   <Grid item>
-                    <img
-                      src={image.heartIcon}
-                      className={classes.muteIcon}
-                      alt=""
-                    />
+                    <IconButton>
+                      <img
+                        src={image.heartIcon}
+                        className={classes.muteIcon}
+                        alt=""
+                      />
+                    </IconButton>
                   </Grid>
                 </Grid>
               </div>
@@ -563,7 +539,7 @@ export const ProfileMatched = () => {
             justifyContent="space-between"
             className={classes.input}
           >
-            <Grid item style={{ flexGrow: 1 }}>
+            <Grid item>
               <InputBase
                 className={classes.inputBase}
                 placeholder="Select a Message"
@@ -571,35 +547,9 @@ export const ProfileMatched = () => {
               />
             </Grid>
             <Grid item>
-              <img
-                className={classes.sendIcon}
-                src={image.blueSendButton}
-                alt=""
-              />
+              <img className={classes.sendIcon} src={image.navigation} alt="" />
             </Grid>
           </Grid>
-        </Grid>
-        <Grid item>
-          <Button
-            className={classes.dateButton}
-            startIcon={
-              <img
-                className={classes.dotedwatch}
-                src={image.dotedwatch}
-                alt=""
-              />
-            }
-            variant="contained"
-            endIcon={
-              <img
-                style={{ visibility: "hidden" }}
-                src={image.stopwatch}
-                alt=""
-              />
-            }
-          >
-            Date Scheduler
-          </Button>
         </Grid>
       </Grid>
     </Grid>

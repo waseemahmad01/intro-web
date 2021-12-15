@@ -14,6 +14,7 @@ import { LiveFAQ } from "./pages/Help/LiveFAQ";
 import { AllTabs } from "./pages/TabsContainer/AllTabs";
 import { Live } from "./pages/Live/Live";
 import { Stream } from "./pages/LiveStream/Stream";
+// import { ProfileMatched } from "./pages/Tabs/ProfileMatched/ProfileMatched";
 // import { Battle } from "./pages/Battle/Battle";
 import { useDispatch } from "react-redux";
 import { getUser } from "./http/index";
@@ -40,6 +41,17 @@ function App(props) {
       if (localStorage.getItem("token")) {
         const { data } = await getUser();
         dispatch(submit(data));
+        socket.emit("login", data.data._id);
+        const step = data.data.step;
+        switch (step) {
+          case "/home":
+            props.history.push("home");
+            break;
+
+          default:
+            props.history.push("signin");
+            break;
+        }
       }
     } catch (err) {
       console.log(err);
@@ -49,7 +61,6 @@ function App(props) {
     fetchUser();
     (async () => {
       const data = onMessageListener();
-      console.log(data);
     })();
 
     return () => {
@@ -61,7 +72,7 @@ function App(props) {
     window.addEventListener("resize", handleResize);
 
     return () => {
-      if (socket !== null) socket.emit("disconnect", userState._id);
+      // if (socket !== null) socket.emit("disconnect", userState._id);
       window.removeEventListener("resize", handleResize);
     };
   });

@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const videoSlice = createSlice({
   name: "video",
   initialState: {
-    muted: false,
+    muted: true,
   },
   reducers: {
     toggleMute: (state, action) => {

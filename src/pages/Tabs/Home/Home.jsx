@@ -23,7 +23,12 @@ import {
   likedMeApi,
   getLiveUsers,
 } from "../../../http";
-import { setMatches } from "../../../store/matches";
+import {
+  setMatches,
+  setIvisited,
+  setMyLikes,
+  setVisitedMe,
+} from "../../../store/matches";
 import { setOnlineUsers } from "../../../store/user";
 import axios from "axios";
 
@@ -31,11 +36,11 @@ export const Home = () => {
   const classes = useStyles();
   const userState = useSelector((state) => state.auth.user.data);
   const matched = useSelector((state) => state.matches.matches);
+  const iVisited = useSelector((state) => state.matches.iVisited);
+  const visitedMe = useSelector((state) => state.matches.visitedMe);
+  const likedMe = useSelector((state) => state.matches.myLikes);
   const onlineUsers = useSelector((state) => state.auth.user.onlineUsers);
   const dispatch = useDispatch();
-  const [iVisited, setIVisited] = useState([]);
-  const [visitedMe, setVisitedMe] = useState([]);
-  const [likedMe, setLikedMe] = useState([]);
 
   const toFeet = (cm) => {
     const realFeets = (cm * 0.3937) / 12;
@@ -59,9 +64,9 @@ export const Home = () => {
         .then(
           axios.spread(function (res1, res2, res3, res4, res5) {
             dispatch(setMatches(res1.data.data));
-            setIVisited(res2.data.data);
-            setVisitedMe(res3.data.data);
-            setLikedMe(res4.data.data);
+            dispatch(setIvisited(res2.data.data));
+            dispatch(setVisitedMe(res3.data.data));
+            dispatch(setMyLikes(res4.data.data));
             dispatch(setOnlineUsers(res5.data.data));
           })
         )
@@ -227,7 +232,8 @@ export const Home = () => {
                   {matched.map((item, index) => (
                     <Avatar
                       style={{ marginLeft: index === 0 ? "auto" : "" }}
-                      key={item.matched_ids.to}
+                      // key={item.matched_ids.to}
+                      key={index}
                       className={classes.cardAvatar}
                       src={item.matched_images.to}
                     />
@@ -255,7 +261,8 @@ export const Home = () => {
                     <Avatar
                       style={{ marginLeft: index === 0 ? "auto" : "" }}
                       className={classes.cardAvatar}
-                      key={item.visited_from}
+                      // key={item.visited_from}
+                      key={index}
                       src={item.visited_by_profile_image}
                     />
                   ))}
@@ -282,7 +289,8 @@ export const Home = () => {
                     <Avatar
                       style={{ marginLeft: index === 0 ? "auto" : "" }}
                       className={classes.cardAvatar}
-                      key={item.visited_to._id}
+                      // key={item.visited_to._id}
+                      key={index}
                       src={item.visited_to_profile_image}
                     />
                   ))}

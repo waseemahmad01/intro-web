@@ -208,6 +208,8 @@ export const TopBar = ({ live }) => {
                         className={classes.avatar}
                         src={userState.profile_image}
                         alt="jhon doe"
+                        component={Link}
+                        to={`/home/profile/${userState._id}`}
                       />
                     </Grid>
                   </Grid>

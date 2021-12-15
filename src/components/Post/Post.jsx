@@ -20,7 +20,10 @@ import { likeVideo } from "../../http";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleMute } from "../../store/videoSound";
 export const Post = React.forwardRef(
-  ({ username, profile_img, video_url, video_id, title, like }, ref) => {
+  (
+    { username, profile_img, video_url, video_id, title, like, user_id },
+    ref
+  ) => {
     const classes = useStyles();
     const [openDialog, setOpenDialog] = useState(false);
     const [quickMessage, setQuickMessage] = useState(false);
@@ -75,7 +78,7 @@ export const Post = React.forwardRef(
               <Grid item container direction="column" alignItems="center">
                 <Avatar
                   component={Link}
-                  to="/home/profile"
+                  to={`/home/profile/${user_id}`}
                   src={profile_img}
                   className={classes.postAvatar}
                 />
