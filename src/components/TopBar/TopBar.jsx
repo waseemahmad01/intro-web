@@ -209,7 +209,7 @@ export const TopBar = ({ live }) => {
                         src={userState.profile_image}
                         alt="jhon doe"
                         component={Link}
-                        to={`/home/profile/${userState._id}`}
+                        to="/home/profile"
                       />
                     </Grid>
                   </Grid>

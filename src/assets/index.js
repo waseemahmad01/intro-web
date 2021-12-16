@@ -88,5 +88,6 @@ const image = {
   liveloopActive: require("./liveloopActive.png").default,
   heartIcon: require("./heartIcon.png").default,
   blueSendButton: require("./blueSendButton.png").default,
+  rArrow: require("./rArrow.png").default,
 };
 export default image;

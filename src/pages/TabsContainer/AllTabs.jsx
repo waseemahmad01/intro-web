@@ -232,7 +232,7 @@ export const AllTabs = () => {
             />
             <Route
               exact
-              path="/home/profile/:id"
+              path="/home/profile"
               render={(props) => <UserProfile {...props} />}
             />
             <Route

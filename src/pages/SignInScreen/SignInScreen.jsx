@@ -351,9 +351,9 @@ export const SignInScreen = (props) => {
         } else {
           props.history.push("register");
           await step({ step: "/dob" });
-          dispatch(submit(res.data));
-          setOpenDialog(false);
         }
+        setOpenDialog(false);
+        dispatch(submit(res.data));
       } else {
         setError({ ...error, otp: "Invalid otp code." });
       }

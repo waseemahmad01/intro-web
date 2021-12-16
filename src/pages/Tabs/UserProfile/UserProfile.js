@@ -8,11 +8,15 @@ import {
   Menu,
   useTheme,
   useMediaQuery,
+  Dialog,
+  Button,
 } from "@material-ui/core";
 import image from "../../../assets/index";
 import { FavoriteBorder, Close } from "@material-ui/icons";
-import { getUserById, visitedUser, otherUserVideos } from "../../../http";
+import { getUserById, otherUserVideos, deleteVideo } from "../../../http";
 import axios from "axios";
+import { useSelector, useDispatch } from "react-redux";
+import { toggleMute, setMute } from "../../../store/videoSound";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -196,6 +200,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   muteIcon: {
+    maxWidth: "40px",
     [theme.breakpoints.down("lg")]: {
       maxWidth: "28px",
     },
@@ -300,11 +305,65 @@ const useStyles = makeStyles((theme) => ({
       height: "580px",
     },
   },
+  dialogButtons: {
+    margin: "0",
+    width: "265px",
+    height: "63px",
+    fontSize: "22px",
+    fontWeight: "500",
+    textTransform: "none",
+    borderRadius: "38px",
+    border: `2px solid ${theme.palette.primary.main}`,
+    "&:hover": {
+      border: `2px solid ${theme.palette.primary.dark}`,
+    },
+    [theme.breakpoints.down("lg")]: {
+      width: "220px",
+      height: "50px",
+      fontSize: "16px",
+    },
+  },
+  dialogSubtitle: {
+    margin: "0",
+    color: "#000000",
+    fontSize: "22px",
+    marginTop: "18px",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "18px",
+      marginTop: "8px",
+    },
+  },
+  dialogTitle: {
+    margin: "0",
+    color: "#000000",
+    fontSize: "32px",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "25px",
+    },
+  },
+  dialogContainer: {
+    height: "500px",
+    width: "460px",
+    paddingBlock: "100px 60px",
+    [theme.breakpoints.down("lg")]: {
+      height: "340px",
+      width: "350px",
+      paddingBlock: "60px 40px",
+    },
+  },
+  dialog: {
+    "& .MuiDialog-paper": {
+      backgroundColor: theme.palette.common.lightPink,
+      borderRadius: "10px",
+    },
+  },
 }));
 
 export const UserProfile = (props) => {
-  const id = props.match.params.id;
+  const userState = useSelector((state) => state.auth.user.data);
+  const id = userState._id;
   const classes = useStyles();
+  const dispatch = useDispatch();
   const theme = useTheme();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const videosRef = useRef([]);
@@ -359,6 +418,11 @@ export const UserProfile = (props) => {
     prompt: [{ question: "", url: "" }],
   });
   const [videos, setVideos] = useState([]);
+  const mutedState = useSelector((state) => state.video.muted);
+  const [muted, setMuted] = useState(mutedState);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const muteRef = useRef();
+  const [deleteId, setDeleteId] = useState(null);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -372,6 +436,33 @@ export const UserProfile = (props) => {
     const feets = Math.floor(realFeets);
     const inches = Math.round((realFeets - feets) * 12);
     return `${feets}'${inches}"`;
+  };
+  const handleToggleMute = () => {
+    setMuted(!muted);
+    dispatch(toggleMute());
+  };
+  const handleDeleteVideo = async () => {
+    try {
+      const { data } = await deleteVideo(deleteId);
+      const videosArray = videos.filter((video) => video._id !== deleteId);
+      setVideos(videosArray);
+      setIsDialogOpen(false);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  const handleDialogOpen = (id) => {
+    setDeleteId(id);
+    muteRef.current = mutedState;
+    dispatch(setMute(true));
+    setMuted(true);
+    setIsDialogOpen(true);
+  };
+  const handleDialogClose = () => {
+    setDeleteId(null);
+    dispatch(setMute(muteRef.current));
+    setIsDialogOpen(false);
+    setMuted(muteRef.current);
   };
   const handleScroll = () => {
     const boundry = {
@@ -409,12 +500,11 @@ export const UserProfile = (props) => {
   useEffect(() => {
     (async function () {
       await axios
-        .all([getUserById(id), visitedUser(id), otherUserVideos(id)])
+        .all([getUserById(id), otherUserVideos(id)])
         .then(
-          axios.spread((res1, res2, res3) => {
+          axios.spread((res1, res2) => {
             setUser(res1.data.data);
-            console.log(res3.data);
-            setVideos(res3.data.data);
+            setVideos(res2.data.data);
           })
         )
         .catch((err) => {
@@ -424,8 +514,15 @@ export const UserProfile = (props) => {
     // eslint-disable-next-line
   }, []);
   useEffect(() => {
-    if (videosRef.current.length > 0) {
+    if (videosRef.current.length > 0 && isDialogOpen === false) {
       videosRef.current[0].play();
+    }
+  });
+  useEffect(() => {
+    if (isDialogOpen) {
+      videosRef.current.map((video) => {
+        video.pause();
+      });
     }
   });
   return (
@@ -702,10 +799,14 @@ export const UserProfile = (props) => {
                     ref={addToRef}
                     playsInline
                     loop
+                    muted={muted}
                     className={classes.video}
                     src={`http://104.154.205.129:8080/${video.video_url}`}
                   ></video>
-                  <IconButton className={classes.closeButton}>
+                  <IconButton
+                    onClick={() => handleDialogOpen(video._id)}
+                    className={classes.closeButton}
+                  >
                     <Close className={classes.closeIcon} />
                   </IconButton>
                   <div className={classes.iconContainer}>
@@ -716,9 +817,9 @@ export const UserProfile = (props) => {
                       alignItems="flex-end"
                     >
                       <Grid item>
-                        <IconButton>
+                        <IconButton onClick={handleToggleMute}>
                           <img
-                            src={image.mute}
+                            src={muted ? image.mute : image.unMute}
                             className={classes.muteIcon}
                             alt=""
                           />
@@ -738,50 +839,41 @@ export const UserProfile = (props) => {
               </Grid>
             </Grid>
           ))}
-
-          {/* <Grid
-            item
-            container
-            className={classes.post}
-            direction="column"
-            alignItems="center"
+          <Dialog
+            className={classes.dialog}
+            open={isDialogOpen}
+            onClose={() => handleDialogClose}
           >
-            <Grid item>
-              <Typography className={classes.postTitle}>
-                Worst idea ever has?
-              </Typography>
-              <div className={classes.postContainer}>
-                <img src={image.post} alt="" />
-                <div className={classes.iconContainer}>
-                  <IconButton className={classes.closeButton}>
-                    <Close className={classes.closeIcon} />
-                  </IconButton>
-                  <Grid
-                    container
-                    className={classes.icons}
-                    justifyContent="space-between"
-                    alignItems="flex-end"
-                  >
-                    <Grid item>
-                      <IconButton>
-                        <img
-                          src={image.mute}
-                          className={classes.muteIcon}
-                          alt=""
-                        />
-                      </IconButton>
-                    </Grid>
-                    <Grid item>
-                      <IconButton>
-                        <span className={classes.likeCount}>60</span>
-                        <FavoriteBorder className={classes.likeIcon} />
-                      </IconButton>
-                    </Grid>
-                  </Grid>
-                </div>
-              </div>
+            <Grid container className={classes.dialogContainer}>
+              <Grid item container direction="column" alignItems="center">
+                <Typography className={classes.dialogTitle}>
+                  Are you sure?
+                </Typography>
+                <Typography className={classes.dialogSubtitle}>
+                  You want to delete this video
+                </Typography>
+              </Grid>
+              <Grid item container direction="column" alignItems="center">
+                <Button
+                  variant="contained"
+                  color="primary"
+                  className={classes.dialogButtons}
+                  style={{ marginBottom: "1rem" }}
+                  onClick={handleDeleteVideo}
+                >
+                  Yes
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  className={classes.dialogButtons}
+                  onClick={handleDialogClose}
+                >
+                  No
+                </Button>
+              </Grid>
             </Grid>
-          </Grid> */}
+          </Dialog>
         </Grid>
       </Grid>
       <Grid item container className={classes.right}></Grid>

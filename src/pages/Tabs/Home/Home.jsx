@@ -22,6 +22,7 @@ import {
   visitedMe as visitedMeApi,
   likedMeApi,
   getLiveUsers,
+  checkMatch,
 } from "../../../http";
 import {
   setMatches,
@@ -31,9 +32,11 @@ import {
 } from "../../../store/matches";
 import { setOnlineUsers } from "../../../store/user";
 import axios from "axios";
+import { useHistory } from "react-router-dom";
 
 export const Home = () => {
   const classes = useStyles();
+  const history = useHistory();
   const userState = useSelector((state) => state.auth.user.data);
   const matched = useSelector((state) => state.matches.matches);
   const iVisited = useSelector((state) => state.matches.iVisited);
@@ -51,6 +54,14 @@ export const Home = () => {
   const theme = useTheme();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
+  const handleImageClick = async (id) => {
+    const { data } = await checkMatch(id);
+    if (data.data) {
+      history.push(`/home/match/${id}`);
+    } else {
+      history.push(`/home/unmatch/${id}`);
+    }
+  };
   useEffect(() => {
     (async () => {
       await axios
@@ -108,6 +119,8 @@ export const Home = () => {
                 <Grid item>
                   <Avatar
                     src={userState.profile_image}
+                    component={Link}
+                    to="/home/profile"
                     className={classes.profileAvatar}
                   />
                 </Grid>
@@ -233,6 +246,8 @@ export const Home = () => {
                     <Avatar
                       style={{ marginLeft: index === 0 ? "auto" : "" }}
                       // key={item.matched_ids.to}
+                      component={Link}
+                      to={`/home/match/${item.matched_ids.to}`}
                       key={index}
                       className={classes.cardAvatar}
                       src={item.matched_images.to}
@@ -261,7 +276,7 @@ export const Home = () => {
                     <Avatar
                       style={{ marginLeft: index === 0 ? "auto" : "" }}
                       className={classes.cardAvatar}
-                      // key={item.visited_from}
+                      onClick={() => handleImageClick(item.visited_by)}
                       key={index}
                       src={item.visited_by_profile_image}
                     />
@@ -290,6 +305,7 @@ export const Home = () => {
                       style={{ marginLeft: index === 0 ? "auto" : "" }}
                       className={classes.cardAvatar}
                       // key={item.visited_to._id}
+                      onClick={() => handleImageClick(item.visited_to)}
                       key={index}
                       src={item.visited_to_profile_image}
                     />
@@ -335,7 +351,8 @@ export const Home = () => {
               <List className={classes.likeList}>
                 {likedMe.map((item, index) => (
                   <ListItem
-                    key={item.liked_by}
+                    onClick={() => handleImageClick(item.liked_by)}
+                    key={index}
                     dense
                     classes={{ root: classes.listItemRoot }}
                   >

@@ -290,68 +290,70 @@ export const StorySlider = () => {
           ))}
         </Splide>
       </div>
-      <Dialog
-        className={classes.dialog}
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-      >
-        <Grid container className={classes.dialogContainer}>
-          <div
-            className={classes.progress}
-            style={{ height: `calc(100% - ${progress + 2}%)` }}
-          ></div>
-          <Grid item container className={classes.content}>
-            <video
-              playsInline
-              autoPlay
-              src={allStories[mainIndex].stories[storyIndex].url}
-              onEnded={handleVideoEnd}
-              className={classes.story}
-              onMouseDown={handleMouseDown}
-              onMouseUp={handleMouseUp}
-              ref={videoRef}
-              onTimeUpdate={handleTimeUpdate}
-            ></video>
-            <Grid container alignItems="center" className={classes.profile}>
-              <Grid item>
-                <IconButton
-                  onClick={() => setOpenDialog(false)}
-                  className={classes.backButton}
-                >
-                  <ChevronLeft className={classes.backIcon} />
-                </IconButton>
-              </Grid>
-              <Grid item>
-                <Grid item container direction="column" alignItems="center">
-                  <Grid item>
-                    <Avatar
-                      className={classes.profilePic}
-                      src={allStories[mainIndex].avatar}
-                    />
-                  </Grid>
-                  <Grid item>
-                    <span className={classes.username}>
-                      {allStories[mainIndex].username}
-                    </span>
+      {allStories.length !== 0 ? (
+        <Dialog
+          className={classes.dialog}
+          open={openDialog}
+          onClose={() => setOpenDialog(false)}
+        >
+          <Grid container className={classes.dialogContainer}>
+            <div
+              className={classes.progress}
+              style={{ height: `calc(100% - ${progress + 2}%)` }}
+            ></div>
+            <Grid item container className={classes.content}>
+              <video
+                playsInline
+                autoPlay
+                src={allStories[mainIndex].stories[storyIndex].url}
+                onEnded={handleVideoEnd}
+                className={classes.story}
+                onMouseDown={handleMouseDown}
+                onMouseUp={handleMouseUp}
+                ref={videoRef}
+                onTimeUpdate={handleTimeUpdate}
+              ></video>
+              <Grid container alignItems="center" className={classes.profile}>
+                <Grid item>
+                  <IconButton
+                    onClick={() => setOpenDialog(false)}
+                    className={classes.backButton}
+                  >
+                    <ChevronLeft className={classes.backIcon} />
+                  </IconButton>
+                </Grid>
+                <Grid item>
+                  <Grid item container direction="column" alignItems="center">
+                    <Grid item>
+                      <Avatar
+                        className={classes.profilePic}
+                        src={allStories[mainIndex].avatar}
+                      />
+                    </Grid>
+                    <Grid item>
+                      <span className={classes.username}>
+                        {allStories[mainIndex].username}
+                      </span>
+                    </Grid>
                   </Grid>
                 </Grid>
               </Grid>
+              <IconButton
+                onClick={handlePrev}
+                className={`${classes.storyIcon} ${classes.btnLeft}`}
+              >
+                <ChevronLeft className={classes.storyButtonIcon} />
+              </IconButton>
+              <IconButton
+                onClick={handleNext}
+                className={`${classes.storyIcon} ${classes.btnRight}`}
+              >
+                <ChevronRight className={classes.storyButtonIcon} />
+              </IconButton>
             </Grid>
-            <IconButton
-              onClick={handlePrev}
-              className={`${classes.storyIcon} ${classes.btnLeft}`}
-            >
-              <ChevronLeft className={classes.storyButtonIcon} />
-            </IconButton>
-            <IconButton
-              onClick={handleNext}
-              className={`${classes.storyIcon} ${classes.btnRight}`}
-            >
-              <ChevronRight className={classes.storyButtonIcon} />
-            </IconButton>
           </Grid>
-        </Grid>
-      </Dialog>
+        </Dialog>
+      ) : undefined}
     </>
   );
 };

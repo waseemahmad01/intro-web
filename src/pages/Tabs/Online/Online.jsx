@@ -9,8 +9,9 @@ import {
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { getLiveUsers } from "../../../http";
+import { getLiveUsers, checkMatch } from "../../../http";
 import { setOnlineUsers } from "../../../store/user";
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -91,9 +92,18 @@ const useStyles = makeStyles((theme) => ({
 export const Online = () => {
   const classes = useStyles();
   const theme = useTheme();
+  const history = useHistory();
   const dispatch = useDispatch();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const onlineUsers = useSelector((state) => state.auth.user.onlineUsers);
+  const handleClick = async (id) => {
+    const { data } = await checkMatch(id);
+    if (data.data) {
+      history.push(`/home/match/${id}`);
+    } else {
+      history.push(`/home/unmatch/${id}`);
+    }
+  };
   useEffect(() => {
     (async () => {
       try {
@@ -127,10 +137,9 @@ export const Online = () => {
                   badgeContent=""
                 >
                   <Avatar
-                    component={Link}
-                    to={`/home/profile/${user._id}`}
                     className={classes.avatar}
                     src={user.profile_image}
+                    onClick={() => handleClick(user._id)}
                   />
                 </Badge>
               </Grid>

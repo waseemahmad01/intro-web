@@ -79,6 +79,7 @@ export const likeVideo = (data) => api.post("/api/video/like", data);
 export const allVideos = (page, limit) =>
   api.get(`/api/allVideos?page=${page}&limit=${limit}`);
 export const otherUserVideos = (id) => api.get(`/api/videos/${id}`);
+export const deleteVideo = (id) => api.delete(`/api/video/${id}`);
 
 // story
 
@@ -92,6 +93,10 @@ export const likedMe = () => api.get("/api/likedme");
 
 export const getLiveUsers = () => api.get("api/onlineuser");
 
+// check match
+
+export const checkMatch = (id) => api.get(`/api/checkmatch/${id}`);
+
 // live stream
 
 export const liveStreamUsers = (filter) => api.get(`/api/liveuser${filter}`);
@@ -101,9 +106,6 @@ export const deleteLiveUser = (data) => api.delete("/api/deleteliveuser", data);
 
 // liveloop
 export const createLiveloop = (data) => api.post("/api/liveloop", data);
-// data ==> username, image,location, channelId,gender_identifier,age
 export const getLiveLoopRequests = (query) => api.get(`/api/liveloop?${query}`);
-
-//   data={} 'age=${ageRange[0]}&age=${ageRange[1]}&long=$lng&lat=$lat&distance=$distance&gender_identifier=$genderIdentifier'
 
 export default api;

@@ -45,9 +45,10 @@ function App(props) {
         const step = data.data.step;
         switch (step) {
           case "/home":
-            props.history.push("home");
+            if (props.history.location.pathname === "/") {
+              props.history.push("home");
+            }
             break;
-
           default:
             props.history.push("signin");
             break;

@@ -1,42 +1,367 @@
 import React, { useState } from "react";
-import { useStyles } from "./postStyles";
-import { Link } from "react-router-dom";
 import {
+  makeStyles,
   Grid,
-  Avatar,
+  Typography,
   IconButton,
   Dialog,
-  Typography,
   Button,
+  Avatar,
   Chip,
   Slider,
   TextField,
 } from "@material-ui/core";
-
 import AvatarGroup from "@material-ui/lab/AvatarGroup";
-import image from "../../assets/index";
 import { Favorite, Close } from "@material-ui/icons";
-import { likeVideo, checkMatch } from "../../http";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { toggleMute } from "../../store/videoSound";
-import { useHistory } from "react-router-dom";
-export const Post = React.forwardRef(
-  (
-    { username, profile_img, video_url, video_id, title, like, user_id },
-    ref
-  ) => {
+import image from "../../assets";
+import { likeVideo } from "../../http";
+
+const useStyles = makeStyles((theme) => ({
+  postTitle: {
+    color: "#000",
+    margin: "0",
+    fontSize: "20px",
+    textAlign: "left",
+    width: "100%",
+    marginBottom: "10px",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "15px",
+    },
+  },
+  postContainer: {
+    width: "338px",
+    height: "596px",
+    borderRadius: "16px",
+    position: "relative",
+    borderRadius: "16px",
+    overflow: "hidden",
+    "& video": {
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+    },
+    [theme.breakpoints.down("lg")]: {
+      width: "220px",
+      height: "380px",
+    },
+  },
+  iconContainer: {
+    backgroundColor: "transparent",
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 15,
+    borderRadius: "16px",
+    display: "flex",
+    alignItems: "flex-end",
+    [theme.breakpoints.down("lg")]: {
+      bottom: 5,
+    },
+  },
+  icons: {
+    height: "80px",
+    padding: "1rem",
+    display: "flex",
+    alignItems: "center",
+    [theme.breakpoints.down("lg")]: {
+      paddingInline: "0.25rem",
+      padding: "0",
+      height: "50px",
+    },
+  },
+  likeIcon: {
+    color: "#fbfbfb",
+    fontSize: "2.8rem",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "1.8rem",
+    },
+  },
+  muteIcon: {
+    maxWidth: "45px",
+    [theme.breakpoints.down("lg")]: {
+      maxWidth: "28px",
+    },
+  },
+  post: {
+    marginTop: "3rem",
+    [theme.breakpoints.down("lg")]: {
+      marginTop: "1rem",
+    },
+  },
+  likeIcon: {
+    fontSize: "3.25rem",
+    color: "#fbfbfb",
+  },
+  likeFilled: {
+    fontSize: "3.25rem",
+    color: "red",
+  },
+  dialog: {
+    "& .MuiDialog-paper": {
+      borderRadius: "30px",
+    },
+  },
+  dialogContainer: {
+    padding: "2rem 3.5rem",
+    backgroundColor: theme.palette.common.lightPink,
+    [theme.breakpoints.down(1680)]: {
+      padding: "1rem 2.5rem",
+    },
+  },
+  avatarGroup: {
+    marginTop: "2rem",
+    [theme.breakpoints.down(1680)]: {
+      marginTop: "1rem",
+    },
+  },
+  dialogImage: {
+    height: "107px",
+    width: "107px",
+    border: `2px solid ${theme.palette.common.lightPink}`,
+    [theme.breakpoints.down(1680)]: {
+      height: "85px",
+      width: "85px",
+    },
+  },
+  gradientText: {
+    margin: "0",
+    fontSize: "24px",
+    fontWeight: 700,
+    marginTop: "0.5rem",
+    background: "-webkit-linear-gradient(#654AAB, #E77783)",
+    "-webkit-background-clip": "text",
+    "-webkit-text-fill-color": "transparent",
+    [theme.breakpoints.down(1680)]: {
+      fontSize: "20px",
+    },
+  },
+  text: {
+    fontSize: "12px",
+  },
+  dialogAction: {
+    marginTop: "2rem",
+    marginBottom: "3rem",
+    width: "70%",
+    marginInline: "auto",
+    [theme.breakpoints.down(1680)]: {
+      marginTop: "1rem",
+      marginBottom: "1.5rem",
+    },
+  },
+  outlinedButton: {
+    width: "274px",
+    height: "52px",
+    borderRadius: "38px",
+    fontSize: "17px",
+    border: `2px solid ${theme.palette.primary.main}`,
+    fontWeight: 700,
+    [theme.breakpoints.down(1680)]: {
+      width: "240px",
+      height: "45.5px",
+    },
+  },
+  // quick message
+  quickMessageDialog: {
+    "& .MuiDialog-paper": {
+      borderRadius: "30px",
+    },
+  },
+  quickMessageDialogContent: {
+    padding: "1.5rem",
+    [theme.breakpoints.down(1680)]: {
+      padding: "0.75rem",
+    },
+  },
+  quickMessageTitle: {
+    margin: "0",
+    color: "#000",
+    fontSize: "27px",
+    fontWeight: 500,
+    [theme.breakpoints.down(1680)]: {
+      fontSize: "20px",
+    },
+  },
+  chip: {
+    backgroundColor: theme.palette.common.lightPink,
+    borderRadius: "18px 18px 18px 0px",
+    height: "53px",
+    margin: "0.5rem 0",
+    width: "317px",
+    fontSize: "18px",
+    [theme.breakpoints.down(1680)]: {
+      width: "250px",
+      height: "42px",
+      fontSize: "13px",
+    },
+  },
+  quickMessageButton: {
+    width: "275px",
+    height: "46px",
+    textTransform: "none",
+    fontSize: "19px",
+    borderRadius: "29px",
+    marginTop: "5rem",
+    [theme.breakpoints.down(1680)]: {
+      width: "220px",
+      height: "36px",
+      fontSize: "13px",
+    },
+  },
+
+  // date dialog
+  dateDialog: {
+    "& .MuiDialog-paper": {
+      borderRadius: "39px",
+    },
+  },
+  dateDialogContainer: {
+    padding: "2rem",
+    backgroundColor: theme.palette.common.lightPink,
+  },
+  dateDialogTitle: {
+    margin: 0,
+    color: theme.palette.primary.main,
+    fontSize: "22px",
+    alignItems: "center",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "18px",
+    },
+  },
+  watchblue: {
+    marginLeft: "2rem",
+    [theme.breakpoints.down("lg")]: {
+      width: "1.25rem",
+      marginLeft: "1.5rem",
+    },
+  },
+  closeButton: {
+    height: "30px",
+    width: "30px",
+    [theme.breakpoints.down("lg")]: {
+      height: "20px",
+      width: "20px",
+    },
+    "&:hover": {
+      backgroundColor: "transparent",
+    },
+  },
+  closeIcon: {
+    fontSize: "2.5rem",
+    color: "#ACACAC",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "2rem",
+    },
+  },
+  availableText: {
+    margin: 0,
+    color: "#000",
+    fontSize: "22px",
+    marginTop: "3rem",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "18px",
+      marginTop: "1.5rem",
+    },
+  },
+  sliderRoot: {
+    color: theme.palette.primary.main,
+    height: "2px",
+    width: "80%",
+    marginInline: "auto",
+    marginTop: "1rem",
+    [theme.breakpoints.down("lg")]: {
+      marginTop: "0rem",
+      width: "100%",
+    },
+    "& .MuiSlider-thumb": {
+      height: "17px",
+      width: "17px",
+      backgroundColor: "#fff",
+      boxShadow: theme.shadows[3],
+      marginTop: "-8.5px",
+      marginLeft: "-8.5px",
+    },
+    "& 	.MuiSlider-valueLabel": {
+      // left: "calc(-50% + 12px)",
+      left: "-50%",
+      top: "-18px",
+      "& *": {
+        background: "transparent",
+        color: "#000",
+        fontSize: "13px",
+      },
+    },
+  },
+  continueButton: {
+    width: "369px",
+    height: "57px",
+    borderRadius: "29px",
+    textTransform: "none",
+    fontSize: "16px",
+    // marginTop: "2rem",
+    [theme.breakpoints.down("lg")]: {
+      width: "300px",
+      height: "45px",
+      fontSize: "13px",
+    },
+  },
+  dialogIconContainer: {
+    margin: "3rem 0",
+  },
+  datePicker: {
+    marginTop: "3rem",
+    minWidth: "100%",
+    [theme.breakpoints.down("lg")]: {
+      marginTop: "1.5rem",
+    },
+    "& .MuiFormControl-root": {
+      width: "100%",
+    },
+    "& .MuiInputLabel-root": {
+      color: theme.palette.primary.main,
+    },
+    "& .MuiInput-root": {
+      color: theme.palette.primary.main,
+      width: "100%",
+      "& .MuiInputBase-input": {
+        color: "#000",
+      },
+    },
+  },
+  date: {
+    width: "300px",
+    color: "#000000",
+    fontSize: "20px",
+  },
+  dateRoot: {
+    marginTop: "2rem",
+    "& .MuiInput-underline::before": {
+      borderBottom: `2px solid ${theme.palette.primary.light}`,
+    },
+  },
+}));
+
+export const Video = React.forwardRef(
+  ({ video_title, video_url, like, video_id }, ref) => {
     const classes = useStyles();
-    const history = useHistory();
+    const dispatch = useDispatch();
+    const mutedState = useSelector((state) => state.video.muted);
     const [openDialog, setOpenDialog] = useState(false);
     const [quickMessage, setQuickMessage] = useState(false);
-    const [date, setDate] = useState(false);
-    const [sliderValue, setSliderValue] = useState([11, 23]);
-    // eslint-disable-next-line
     const [selectedDate, setSelectedDate] = useState(new Date());
-    const isMuted = useSelector((state) => state.video.muted);
-    const dispatch = useDispatch();
+    const [date, setDate] = useState(false);
     const [isLiked, setIsLiked] = useState(like);
-    // eslint-disable-next-line
+
+    const [sliderValue, setSliderValue] = useState([11, 23]);
+
+    const handleLike = async () => {
+      setIsLiked(!isLiked);
+      const { data } = await likeVideo({ video_id });
+      setOpenDialog(data.matched);
+      //   console.log(data);
+    };
     const handleDateChange = (date) => {
       setSelectedDate(date);
     };
@@ -48,81 +373,31 @@ export const Post = React.forwardRef(
       setOpenDialog(false);
       setDate(true);
     };
-    const handleTime = (event, time) => {
-      setSliderValue(time);
-    };
     const handleValueLabel = (value) => {
       return `${value}o'clock`;
     };
-    const handleLike = async () => {
-      setIsLiked(!isLiked);
-      const { data } = await likeVideo({ video_id });
-      setOpenDialog(data.matched);
-    };
-    const handleProfileClick = async (id) => {
-      const { data } = await checkMatch(id);
-      if (data.data) {
-        history.push(`/home/match/${id}`);
-      } else {
-        history.push(`/home/unmatch/${id}`);
-      }
+    const handleTime = (event, time) => {
+      setSliderValue(time);
     };
     return (
-      <Grid
-        item
-        container
-        alignItems="flex-start"
-        className={classes.postContainer}
-        ref={ref}
-      >
+      <>
         <Grid
           item
           container
-          className={classes.postAvatarContainer}
-          sm={2}
-          xs={12}
-        >
-          <Grid item container style={{ padding: "0.5rem" }}>
-            <Grid item>
-              <Grid item container direction="column" alignItems="center">
-                <Avatar
-                  onClick={() => handleProfileClick(user_id)}
-                  src={profile_img}
-                  className={classes.postAvatar}
-                />
-
-                <p className={classes.postAvatarText}>{username}</p>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid
-          sm={10}
-          xs={12}
-          container
-          justifyContent="flex-start"
-          alignItems="center"
-          item
+          className={classes.post}
           direction="column"
-          className={classes.postAssetContainer}
+          alignItems="center"
         >
           <Grid item>
-            <h2 className={classes.postTitle}>{title}</h2>
-          </Grid>
-          <Grid item>
-            <div
-              className={classes.imageContianer}
-              style={{
-                overflow: "hidden",
-              }}
-            >
+            <Typography className={classes.postTitle}>{video_title}</Typography>
+            <div className={classes.postContainer}>
               <video
+                ref={ref}
                 playsInline
-                autoPlay={false}
                 loop
-                muted={isMuted}
-                src={video_url}
-                className={classes.postAsset}
+                muted={mutedState}
+                className={classes.video}
+                src={`http://104.154.205.129:8080/${video_url}`}
               ></video>
               <div className={classes.iconContainer}>
                 <Grid
@@ -132,12 +407,9 @@ export const Post = React.forwardRef(
                   alignItems="flex-end"
                 >
                   <Grid item>
-                    <IconButton
-                      style={{ zIndex: 2 }}
-                      onClick={() => dispatch(toggleMute())}
-                    >
+                    <IconButton onClick={() => dispatch(toggleMute())}>
                       <img
-                        src={isMuted ? image.mute : image.unMute}
+                        src={mutedState ? image.mute : image.unMute}
                         className={classes.muteIcon}
                         alt=""
                       />
@@ -146,8 +418,10 @@ export const Post = React.forwardRef(
                   <Grid item>
                     <IconButton onClick={handleLike}>
                       <Favorite
-                        style={{ color: isLiked ? "red" : "" }}
-                        className={classes.likeIcon}
+                        style={{ transition: "0.5s ease" }}
+                        className={
+                          isLiked ? classes.likeFilled : classes.likeIcon
+                        }
                       />
                     </IconButton>
                   </Grid>
@@ -396,7 +670,7 @@ export const Post = React.forwardRef(
             </Grid>
           </Grid>
         </Dialog>
-      </Grid>
+      </>
     );
   }
 );

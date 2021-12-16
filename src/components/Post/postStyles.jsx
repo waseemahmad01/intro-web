@@ -5,6 +5,7 @@ export const useStyles = makeStyles((theme) => ({
     width: "104px",
     height: "104px",
     marginLeft: "10px",
+    cursor: "pointer",
     [theme.breakpoints.down("lg")]: {
       width: "70px",
       height: "70px",

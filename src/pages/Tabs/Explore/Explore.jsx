@@ -16,7 +16,7 @@ export const Explore = ({ videos, addToRefs, lastElementRef }) => {
     (async () => {
       const { data } = await getStories();
       dispatch(setStories(data.data));
-      setAllStories(data, data);
+      setAllStories(data.data);
     })();
   }, []);
   return (
