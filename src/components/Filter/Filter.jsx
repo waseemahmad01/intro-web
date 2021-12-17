@@ -13,14 +13,80 @@ import {
 import { FilterList, ExpandLess } from "@material-ui/icons";
 import { useStyles } from "./filterStyles";
 import image from "../../assets";
+import { FilterDialog } from "../FilterDialog/FilterDialog";
+import { CountryFilter } from "../CountryFilter/CountryFilter";
+import { HeightFilter } from "../HeightFilter/HeightFilter";
+import {
+  religion as religionList,
+  ethnicityList,
+  bodyType,
+  schoolDegree,
+  wantChild,
+} from "../../data";
 
-export const Filter = () => {
+const genderList = ["female", "male"];
+const intentList = [
+  "anything",
+  "meet someone new",
+  "friends",
+  "something casual",
+  "relationship",
+  "marraige",
+];
+
+export const Filter = ({
+  setGender,
+  setIntent,
+  setReligion,
+  setEthnicity,
+  setBodyType,
+  setEducation,
+  setKids,
+  setDrink,
+  setSmoke,
+  setWeed,
+  setDrugs,
+  setCountry,
+  setHeight,
+  setAge,
+  setFilterUpdated,
+  filterUpdated,
+  setIsAnyOpen,
+  gender,
+  intent,
+  ethnicity,
+  bodyType,
+  religion,
+  kids,
+  education,
+  drink,
+  smoke,
+  weed,
+  country,
+  drugs,
+  height,
+  age,
+}) => {
   const classes = useStyles();
   const [expanded, setExpanded] = useState(false);
   const [collapse, setCollapse] = useState(false);
   const [sliderValue, setSliderValue] = useState([22, 33]);
-  const [age, setAge] = useState([22, 33]);
   const imgRef = useRef();
+  // filter dialog state
+  const [openGender, setOpenGender] = useState(false);
+  const [openIntent, setopenIntent] = useState(false);
+  const [openReligion, setOpenReligion] = useState(false);
+  const [openEthnicity, setOpenEthnicity] = useState(false);
+  const [openBody, setOpenBody] = useState(false);
+  const [openEducation, setOpenEducation] = useState(false);
+  const [openKids, setOpenKids] = useState(false);
+  const [openDrink, setOpenDrink] = useState(false);
+  const [openSmoke, setOpenSmoke] = useState(false);
+  const [openWeed, setOpenWeed] = useState(false);
+  const [openDrugs, setOpenDrugs] = useState(false);
+  const [openCountry, setOpenCountry] = useState(false);
+  const [openHeight, setOpenHeight] = useState(false);
+  // filter dialog state end
   const handleCollapse = () => {
     setCollapse(!collapse);
     imgRef.current.classList.toggle(`${classes.rotate}`);
@@ -30,6 +96,7 @@ export const Filter = () => {
   };
   const handleSetAge = () => {
     setAge(sliderValue);
+    setFilterUpdated(filterUpdated + 1);
     setCollapse(!collapse);
     imgRef.current.classList.toggle(`${classes.rotate}`);
   };
@@ -56,7 +123,16 @@ export const Filter = () => {
       </AccordionSummary>
       <AccordionDetails classes={{ root: classes.details }}>
         <Grid item container direction="column">
-          <Grid item container alignItems="center" className={classes.filter}>
+          <Grid
+            item
+            container
+            onClick={() => {
+              setOpenGender(true);
+              setIsAnyOpen(true);
+            }}
+            alignItems="center"
+            className={classes.filter}
+          >
             <Grid
               item
               style={{
@@ -65,15 +141,32 @@ export const Filter = () => {
                 justifyContent: "space-between",
                 paddingRight: "4.5%",
               }}
-              jus
             >
               <Typography className={classes.title}>Gender</Typography>
-              <Typography className={classes.subtitle}>Female</Typography>
+              <Typography noWrap className={classes.subtitle}>
+                {gender.map((item, index) => {
+                  if (index === gender.length - 1) {
+                    return `${item}`;
+                  } else {
+                    return `${item}, `;
+                  }
+                })}
+              </Typography>
             </Grid>
             <Grid item>
               <img src={image.rArrow} className={classes.arrowIcon} alt="" />
             </Grid>
           </Grid>
+          <FilterDialog
+            title="Gender"
+            options={genderList}
+            setValue={setGender}
+            open={openGender}
+            onClose={setOpenGender}
+            update={filterUpdated}
+            setUpdate={setFilterUpdated}
+            setIsAnyOpen={setIsAnyOpen}
+          />
           <Grid
             item
             container
@@ -98,7 +191,7 @@ export const Filter = () => {
                 jus
               >
                 <Typography className={classes.title}>Age</Typography>
-                <Typography className={classes.subtitle}>
+                <Typography noWrap className={classes.subtitle}>
                   {age[0]}-{age[1]}
                 </Typography>
               </Grid>
@@ -115,7 +208,7 @@ export const Filter = () => {
               <Slider
                 onChange={handleSliderAge}
                 value={sliderValue}
-                defaultValue={[22, 33]}
+                defaultValue={[18, 50]}
                 min={18}
                 max={99}
                 color="secondary"
@@ -137,7 +230,16 @@ export const Filter = () => {
               </Grid>
             </Collapse>
           </Grid>
-          <Grid item container alignItems="center" className={classes.filter}>
+          <Grid
+            item
+            container
+            onClick={() => {
+              setopenIntent(true);
+              setIsAnyOpen(true);
+            }}
+            alignItems="center"
+            className={classes.filter}
+          >
             <Grid
               item
               style={{
@@ -149,15 +251,40 @@ export const Filter = () => {
               jus
             >
               <Typography className={classes.title}>Intent</Typography>
-              <Typography className={classes.subtitle}>
-                Something Casual
+              <Typography noWrap className={classes.subtitle}>
+                {intent.map((item, index) => {
+                  if (index === intent.length - 1) {
+                    return `${item}`;
+                  } else {
+                    return `${item}, `;
+                  }
+                })}
               </Typography>
             </Grid>
             <Grid item>
               <img src={image.rArrow} className={classes.arrowIcon} alt="" />
             </Grid>
           </Grid>
-          <Grid item container alignItems="center" className={classes.filter}>
+          <FilterDialog
+            title="Intent"
+            options={intentList}
+            setValue={setIntent}
+            open={openIntent}
+            onClose={setopenIntent}
+            update={filterUpdated}
+            setUpdate={setFilterUpdated}
+            setIsAnyOpen={setIsAnyOpen}
+          />
+          <Grid
+            item
+            container
+            onClick={() => {
+              setOpenReligion(true);
+              setIsAnyOpen(true);
+            }}
+            alignItems="center"
+            className={classes.filter}
+          >
             <Grid
               item
               style={{
@@ -169,13 +296,40 @@ export const Filter = () => {
               jus
             >
               <Typography className={classes.title}>Religion</Typography>
-              <Typography className={classes.subtitle}>Muslim</Typography>
+              <Typography className={classes.subtitle}>
+                {religion.map((item, index) => {
+                  if (index === religion.length - 1) {
+                    return `${item}`;
+                  } else {
+                    return `${item}, `;
+                  }
+                })}
+              </Typography>
             </Grid>
             <Grid item>
               <img src={image.rArrow} className={classes.arrowIcon} alt="" />
             </Grid>
           </Grid>
-          <Grid item container alignItems="center" className={classes.filter}>
+          <FilterDialog
+            title="Religion"
+            options={religionList}
+            setValue={setReligion}
+            open={openReligion}
+            onClose={setOpenReligion}
+            update={filterUpdated}
+            setUpdate={setFilterUpdated}
+            setIsAnyOpen={setIsAnyOpen}
+          />
+          <Grid
+            item
+            container
+            onClick={() => {
+              setOpenCountry(true);
+              setIsAnyOpen(true);
+            }}
+            alignItems="center"
+            className={classes.filter}
+          >
             <Grid
               item
               style={{
@@ -187,13 +341,38 @@ export const Filter = () => {
               jus
             >
               <Typography className={classes.title}>Country</Typography>
-              <Typography className={classes.subtitle}>Egypt</Typography>
+              <Typography noWrap className={classes.subtitle}>
+                {country.map((item, index) => {
+                  if (index === country.length - 1) {
+                    return `${item}`;
+                  } else {
+                    return `${item}, `;
+                  }
+                })}
+              </Typography>
             </Grid>
             <Grid item>
               <img src={image.rArrow} className={classes.arrowIcon} alt="" />
             </Grid>
           </Grid>
-          <Grid item container alignItems="center" className={classes.filter}>
+          <CountryFilter
+            setValue={setCountry}
+            open={openCountry}
+            onClose={setOpenCountry}
+            update={filterUpdated}
+            setUpdate={setFilterUpdated}
+            setIsAnyOpen={setIsAnyOpen}
+          />
+          <Grid
+            item
+            container
+            onClick={() => {
+              setOpenEthnicity(true);
+              setIsAnyOpen(true);
+            }}
+            alignItems="center"
+            className={classes.filter}
+          >
             <Grid
               item
               style={{
@@ -202,18 +381,42 @@ export const Filter = () => {
                 justifyContent: "space-between",
                 paddingRight: "4.5%",
               }}
-              jus
             >
               <Typography className={classes.title}>Ethnicity</Typography>
               <Typography className={classes.subtitle}>
-                Middle Eastren
+                {ethnicity.map((item, index) => {
+                  if (index === ethnicity.length - 1) {
+                    return `${item}`;
+                  } else {
+                    return `${item}, `;
+                  }
+                })}
               </Typography>
             </Grid>
             <Grid item>
               <img src={image.rArrow} className={classes.arrowIcon} alt="" />
             </Grid>
           </Grid>
-          <Grid item container alignItems="center" className={classes.filter}>
+          <FilterDialog
+            title="Ethnicity"
+            options={ethnicityList}
+            setValue={setEthnicity}
+            open={openEthnicity}
+            onClose={setOpenEthnicity}
+            update={filterUpdated}
+            setUpdate={setFilterUpdated}
+            setIsAnyOpen={setIsAnyOpen}
+          />
+          <Grid
+            item
+            container
+            onClick={() => {
+              setOpenHeight(true);
+              setIsAnyOpen(true);
+            }}
+            alignItems="center"
+            className={classes.filter}
+          >
             <Grid
               item
               style={{
@@ -222,54 +425,34 @@ export const Filter = () => {
                 justifyContent: "space-between",
                 paddingRight: "4.5%",
               }}
-              jus
             >
               <Typography className={classes.title}>Height</Typography>
-              <Typography className={classes.subtitle}>173cm</Typography>
-            </Grid>
-            <Grid item>
-              <img src={image.rArrow} className={classes.arrowIcon} alt="" />
-            </Grid>
-          </Grid>
-          <Grid item container alignItems="center" className={classes.filter}>
-            <Grid
-              item
-              style={{
-                flexGrow: 1,
-                display: "flex",
-                justifyContent: "space-between",
-                paddingRight: "4.5%",
-              }}
-              jus
-            >
-              <Typography className={classes.title}>Body Type</Typography>
-              <Typography className={classes.subtitle}>Muscular</Typography>
-            </Grid>
-            <Grid item>
-              <img src={image.rArrow} className={classes.arrowIcon} alt="" />
-            </Grid>
-          </Grid>
-          <Grid item container alignItems="center" className={classes.filter}>
-            <Grid
-              item
-              style={{
-                flexGrow: 1,
-                display: "flex",
-                justifyContent: "space-between",
-                paddingRight: "4.5%",
-              }}
-              jus
-            >
-              <Typography className={classes.title}>Education</Typography>
-              <Typography className={classes.subtitle}>
-                Undergraduate
+              <Typography noWrap className={classes.subtitle}>
+                {`${height[0]}cm`}
               </Typography>
             </Grid>
             <Grid item>
               <img src={image.rArrow} className={classes.arrowIcon} alt="" />
             </Grid>
           </Grid>
-          <Grid item container alignItems="center" className={classes.filter}>
+          <HeightFilter
+            setContext={setHeight}
+            open={openHeight}
+            onClose={setOpenHeight}
+            update={filterUpdated}
+            setUpdate={setFilterUpdated}
+            setIsAnyOpen={setIsAnyOpen}
+          />
+          <Grid
+            item
+            container
+            onClick={() => {
+              setOpenBody(true);
+              setIsAnyOpen(true);
+            }}
+            alignItems="center"
+            className={classes.filter}
+          >
             <Grid
               item
               style={{
@@ -278,18 +461,130 @@ export const Filter = () => {
                 justifyContent: "space-between",
                 paddingRight: "4.5%",
               }}
-              jus
+            >
+              <Typography className={classes.title}>Body Type</Typography>
+              <Typography noWrap className={classes.subtitle}>
+                {bodyType.map((item, index) => {
+                  if (index === bodyType.length - 1) {
+                    return `${item}`;
+                  } else {
+                    return `${item}, `;
+                  }
+                })}
+              </Typography>
+            </Grid>
+            <Grid item>
+              <img src={image.rArrow} className={classes.arrowIcon} alt="" />
+            </Grid>
+          </Grid>
+          <FilterDialog
+            title="Body Type"
+            options={bodyType}
+            setValue={setBodyType}
+            open={openBody}
+            onClose={setOpenBody}
+            update={filterUpdated}
+            setUpdate={setFilterUpdated}
+            setIsAnyOpen={setIsAnyOpen}
+          />
+          <Grid
+            item
+            container
+            onClick={() => {
+              setOpenEducation(true);
+              setIsAnyOpen(true);
+            }}
+            alignItems="center"
+            className={classes.filter}
+          >
+            <Grid
+              item
+              style={{
+                flexGrow: 1,
+                display: "flex",
+                justifyContent: "space-between",
+                paddingRight: "4.5%",
+              }}
+            >
+              <Typography className={classes.title}>Education</Typography>
+              <Typography noWrap className={classes.subtitle}>
+                {education.map((item, index) => {
+                  if (index === education.length - 1) {
+                    return `${item}`;
+                  } else {
+                    return `${item}, `;
+                  }
+                })}
+              </Typography>
+            </Grid>
+            <Grid item>
+              <img src={image.rArrow} className={classes.arrowIcon} alt="" />
+            </Grid>
+          </Grid>
+          <FilterDialog
+            title="Education"
+            options={schoolDegree}
+            setValue={setEducation}
+            open={openEducation}
+            onClose={setOpenEducation}
+            update={filterUpdated}
+            setUpdate={setFilterUpdated}
+            setIsAnyOpen={setIsAnyOpen}
+          />
+          <Grid
+            item
+            container
+            onClick={() => {
+              setOpenKids(true);
+              setIsAnyOpen(true);
+            }}
+            alignItems="center"
+            className={classes.filter}
+          >
+            <Grid
+              item
+              style={{
+                flexGrow: 1,
+                display: "flex",
+                justifyContent: "space-between",
+                paddingRight: "4.5%",
+              }}
             >
               <Typography className={classes.title}>Kids</Typography>
               <Typography className={classes.subtitle}>
-                Have Children
+                {kids.map((item, index) => {
+                  if (index === kids.length - 1) {
+                    return `${item}`;
+                  } else {
+                    return `${item}, `;
+                  }
+                })}
               </Typography>
             </Grid>
             <Grid item>
               <img src={image.rArrow} className={classes.arrowIcon} alt="" />
             </Grid>
           </Grid>
-          <Grid item container alignItems="center" className={classes.filter}>
+          <FilterDialog
+            title="Kids"
+            options={wantChild}
+            setValue={setKids}
+            open={openKids}
+            onClose={setOpenKids}
+            update={filterUpdated}
+            setUpdate={setFilterUpdated}
+            setIsAnyOpen={setIsAnyOpen}
+          />
+          <Grid
+            item
+            container
+            onClick={() => {
+              setOpenDrink(true);
+              setIsAnyOpen(true);
+            }}
+            alignItems="center"
+            className={classes.filter}
+          >
             <Grid
               item
               style={{
@@ -298,16 +593,42 @@ export const Filter = () => {
                 justifyContent: "space-between",
                 paddingRight: "4.5%",
               }}
-              jus
             >
               <Typography className={classes.title}>Drink</Typography>
-              <Typography className={classes.subtitle}>Sometimes</Typography>
+              <Typography noWrap className={classes.subtitle}>
+                {drink.map((item, index) => {
+                  if (index === drink.length - 1) {
+                    return `${item}`;
+                  } else {
+                    return `${item}, `;
+                  }
+                })}
+              </Typography>
             </Grid>
             <Grid item>
               <img src={image.rArrow} className={classes.arrowIcon} alt="" />
             </Grid>
           </Grid>
-          <Grid item container alignItems="center" className={classes.filter}>
+          <FilterDialog
+            title="Drink"
+            options={["yes", "no", "socially"]}
+            setValue={setDrink}
+            open={openDrink}
+            onClose={setOpenDrink}
+            update={filterUpdated}
+            setUpdate={setFilterUpdated}
+            setIsAnyOpen={setIsAnyOpen}
+          />
+          <Grid
+            item
+            container
+            onClick={() => {
+              setOpenSmoke(true);
+              setIsAnyOpen(true);
+            }}
+            alignItems="center"
+            className={classes.filter}
+          >
             <Grid
               item
               style={{
@@ -316,16 +637,42 @@ export const Filter = () => {
                 justifyContent: "space-between",
                 paddingRight: "4.5%",
               }}
-              jus
             >
               <Typography className={classes.title}>Smoke</Typography>
-              <Typography className={classes.subtitle}>Yes</Typography>
+              <Typography noWrap className={classes.subtitle}>
+                {smoke.map((item, index) => {
+                  if (index === smoke.length - 1) {
+                    return `${item}`;
+                  } else {
+                    return `${item}, `;
+                  }
+                })}
+              </Typography>
             </Grid>
             <Grid item>
               <img src={image.rArrow} className={classes.arrowIcon} alt="" />
             </Grid>
           </Grid>
-          <Grid item container alignItems="center" className={classes.filter}>
+          <FilterDialog
+            title="Smoke"
+            options={["yes", "no", "socially"]}
+            setValue={setSmoke}
+            open={openSmoke}
+            onClose={setOpenSmoke}
+            update={filterUpdated}
+            setUpdate={setFilterUpdated}
+            setIsAnyOpen={setIsAnyOpen}
+          />
+          <Grid
+            item
+            container
+            onClick={() => {
+              setOpenWeed(true);
+              setIsAnyOpen(true);
+            }}
+            alignItems="center"
+            className={classes.filter}
+          >
             <Grid
               item
               style={{
@@ -334,16 +681,42 @@ export const Filter = () => {
                 justifyContent: "space-between",
                 paddingRight: "4.5%",
               }}
-              jus
             >
               <Typography className={classes.title}>Smoke Weed</Typography>
-              <Typography className={classes.subtitle}>No</Typography>
+              <Typography noWrap className={classes.subtitle}>
+                {weed.map((item, index) => {
+                  if (index === weed.length - 1) {
+                    return `${item}`;
+                  } else {
+                    return `${item}, `;
+                  }
+                })}
+              </Typography>
             </Grid>
             <Grid item>
               <img src={image.rArrow} className={classes.arrowIcon} alt="" />
             </Grid>
           </Grid>
-          <Grid item container alignItems="center" className={classes.filter}>
+          <FilterDialog
+            title="Weed"
+            options={["yes", "no", "socially"]}
+            setValue={setWeed}
+            open={openWeed}
+            onClose={setOpenWeed}
+            update={filterUpdated}
+            setUpdate={setFilterUpdated}
+            setIsAnyOpen={setIsAnyOpen}
+          />
+          <Grid
+            item
+            container
+            onClick={() => {
+              setOpenDrugs(true);
+              setIsAnyOpen(true);
+            }}
+            alignItems="center"
+            className={classes.filter}
+          >
             <Grid
               item
               style={{
@@ -352,15 +725,32 @@ export const Filter = () => {
                 justifyContent: "space-between",
                 paddingRight: "4.5%",
               }}
-              jus
             >
               <Typography className={classes.title}>Does Drugs</Typography>
-              <Typography className={classes.subtitle}>Sometimes</Typography>
+              <Typography noWrap className={classes.subtitle}>
+                {drugs.map((item, index) => {
+                  if (index === drugs.length - 1) {
+                    return `${item}`;
+                  } else {
+                    return `${item}, `;
+                  }
+                })}
+              </Typography>
             </Grid>
             <Grid item>
               <img src={image.rArrow} className={classes.arrowIcon} alt="" />
             </Grid>
           </Grid>
+          <FilterDialog
+            title="Drugs"
+            options={["yes", "no", "sometimes"]}
+            setValue={setDrugs}
+            open={openDrugs}
+            onClose={setOpenDrugs}
+            update={filterUpdated}
+            setUpdate={setFilterUpdated}
+            setIsAnyOpen={setIsAnyOpen}
+          />
         </Grid>
         <div>
           {/* <Accordion square classes={{ root: classes.childAccordionRoot }}>
@@ -661,7 +1051,10 @@ export const Filter = () => {
         <Button
           disableRipple
           variant="text"
-          onClick={() => setExpanded(false)}
+          onClick={() => {
+            setExpanded(false);
+            setIsAnyOpen(true);
+          }}
           className={classes.expandLess}
         >
           <ExpandLess className={classes.expandLessIcon} />

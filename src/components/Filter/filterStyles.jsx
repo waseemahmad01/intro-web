@@ -60,6 +60,10 @@ export const useStyles = makeStyles((theme) => ({
     paddingInline: "21px 14px",
     boxShadow: theme.shadows[1],
     marginBlock: "2px",
+    [theme.breakpoints.down("lg")]: {
+      height: "50px",
+      paddingInline: "14px 8px",
+    },
   },
   ageFilterContainer: {
     background: "#ffffff",
@@ -67,9 +71,15 @@ export const useStyles = makeStyles((theme) => ({
     boxShadow: theme.shadows[1],
     marginBlock: "2px",
     paddingInline: "21px 14px",
+    [theme.breakpoints.down("lg")]: {
+      paddingInline: "14px 8px",
+    },
   },
   ageFilter: {
     height: "68px",
+    [theme.breakpoints.down("lg")]: {
+      height: "50px",
+    },
   },
   sliderRoot: {
     marginTop: "10px",
@@ -106,16 +116,26 @@ export const useStyles = makeStyles((theme) => ({
     color: "#7E7E7E",
     fontSize: "18px",
     fontWeight: 500,
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "15px",
+    },
   },
   subtitle: {
     margin: 0,
     color: "#7E7E7E",
     fontSize: "19px",
     fontWeight: 500,
+    maxWidth: "20ch",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "16px",
+    },
   },
   arrowIcon: {
     marginTop: "7px",
     transition: "0.4s ease",
+    [theme.breakpoints.down("lg")]: {
+      width: "7px",
+    },
   },
   rotate: {
     transform: "rotate(90deg)",
@@ -139,11 +159,17 @@ export const useStyles = makeStyles((theme) => ({
     margin: 0,
     fontSize: "20px",
     fontWeight: 600,
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "16px",
+    },
   },
   cancelButton: {
     margin: 0,
     fontSize: "20px",
     fontWeight: 600,
     marginRight: "0.75rem",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "16px",
+    },
   },
 }));

@@ -31,6 +31,7 @@ import {
   PersonRounded,
 } from "@material-ui/icons";
 import { allVideos as getAllVideos } from "../../http/index";
+import { ethnicityList } from "../../data";
 // import { setStories } from "../../store/stories";
 export const AllTabs = () => {
   const classes = useStyles();
@@ -42,7 +43,25 @@ export const AllTabs = () => {
   const [changing, setChanging] = useState(1);
   const totalPages = useRef(0);
   allVideos.current = [];
+  // filters
 
+  const [gender, setGender] = useState([]);
+  const [age, setAge] = useState([18, 50]);
+  const [intent, setIntent] = useState([]);
+  const [religion, setReligion] = useState([]);
+  const [ethnicity, setEthnicity] = useState([]);
+  const [bodyType, setBodyType] = useState([]);
+  const [education, setEducation] = useState([]);
+  const [kids, setKids] = useState([]);
+  const [drink, setDrink] = useState([]);
+  const [smoke, setSmoke] = useState([]);
+  const [weed, setWeed] = useState([]);
+  const [drugs, setDrugs] = useState([]);
+  const [country, setCountry] = useState([]);
+  const [height, setHeight] = useState([]);
+  const [filterUpdated, setFilterUpdated] = useState(0);
+  const [isAnyOpen, setIsAnyOpen] = useState(false);
+  // filters end
   const observer = useRef();
   const lastElementRef = useCallback((node) => {
     if (observer.current) observer.current.disconnect();
@@ -93,7 +112,14 @@ export const AllTabs = () => {
     });
   };
   useEffect(() => {
-    if (allVideos.current.length > 0) {
+    if (isAnyOpen) {
+      allVideos.current.map((item) =>
+        item.lastChild.lastChild.lastChild.firstChild.pause()
+      );
+    }
+  }, [isAnyOpen]);
+  useEffect(() => {
+    if (allVideos.current.length > 0 && isAnyOpen === false) {
       const video =
         allVideos.current[0].lastChild.lastChild.lastChild.firstChild;
       video.play();
@@ -101,6 +127,11 @@ export const AllTabs = () => {
   });
   const url = window.location.pathname;
   useEffect(() => {
+    if (filterUpdated > 0) {
+      setVideos([]);
+      pageNumber.current = 1;
+      setFilterUpdated(0);
+    }
     if (url === "/home/explore") {
       (async function () {
         const { data } = await getAllVideos(pageNumber.current, 10);
@@ -112,7 +143,7 @@ export const AllTabs = () => {
       pageNumber.current = 1;
     }
     // eslint-disable-next-line
-  }, [changing, url]);
+  }, [changing, url, filterUpdated]);
   const tabItems = [
     {
       label: "Home",
@@ -218,6 +249,37 @@ export const AllTabs = () => {
                   addToRefs={addToRefs}
                   lastElementRef={lastElementRef}
                   videos={videos}
+                  setGender={setGender}
+                  setIntent={setIntent}
+                  setReligion={setReligion}
+                  setEthnicity={setEthnicity}
+                  setBodyType={setBodyType}
+                  setEducation={setEducation}
+                  setKids={setKids}
+                  setDrink={setDrink}
+                  setSmoke={setSmoke}
+                  setWeed={setWeed}
+                  setDrugs={setDrugs}
+                  setCountry={setCountry}
+                  setHeight={setHeight}
+                  setAge={setAge}
+                  gender={gender}
+                  intent={intent}
+                  ethnicity={ethnicity}
+                  bodyType={bodyType}
+                  religion={religion}
+                  kids={kids}
+                  education={education}
+                  drink={drink}
+                  smoke={smoke}
+                  weed={weed}
+                  country={country}
+                  drugs={drugs}
+                  height={height}
+                  age={age}
+                  setFilterUpdated={setFilterUpdated}
+                  filterUpdated={filterUpdated}
+                  setIsAnyOpen={setIsAnyOpen}
                 />
               )}
             />

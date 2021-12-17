@@ -89,5 +89,7 @@ const image = {
   heartIcon: require("./heartIcon.png").default,
   blueSendButton: require("./blueSendButton.png").default,
   rArrow: require("./rArrow.png").default,
+  unCheck: require("./unCheck.png").default,
+  checkIcon: require("./checkIcon.png").default,
 };
 export default image;

@@ -7,11 +7,47 @@ import { Post } from "../../../components/Post/Post";
 import { useSelector, useDispatch } from "react-redux";
 import { getStories } from "../../../http/index";
 import { setStories } from "../../../store/stories";
-export const Explore = ({ videos, addToRefs, lastElementRef }) => {
+export const Explore = ({
+  videos,
+  addToRefs,
+  lastElementRef,
+  setGender,
+  setIntent,
+  setReligion,
+  setEthnicity,
+  setBodyType,
+  setEducation,
+  setKids,
+  setDrink,
+  setSmoke,
+  setWeed,
+  setDrugs,
+  setCountry,
+  setHeight,
+  setAge,
+  setFilterUpdated,
+  filterUpdated,
+  setIsAnyOpen,
+  gender,
+  intent,
+  ethnicity,
+  bodyType,
+  religion,
+  kids,
+  education,
+  drink,
+  smoke,
+  weed,
+  country,
+  drugs,
+  height,
+  age,
+}) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const stories = useSelector((state) => state.stories.stories);
   const [allStories, setAllStories] = useState(stories || []);
+
   useEffect(() => {
     (async () => {
       const { data } = await getStories();
@@ -41,7 +77,7 @@ export const Explore = ({ videos, addToRefs, lastElementRef }) => {
                 {videos.map((item, index) => {
                   if (videos.length === index + 1) {
                     return (
-                      <Grid key={item._id} ref={lastElementRef}>
+                      <Grid key={index} ref={lastElementRef}>
                         <Post
                           profile_img={item.profile_image}
                           video_url={`http://104.154.205.129:8080/${item.video_url}`}
@@ -57,7 +93,7 @@ export const Explore = ({ videos, addToRefs, lastElementRef }) => {
                     );
                   } else {
                     return (
-                      <Grid key={item._id}>
+                      <Grid key={index}>
                         <Post
                           profile_img={item.profile_image}
                           video_url={`http://104.154.205.129:8080/${item.video_url}`}
@@ -76,7 +112,39 @@ export const Explore = ({ videos, addToRefs, lastElementRef }) => {
               </Grid>
             </Grid>
             <Grid item>
-              <Filter />
+              <Filter
+                setGender={setGender}
+                setIntent={setIntent}
+                setReligion={setReligion}
+                setEthnicity={setEthnicity}
+                setBodyType={setBodyType}
+                setEducation={setEducation}
+                setKids={setKids}
+                setDrink={setDrink}
+                setSmoke={setSmoke}
+                setWeed={setWeed}
+                setDrugs={setDrugs}
+                setCountry={setCountry}
+                setHeight={setHeight}
+                setAge={setAge}
+                setFilterUpdated={setFilterUpdated}
+                filterUpdated={filterUpdated}
+                setIsAnyOpen={setIsAnyOpen}
+                gender={gender}
+                intent={intent}
+                ethnicity={ethnicity}
+                bodyType={bodyType}
+                religion={religion}
+                kids={kids}
+                education={education}
+                drink={drink}
+                smoke={smoke}
+                weed={weed}
+                country={country}
+                drugs={drugs}
+                height={height}
+                age={age}
+              />
             </Grid>
           </Grid>
         </Grid>

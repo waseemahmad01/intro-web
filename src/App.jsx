@@ -50,7 +50,7 @@ function App(props) {
             }
             break;
           default:
-            props.history.push("signin");
+            // props.history.push("signin");
             break;
         }
       }
