@@ -372,7 +372,6 @@ export const ProfileMatched = (props) => {
   const [videos, setVideos] = useState([]);
   const videosRef = useRef([]);
   videosRef.current = [];
-
   const handleLike = async (id) => {
     const { data } = await likeVideo(id);
   };
@@ -427,6 +426,7 @@ export const ProfileMatched = (props) => {
           axios.spread((res1, res2, res3) => {
             setUser(res1.data.data);
             setVideos(res3.data.data);
+            console.log(res3.data.data);
           })
         )
         .catch((err) => {
@@ -525,6 +525,9 @@ export const ProfileMatched = (props) => {
               video_title={video.video_title}
               ref={addToRef}
               video_id={video._id}
+              match={true}
+              cover={video.cover}
+              superLike={video.superLike}
             />
           ))}
         </Grid>

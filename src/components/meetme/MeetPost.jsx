@@ -61,7 +61,7 @@ export const MeetPost = React.forwardRef((props, ref) => {
                 className={classes.postAvatar}
               />
 
-              <p className={classes.postAvatarText}>"@username"</p>
+              <p className={classes.postAvatarText}>@username</p>
             </Grid>
           </Grid>
         </Grid>
@@ -179,11 +179,7 @@ export const MeetPost = React.forwardRef((props, ref) => {
             </Typography>
           </Grid>
           <Grid item container>
-            <List
-              dense
-              disableGutters
-              style={{ width: "90%", marginInline: "auto" }}
-            >
+            <List dense style={{ width: "90%", marginInline: "auto" }}>
               <ListItem divider className={classes.listItem}>
                 <ListItemAvatar>
                   <img

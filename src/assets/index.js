@@ -91,5 +91,6 @@ const image = {
   rArrow: require("./rArrow.png").default,
   unCheck: require("./unCheck.png").default,
   checkIcon: require("./checkIcon.png").default,
+  sparkActive: require("./sparkActive.png").default,
 };
 export default image;

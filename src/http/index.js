@@ -76,10 +76,11 @@ export const likedMeApi = () => api.get("/api/likedMe");
 
 export const videos = () => api.get("/api/videos");
 export const likeVideo = (data) => api.post("/api/video/like", data);
-export const allVideos = (page, limit) =>
-  api.get(`/api/allVideos?page=${page}&limit=${limit}`);
+export const allVideos = (page, limit, query) =>
+  api.get(`/api/allVideos?page=${page}&limit=${limit}&${query}`);
 export const otherUserVideos = (id) => api.get(`/api/videos/${id}`);
 export const deleteVideo = (id) => api.delete(`/api/video/${id}`);
+export const superLikeApi = (data) => api.post("/api/video/superlike", data);
 
 // story
 

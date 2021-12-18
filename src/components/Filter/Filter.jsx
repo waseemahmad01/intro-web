@@ -19,19 +19,19 @@ import { HeightFilter } from "../HeightFilter/HeightFilter";
 import {
   religion as religionList,
   ethnicityList,
-  bodyType,
+  bodyType as bodyTypeList,
   schoolDegree,
   wantChild,
 } from "../../data";
 
-const genderList = ["female", "male"];
+const genderList = ["Female", "Male"];
 const intentList = [
-  "anything",
-  "meet someone new",
-  "friends",
-  "something casual",
-  "relationship",
-  "marraige",
+  "Anything",
+  "Meet someone new",
+  "Friends",
+  "Something casual",
+  "Relationship",
+  "Marraige",
 ];
 
 export const Filter = ({
@@ -188,7 +188,6 @@ export const Filter = ({
                   justifyContent: "space-between",
                   paddingRight: "4.5%",
                 }}
-                jus
               >
                 <Typography className={classes.title}>Age</Typography>
                 <Typography noWrap className={classes.subtitle}>
@@ -248,7 +247,6 @@ export const Filter = ({
                 justifyContent: "space-between",
                 paddingRight: "4.5%",
               }}
-              jus
             >
               <Typography className={classes.title}>Intent</Typography>
               <Typography noWrap className={classes.subtitle}>
@@ -293,7 +291,6 @@ export const Filter = ({
                 justifyContent: "space-between",
                 paddingRight: "4.5%",
               }}
-              jus
             >
               <Typography className={classes.title}>Religion</Typography>
               <Typography className={classes.subtitle}>
@@ -338,7 +335,6 @@ export const Filter = ({
                 justifyContent: "space-between",
                 paddingRight: "4.5%",
               }}
-              jus
             >
               <Typography className={classes.title}>Country</Typography>
               <Typography noWrap className={classes.subtitle}>
@@ -479,7 +475,7 @@ export const Filter = ({
           </Grid>
           <FilterDialog
             title="Body Type"
-            options={bodyType}
+            options={bodyTypeList}
             setValue={setBodyType}
             open={openBody}
             onClose={setOpenBody}
@@ -1053,7 +1049,7 @@ export const Filter = ({
           variant="text"
           onClick={() => {
             setExpanded(false);
-            setIsAnyOpen(true);
+            // setIsAnyOpen(true);
           }}
           className={classes.expandLess}
         >

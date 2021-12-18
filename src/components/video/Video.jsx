@@ -16,7 +16,7 @@ import { Favorite, Close } from "@material-ui/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { toggleMute } from "../../store/videoSound";
 import image from "../../assets";
-import { likeVideo } from "../../http";
+import { likeVideo, superLikeApi } from "../../http";
 
 const useStyles = makeStyles((theme) => ({
   postTitle: {
@@ -341,10 +341,13 @@ const useStyles = makeStyles((theme) => ({
       borderBottom: `2px solid ${theme.palette.primary.light}`,
     },
   },
+  superlike: {
+    transition: "0.6s ease",
+  },
 }));
 
 export const Video = React.forwardRef(
-  ({ video_title, video_url, like, video_id }, ref) => {
+  ({ video_title, video_url, like, video_id, match, superLike }, ref) => {
     const classes = useStyles();
     const dispatch = useDispatch();
     const mutedState = useSelector((state) => state.video.muted);
@@ -355,12 +358,17 @@ export const Video = React.forwardRef(
     const [isLiked, setIsLiked] = useState(like);
 
     const [sliderValue, setSliderValue] = useState([11, 23]);
-
+    const [superLiked, setSuperLiked] = useState(superLike);
+    const handleSuperLike = async () => {
+      console.log(video_id);
+      const { data } = await superLikeApi({ video_id });
+      console.log(data);
+      setSuperLiked(!superLiked);
+    };
     const handleLike = async () => {
       setIsLiked(!isLiked);
       const { data } = await likeVideo({ video_id });
       setOpenDialog(data.matched);
-      //   console.log(data);
     };
     const handleDateChange = (date) => {
       setSelectedDate(date);
@@ -397,7 +405,7 @@ export const Video = React.forwardRef(
                 loop
                 muted={mutedState}
                 className={classes.video}
-                src={`http://104.154.205.129:8080/${video_url}`}
+                src={`${process.env.REACT_APP_API_URL}/${video_url}`}
               ></video>
               <div className={classes.iconContainer}>
                 <Grid
@@ -415,6 +423,17 @@ export const Video = React.forwardRef(
                       />
                     </IconButton>
                   </Grid>
+                  {match ? (
+                    <Grid item>
+                      <IconButton onClick={handleSuperLike}>
+                        <img
+                          className={classes.superlike}
+                          src={superLiked ? image.sparkActive : image.superlike}
+                          alt=""
+                        />
+                      </IconButton>
+                    </Grid>
+                  ) : undefined}
                   <Grid item>
                     <IconButton onClick={handleLike}>
                       <Favorite

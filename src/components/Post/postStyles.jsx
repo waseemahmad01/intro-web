@@ -94,6 +94,7 @@ export const useStyles = makeStyles((theme) => ({
   likeIcon: {
     color: "#fbfbfb",
     fontSize: "2.8rem",
+    transition: "0.4s ease",
     [theme.breakpoints.down("lg")]: {
       fontSize: "1.8rem",
     },

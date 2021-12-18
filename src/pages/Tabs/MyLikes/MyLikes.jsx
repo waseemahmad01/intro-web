@@ -86,8 +86,8 @@ export const MyLikes = () => {
         spacing={lgScreen ? 3 : 5}
         className={classes.likesContainer}
       >
-        {likes.map((like) => (
-          <Grid key={like.liked_by} sm={3} item container spacing={2}>
+        {likes.map((like, index) => (
+          <Grid key={index} sm={3} item container spacing={2}>
             <Grid item>
               <Grid
                 container

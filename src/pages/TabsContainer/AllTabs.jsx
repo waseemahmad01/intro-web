@@ -31,7 +31,7 @@ import {
   PersonRounded,
 } from "@material-ui/icons";
 import { allVideos as getAllVideos } from "../../http/index";
-import { ethnicityList } from "../../data";
+// import { ethnicityList } from "../../data";
 // import { setStories } from "../../store/stories";
 export const AllTabs = () => {
   const classes = useStyles();
@@ -44,7 +44,6 @@ export const AllTabs = () => {
   const totalPages = useRef(0);
   allVideos.current = [];
   // filters
-
   const [gender, setGender] = useState([]);
   const [age, setAge] = useState([18, 50]);
   const [intent, setIntent] = useState([]);
@@ -127,14 +126,33 @@ export const AllTabs = () => {
   });
   const url = window.location.pathname;
   useEffect(() => {
-    if (filterUpdated > 0) {
-      setVideos([]);
-      pageNumber.current = 1;
-      setFilterUpdated(0);
-    }
     if (url === "/home/explore") {
+      if (filterUpdated > 0) {
+        pageNumber.current = 1;
+        setVideos([]);
+        setFilterUpdated(0);
+      }
       (async function () {
-        const { data } = await getAllVideos(pageNumber.current, 10);
+        const query = `${
+          gender.length > 0 ? `gender=${JSON.stringify(gender)}` : null
+        }&${age.length > 0 ? `age=${JSON.stringify(age)}` : null}&${
+          intent.length > 0
+            ? `interested_audience=${JSON.stringify(intent)}`
+            : null
+        }&${
+          religion.length > 0 ? `religion=${JSON.stringify(religion)}` : null
+        }&${
+          ethnicity.length > 0 ? `ethnicity=${JSON.stringify(ethnicity)}` : null
+        }&${bodyType.length > 0 ? `type=${JSON.stringify(bodyType)}` : null}&${
+          education.length > 0 ? `eduction=${JSON.stringify(education)}` : null
+        }&${kids.length > 0 ? `children=${JSON.stringify(kids)}` : null}&${
+          drink.length > 0 ? `drink=${JSON.stringify(drink)}` : null
+        }&${smoke.length > 0 ? `smoke=${JSON.stringify(smoke)}` : null}&${
+          weed.length > 0 ? `weed=${JSON.stringify(weed)}` : null
+        }&${drugs.length > 0 ? `drugs=${JSON.stringify(drugs)}` : null}&${
+          country.length > 0 ? `country=${JSON.stringify(country)}` : null
+        }&${height.length > 0 ? `height=${JSON.stringify(height[0])}` : null}`;
+        const { data } = await getAllVideos(pageNumber.current, 10, query);
         setVideos([...videos, ...data.data]);
         totalPages.current = data.totalPages;
       })();

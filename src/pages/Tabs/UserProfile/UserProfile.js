@@ -801,7 +801,8 @@ export const UserProfile = (props) => {
                     loop
                     muted={muted}
                     className={classes.video}
-                    src={`http://104.154.205.129:8080/${video.video_url}`}
+                    cover={video.cover}
+                    src={`${process.env.REACT_APP_API_URL}/${video.video_url}`}
                   ></video>
                   <IconButton
                     onClick={() => handleDialogOpen(video._id)}

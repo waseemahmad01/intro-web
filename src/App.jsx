@@ -65,7 +65,7 @@ function App(props) {
     })();
 
     return () => {
-      if (socket !== null) socket.emit("disconnect", userState._id);
+      if (socket !== null) socket.emit("disconnect");
     };
     // eslint-disable-next-line
   }, []);

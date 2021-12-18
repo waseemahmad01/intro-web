@@ -1,6 +1,5 @@
 import React from "react";
 import { makeStyles, Grid, Typography } from "@material-ui/core";
-import { Post } from "../../../components/Post/Post";
 import { MeetPost } from "../../../components/meetme/MeetPost";
 
 const useStyles = makeStyles((theme) => ({

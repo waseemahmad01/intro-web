@@ -192,26 +192,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const StorySlider = () => {
+export const StorySlider = ({ setIsAnyOpen }) => {
   const classes = useStyles();
   const videoRef = useRef();
   const dispatch = useDispatch();
   const stories = useSelector((state) => state.stories.stories);
   const [openDialog, setOpenDialog] = useState(false);
-  const [prevMute, setPrevMute] = useState();
   const [allStories, setAllStories] = useState(stories || []);
   const muted = useSelector((state) => state.video.muted);
   const [mainIndex, setMainIndex] = useState(0);
   const [storyIndex, setStoryIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const handleClick = (index) => {
-    setPrevMute(muted);
     setMainIndex(index);
     setStoryIndex(0);
     setProgress(0);
-    if (!muted) {
-      dispatch(setMute(true));
-    }
+    setIsAnyOpen(true);
     setOpenDialog(true);
   };
   const handleVideoEnd = () => {
@@ -221,6 +217,7 @@ export const StorySlider = () => {
       storyIndex === allStories[mainIndex].stories.length - 1
     ) {
       setOpenDialog(false);
+      setIsAnyOpen(false);
       setStoryIndex(0);
     } else if (storyIndex === allStories[mainIndex].stories.length - 1) {
       setMainIndex(mainIndex + 1);
@@ -233,6 +230,7 @@ export const StorySlider = () => {
     setProgress(0);
     if (mainIndex === 0 && storyIndex === 0) {
       setOpenDialog(false);
+      setIsAnyOpen(false);
       setStoryIndex(0);
     } else if (storyIndex === 0) {
       setStoryIndex(allStories[mainIndex - 1].stories.length - 1);
@@ -248,6 +246,7 @@ export const StorySlider = () => {
       storyIndex === allStories[mainIndex].stories.length - 1
     ) {
       setOpenDialog(false);
+      setIsAnyOpen(false);
       setStoryIndex(0);
     } else if (storyIndex === allStories[mainIndex].stories.length - 1) {
       setMainIndex(mainIndex + 1);

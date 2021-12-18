@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useStyles } from "./postStyles";
-import { Link } from "react-router-dom";
 import {
   Grid,
   Avatar,
@@ -12,7 +11,6 @@ import {
   Slider,
   TextField,
 } from "@material-ui/core";
-
 import AvatarGroup from "@material-ui/lab/AvatarGroup";
 import image from "../../assets/index";
 import { Favorite, Close } from "@material-ui/icons";
@@ -22,7 +20,7 @@ import { toggleMute } from "../../store/videoSound";
 import { useHistory } from "react-router-dom";
 export const Post = React.forwardRef(
   (
-    { username, profile_img, video_url, video_id, title, like, user_id },
+    { username, profile_img, video_url, video_id, title, like, user_id, cover },
     ref
   ) => {
     const classes = useStyles();
@@ -123,6 +121,7 @@ export const Post = React.forwardRef(
                 muted={isMuted}
                 src={video_url}
                 className={classes.postAsset}
+                poster={cover}
               ></video>
               <div className={classes.iconContainer}>
                 <Grid

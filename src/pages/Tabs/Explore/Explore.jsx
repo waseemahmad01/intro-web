@@ -63,7 +63,9 @@ export const Explore = ({
           style={{ width: "100%" }}
           className={classes.sliderContainer}
         >
-          {allStories.length !== 0 && <StorySlider />}
+          {allStories.length !== 0 && (
+            <StorySlider setIsAnyOpen={setIsAnyOpen} />
+          )}
         </Grid>
         <Grid item style={{ marginTop: "3rem", width: "100%" }}>
           <Grid container justifyContent={"space-between"}>
@@ -80,7 +82,7 @@ export const Explore = ({
                       <Grid key={index} ref={lastElementRef}>
                         <Post
                           profile_img={item.profile_image}
-                          video_url={`http://104.154.205.129:8080/${item.video_url}`}
+                          video_url={`${process.env.REACT_APP_API_URL}/${item.video_url}`}
                           title={item.video_title}
                           username={item.user_name}
                           user_id={item.user_id}
@@ -88,6 +90,7 @@ export const Explore = ({
                           video_id={item._id}
                           ref={addToRefs}
                           like={item.like}
+                          cover={`${process.env.REACT_APP_API_URL}/${item.cover}`}
                         />
                       </Grid>
                     );
@@ -96,7 +99,7 @@ export const Explore = ({
                       <Grid key={index}>
                         <Post
                           profile_img={item.profile_image}
-                          video_url={`http://104.154.205.129:8080/${item.video_url}`}
+                          video_url={`${process.env.REACT_APP_API_URL}/${item.video_url}`}
                           title={item.video_title}
                           username={item.user_name}
                           user_id={item.user_id}
@@ -104,6 +107,7 @@ export const Explore = ({
                           video_id={item._id}
                           ref={addToRefs}
                           like={item.like}
+                          cover={`${process.env.REACT_APP_API_URL}/${item.cover}`}
                         />
                       </Grid>
                     );
