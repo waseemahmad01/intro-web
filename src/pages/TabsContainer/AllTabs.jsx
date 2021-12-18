@@ -21,6 +21,7 @@ import { MeetMe } from "../Tabs/MeetMe/MeetMe";
 import { Route, NavLink } from "react-router-dom";
 import { ProfileMatched } from "../Tabs/ProfileMatched/ProfileMatched";
 import { UnMatch } from "../Tabs/UnMatch/UnMatch";
+import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 // import { getStories } from "../../http/index";
 import {
   HomeRounded,
@@ -258,72 +259,64 @@ export const AllTabs = () => {
             direction="column"
             onScroll={handleScroll}
           >
-            <Route exact path="/home" render={() => <Home />} />
-            <Route
+            <ProtectedRoute exact path="/home" component={Home} />
+            <ProtectedRoute
               exact
               path="/home/explore"
-              render={() => (
-                <Explore
-                  addToRefs={addToRefs}
-                  lastElementRef={lastElementRef}
-                  videos={videos}
-                  setGender={setGender}
-                  setIntent={setIntent}
-                  setReligion={setReligion}
-                  setEthnicity={setEthnicity}
-                  setBodyType={setBodyType}
-                  setEducation={setEducation}
-                  setKids={setKids}
-                  setDrink={setDrink}
-                  setSmoke={setSmoke}
-                  setWeed={setWeed}
-                  setDrugs={setDrugs}
-                  setCountry={setCountry}
-                  setHeight={setHeight}
-                  setAge={setAge}
-                  gender={gender}
-                  intent={intent}
-                  ethnicity={ethnicity}
-                  bodyType={bodyType}
-                  religion={religion}
-                  kids={kids}
-                  education={education}
-                  drink={drink}
-                  smoke={smoke}
-                  weed={weed}
-                  country={country}
-                  drugs={drugs}
-                  height={height}
-                  age={age}
-                  setFilterUpdated={setFilterUpdated}
-                  filterUpdated={filterUpdated}
-                  setIsAnyOpen={setIsAnyOpen}
-                />
-              )}
+              addToRefs={addToRefs}
+              lastElementRef={lastElementRef}
+              videos={videos}
+              setGender={setGender}
+              setIntent={setIntent}
+              setReligion={setReligion}
+              setEthnicity={setEthnicity}
+              setBodyType={setBodyType}
+              setEducation={setEducation}
+              setKids={setKids}
+              setDrink={setDrink}
+              setSmoke={setSmoke}
+              setWeed={setWeed}
+              setDrugs={setDrugs}
+              setCountry={setCountry}
+              setHeight={setHeight}
+              setAge={setAge}
+              gender={gender}
+              intent={intent}
+              ethnicity={ethnicity}
+              bodyType={bodyType}
+              religion={religion}
+              kids={kids}
+              education={education}
+              drink={drink}
+              smoke={smoke}
+              weed={weed}
+              country={country}
+              drugs={drugs}
+              height={height}
+              age={age}
+              setFilterUpdated={setFilterUpdated}
+              filterUpdated={filterUpdated}
+              setIsAnyOpen={setIsAnyOpen}
+              component={Explore}
             />
-            <Route exact path="/home/meetme" render={() => <MeetMe />} />
-            <Route exact path="/home/inbox" render={() => <Inbox />} />
-            <Route exact path="/home/mylikes" render={() => <MyLikes />} />
-            <Route exact path="/home/online" render={() => <Online />} />
-            <Route
-              exact
-              path="/home/premium"
-              render={() => <h1>Not found</h1>}
-            />
-            <Route
+            <ProtectedRoute exact path="/home/meetme" component={MeetMe} />
+            <ProtectedRoute exact path="/home/inbox" component={Inbox} />
+            <ProtectedRoute exact path="/home/mylikes" component={MyLikes} />
+            <ProtectedRoute exact path="/home/online" component={Online} />
+            <ProtectedRoute
               exact
               path="/home/profile"
-              render={(props) => <UserProfile {...props} />}
+              component={UserProfile}
             />
-            <Route
+            <ProtectedRoute
               exact
               path="/home/match/:id"
-              render={(props) => <ProfileMatched {...props} />}
+              component={ProfileMatched}
             />
-            <Route
+            <ProtectedRoute
               exact
               path="/home/unmatch/:id"
-              render={(props) => <UnMatch {...props} />}
+              component={UnMatch}
             />
           </Grid>
         </Grid>
