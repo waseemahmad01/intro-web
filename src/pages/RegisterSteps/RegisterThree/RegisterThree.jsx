@@ -557,7 +557,9 @@ export const RegisterThree = ({ onNext }) => {
       console.log(err);
     }
   };
-
+  const handleQuickMessageSelect = (e) => {
+    console.log(e.target);
+  };
   return (
     <Grid
       container

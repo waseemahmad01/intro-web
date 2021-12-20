@@ -92,5 +92,6 @@ const image = {
   unCheck: require("./unCheck.png").default,
   checkIcon: require("./checkIcon.png").default,
   sparkActive: require("./sparkActive.png").default,
+  vsWhite: require("./vsWhite.png").default,
 };
 export default image;

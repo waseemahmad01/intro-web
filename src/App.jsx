@@ -20,13 +20,11 @@ import { getUser } from "./http/index";
 import { submit } from "./store/user";
 import { SocketContext } from "./http/socket";
 import { onMessageListener } from "./firebaseInit";
-import { useSelector } from "react-redux";
 import ProtectedRoute from "./pages/ProtectedRoute/ProtectedRoute";
 
 function App(props) {
   const dispatch = useDispatch();
   const socket = useContext(SocketContext);
-  const userState = useSelector((state) => state.auth.user.data);
   const handleResize = () => {
     if (window.innerWidth <= 1200) {
       props.history.push("/getapp");

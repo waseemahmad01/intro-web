@@ -78,7 +78,6 @@ export const useStyles = makeStyles((theme) => ({
     position: "absolute",
     left: 0,
     right: 0,
-    top: 0,
     bottom: 10,
     borderRadius: "16px",
     opacity: 1,
@@ -177,31 +176,27 @@ export const useStyles = makeStyles((theme) => ({
     },
   },
   quickMessageDialogContent: {
-    padding: "1.5rem",
-    [theme.breakpoints.down(1680)]: {
-      padding: "0.75rem",
-    },
+    paddingBottom: "23px",
   },
   quickMessageTitle: {
     margin: "0",
     color: "#000",
     fontSize: "27px",
     fontWeight: 500,
+    marginBottom: "16px",
+    paddingTop: "23px",
     [theme.breakpoints.down(1680)]: {
       fontSize: "20px",
+      paddingTop: "0.75rem",
     },
   },
-  chip: {
-    backgroundColor: theme.palette.common.lightPink,
-    borderRadius: "18px 18px 18px 0px",
-    height: "53px",
-    margin: "0.5rem 0",
-    width: "317px",
-    fontSize: "18px",
+  quickMessageContainer: {
+    maxHeight: "380px",
+    height: "380px",
+    overflowY: "auto",
+    paddingInline: "45px",
     [theme.breakpoints.down(1680)]: {
-      width: "250px",
-      height: "42px",
-      fontSize: "13px",
+      paddingInline: "0.75rem",
     },
   },
   quickMessageButton: {
@@ -316,6 +311,17 @@ export const useStyles = makeStyles((theme) => ({
   },
   dialogIconContainer: {
     margin: "3rem 0",
+  },
+  dialogIcon: {
+    [theme.breakpoints.down("lg")]: {
+      height: "1.8rem",
+    },
+  },
+  text: {
+    fontSize: "12px",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "10px",
+    },
   },
   datePicker: {
     marginTop: "3rem",
@@ -471,5 +477,13 @@ export const useStyles = makeStyles((theme) => ({
   action: {
     borderRadius: "38px",
     boxShadow: "3px 3px 10px #000000",
+  },
+  superLikeActiveIcon: {
+    width: "60px",
+    marginBottom: "-14px",
+    [theme.breakpoints.down("lg")]: {
+      width: "40px",
+      marginBottom: "-10px",
+    },
   },
 }));

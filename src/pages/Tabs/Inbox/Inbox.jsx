@@ -45,6 +45,14 @@ export const Inbox = () => {
     refOne.current.classList.remove(`${classes.rotate}`);
     refTwo.current.classList.toggle(`${classes.rotate}`);
   };
+  // const handleProfileClick = async (id) => {
+  //   const { data } = await checkMatch(id);
+  //   if (data.data) {
+  //     history.push(`/home/match/${id}`);
+  //   } else {
+  //     history.push(`/home/unmatch/${id}`);
+  //   }
+  // };
   return (
     <Grid container direction="column" className={classes.container}>
       <Grid item>

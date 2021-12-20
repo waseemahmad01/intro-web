@@ -18,7 +18,7 @@ import { Inbox } from "../Tabs/Inbox/Inbox";
 import image from "../../assets/index";
 import { UserProfile } from "../Tabs/UserProfile/UserProfile";
 import { MeetMe } from "../Tabs/MeetMe/MeetMe";
-import { Route, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { ProfileMatched } from "../Tabs/ProfileMatched/ProfileMatched";
 import { UnMatch } from "../Tabs/UnMatch/UnMatch";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
@@ -46,7 +46,7 @@ export const AllTabs = () => {
   allVideos.current = [];
   // filters
   const [gender, setGender] = useState([]);
-  const [age, setAge] = useState([18, 50]);
+  const [age, setAge] = useState([]);
   const [intent, setIntent] = useState([]);
   const [religion, setReligion] = useState([]);
   const [ethnicity, setEthnicity] = useState([]);
@@ -105,12 +105,12 @@ export const AllTabs = () => {
         if (video.readyState >= 2) {
           video.play();
         }
-        // console.log(video.readyState);
       } else {
         video.pause();
       }
     });
   };
+
   useEffect(() => {
     if (isAnyOpen) {
       allVideos.current.map((item) =>
@@ -118,6 +118,7 @@ export const AllTabs = () => {
       );
     }
   }, [isAnyOpen]);
+
   useEffect(() => {
     if (allVideos.current.length > 0 && isAnyOpen === false) {
       const video =
@@ -125,7 +126,9 @@ export const AllTabs = () => {
       video.play();
     }
   });
+
   const url = window.location.pathname;
+
   useEffect(() => {
     if (url === "/home/explore") {
       if (filterUpdated > 0) {
@@ -163,6 +166,7 @@ export const AllTabs = () => {
     }
     // eslint-disable-next-line
   }, [changing, url, filterUpdated]);
+
   const tabItems = [
     {
       label: "Home",

@@ -36,15 +36,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const Guest = () => {
+export const Guest = ({ viewer }) => {
   const classes = useStyles();
   const filters = useSelector((state) => state.utils.liveloop.filters);
+  const started = useSelector((state) => state.utils.liveloop.started);
   useEffect(() => {
     (async () => {
-      const query = `age=${filters.age[0]}&age=${filters.age[1]}&long=${filters.location.coordinates[0]}&lat=${filters.location.coordinates[1]}&distance=${filters.distance}&gender_identifier=${filters.gender_identifier}`;
-      console.log(query);
-      const { data } = await getLiveLoopRequests(query);
-      console.log(data);
+      if (started) {
+        const query = `age=${filters.age[0]}&age=${filters.age[1]}&long=${filters.location.coordinates[0]}&lat=${filters.location.coordinates[1]}&distance=${filters.distance}&gender_identifier=${filters.gender_identifier}`;
+        const { data } = await getLiveLoopRequests(query);
+      }
     })();
   }, []);
   return (

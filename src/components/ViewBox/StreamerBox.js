@@ -238,6 +238,7 @@ export const StreamerBox = ({ channelId }) => {
   const handleSheetClose = () => {
     setSheetVisible(false);
     setIsSecondSheet(false);
+    setTab(0);
   };
   const handleVsClick = () => {
     setSheetVisible(false);
@@ -482,7 +483,7 @@ export const StreamerBox = ({ channelId }) => {
               disableRipple
               icon={
                 <img
-                  src={image.vsRed}
+                  src={tab === 3 ? image.vsRed : image.vsWhite}
                   alt="vs-icon"
                   className={classes.tabIcon}
                 />

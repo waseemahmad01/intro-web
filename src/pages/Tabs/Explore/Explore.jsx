@@ -90,7 +90,9 @@ export const Explore = ({
                           video_id={item._id}
                           ref={addToRefs}
                           like={item.like}
-                          cover={`${process.env.REACT_APP_API_URL}/${item.cover}`}
+                          superLike={item.superLike}
+                          cover={`${process.env.REACT_APP_API_URL}/${item.cover}
+                          `}
                         />
                       </Grid>
                     );
@@ -107,6 +109,7 @@ export const Explore = ({
                           video_id={item._id}
                           ref={addToRefs}
                           like={item.like}
+                          superLike={item.superLike}
                           cover={`${process.env.REACT_APP_API_URL}/${item.cover}`}
                         />
                       </Grid>

@@ -205,7 +205,6 @@ export const LiveLoop = ({
         age: user.date_of_birth.age,
       };
       const { data } = await createLiveloop(apiData);
-
       setLiveLoop(true);
       handleSheetClose();
       setTab(1);

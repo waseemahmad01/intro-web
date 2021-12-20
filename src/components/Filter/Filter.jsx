@@ -144,6 +144,7 @@ export const Filter = ({
             >
               <Typography className={classes.title}>Gender</Typography>
               <Typography noWrap className={classes.subtitle}>
+                {gender.length === 0 && "Select"}
                 {gender.map((item, index) => {
                   if (index === gender.length - 1) {
                     return `${item}`;
@@ -191,7 +192,7 @@ export const Filter = ({
               >
                 <Typography className={classes.title}>Age</Typography>
                 <Typography noWrap className={classes.subtitle}>
-                  {age[0]}-{age[1]}
+                  {age.length === 0 ? "Select" : `${age[0]}-${age[1]}`}
                 </Typography>
               </Grid>
               <Grid item>
@@ -250,6 +251,7 @@ export const Filter = ({
             >
               <Typography className={classes.title}>Intent</Typography>
               <Typography noWrap className={classes.subtitle}>
+                {intent.length === 0 && "Select"}
                 {intent.map((item, index) => {
                   if (index === intent.length - 1) {
                     return `${item}`;
@@ -294,6 +296,7 @@ export const Filter = ({
             >
               <Typography className={classes.title}>Religion</Typography>
               <Typography className={classes.subtitle}>
+                {religion.length === 0 && "Select"}
                 {religion.map((item, index) => {
                   if (index === religion.length - 1) {
                     return `${item}`;
@@ -338,6 +341,7 @@ export const Filter = ({
             >
               <Typography className={classes.title}>Country</Typography>
               <Typography noWrap className={classes.subtitle}>
+                {country.length === 0 && "Select"}
                 {country.map((item, index) => {
                   if (index === country.length - 1) {
                     return `${item}`;
@@ -380,6 +384,7 @@ export const Filter = ({
             >
               <Typography className={classes.title}>Ethnicity</Typography>
               <Typography className={classes.subtitle}>
+                {ethnicity.length === 0 && "Select"}
                 {ethnicity.map((item, index) => {
                   if (index === ethnicity.length - 1) {
                     return `${item}`;
@@ -424,7 +429,7 @@ export const Filter = ({
             >
               <Typography className={classes.title}>Height</Typography>
               <Typography noWrap className={classes.subtitle}>
-                {`${height[0]}cm`}
+                {height[0] === undefined ? "Select" : `${height[0]}cm`}
               </Typography>
             </Grid>
             <Grid item>
@@ -460,6 +465,7 @@ export const Filter = ({
             >
               <Typography className={classes.title}>Body Type</Typography>
               <Typography noWrap className={classes.subtitle}>
+                {bodyType.length === 0 && "Select"}
                 {bodyType.map((item, index) => {
                   if (index === bodyType.length - 1) {
                     return `${item}`;
@@ -504,6 +510,7 @@ export const Filter = ({
             >
               <Typography className={classes.title}>Education</Typography>
               <Typography noWrap className={classes.subtitle}>
+                {education.length === 0 && "Select"}
                 {education.map((item, index) => {
                   if (index === education.length - 1) {
                     return `${item}`;
@@ -548,6 +555,7 @@ export const Filter = ({
             >
               <Typography className={classes.title}>Kids</Typography>
               <Typography className={classes.subtitle}>
+                {kids.length === 0 && "Select"}
                 {kids.map((item, index) => {
                   if (index === kids.length - 1) {
                     return `${item}`;
@@ -592,6 +600,7 @@ export const Filter = ({
             >
               <Typography className={classes.title}>Drink</Typography>
               <Typography noWrap className={classes.subtitle}>
+                {drink.length === 0 && "Select"}
                 {drink.map((item, index) => {
                   if (index === drink.length - 1) {
                     return `${item}`;
@@ -636,6 +645,7 @@ export const Filter = ({
             >
               <Typography className={classes.title}>Smoke</Typography>
               <Typography noWrap className={classes.subtitle}>
+                {smoke.length === 0 && "Select"}
                 {smoke.map((item, index) => {
                   if (index === smoke.length - 1) {
                     return `${item}`;
@@ -680,6 +690,7 @@ export const Filter = ({
             >
               <Typography className={classes.title}>Smoke Weed</Typography>
               <Typography noWrap className={classes.subtitle}>
+                {weed.length === 0 && "Select"}
                 {weed.map((item, index) => {
                   if (index === weed.length - 1) {
                     return `${item}`;
@@ -724,6 +735,7 @@ export const Filter = ({
             >
               <Typography className={classes.title}>Does Drugs</Typography>
               <Typography noWrap className={classes.subtitle}>
+                {drugs.length === 0 && "Select"}
                 {drugs.map((item, index) => {
                   if (index === drugs.length - 1) {
                     return `${item}`;

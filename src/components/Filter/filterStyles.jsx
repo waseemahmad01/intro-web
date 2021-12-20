@@ -16,8 +16,8 @@ export const useStyles = makeStyles((theme) => ({
       backgroundColor: "#FE858C",
     },
     [theme.breakpoints.down("lg")]: {
-      height: "45px",
-      width: "45px",
+      height: "40px",
+      width: "40px",
     },
   },
   filterIcon: {
@@ -33,6 +33,7 @@ export const useStyles = makeStyles((theme) => ({
     width: "392px",
     [theme.breakpoints.down("lg")]: {
       width: "350px",
+      borderRadius: "18px",
     },
     "& .MuiAccordionSummary-expandIcon.Mui-expanded": {
       transform: "rotate(0deg)",

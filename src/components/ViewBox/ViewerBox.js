@@ -17,6 +17,7 @@ import { Gems } from "../BottomSheetComponents/Gems/Gems";
 import { Guest } from "../BottomSheetComponents/Guest/Guest";
 import { Refil } from "../BottomSheetComponents/Refill/Refil";
 import { BuyGems } from "../BottomSheetComponents/BuyGems/BuyGems";
+import GemsAward from "../BottomSheetComponents/GemsAward/GemsAward";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -218,7 +219,8 @@ export const ViewerBox = () => {
   const tabs = {
     0: Guest,
     1: Refil,
-    2: BuyGems,
+    // 2: BuyGems,
+    2: GemsAward,
   };
   const TabComponent = tabs[tab];
   return (

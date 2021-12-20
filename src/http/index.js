@@ -9,7 +9,6 @@ const api = axios.create({
     "Access-Control-Allow-Origin": "*",
   },
 });
-// a testing comment
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");

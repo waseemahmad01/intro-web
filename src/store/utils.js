@@ -13,14 +13,18 @@ const utilsSlice = createSlice({
           coordinates: [],
         },
       },
+      started: false,
     },
   },
   reducers: {
     setFilters: (state, action) => {
       state.liveloop.filters = action.payload;
     },
+    setLiveLoop: (state, action) => {
+      state.liveloop.started = action.payload;
+    },
   },
 });
 
-export const { setFilters } = utilsSlice.actions;
+export const { setFilters, setLiveLoop } = utilsSlice.actions;
 export default utilsSlice.reducer;

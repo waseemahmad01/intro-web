@@ -91,13 +91,12 @@ const useStyles = makeStyles((theme) => ({
       marginTop: "1rem",
     },
   },
-  likeIcon: {
-    fontSize: "3.25rem",
-    color: "#fbfbfb",
-  },
   likeFilled: {
     fontSize: "3.25rem",
     color: "red",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "1.8rem",
+    },
   },
   dialog: {
     "& .MuiDialog-paper": {

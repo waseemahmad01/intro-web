@@ -295,16 +295,16 @@ export const Stream = (props) => {
     setIsLoggedIn(false);
   };
   useEffect(() => {
-    join();
-    rtmSetup();
+    // join();
+    // rtmSetup();
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition((pos) => {
         setLocation({ lon: pos.coords.longitude, lat: pos.coords.latitude });
       });
     }
     return () => {
-      leave();
-      RTMLeave();
+      // leave();
+      // RTMLeave();
     };
     // eslint-disable-next-line
   }, []);
@@ -608,8 +608,9 @@ export const Stream = (props) => {
         }
         className={classes.utilityContainer}
       >
+        <ViewerBox />
         {audience && <Gift />}
-        {audience ? <ViewerBox /> : <StreamerBox channelId={userUid} />}
+        {/* {audience ? <ViewerBox /> : <StreamerBox channelId={userUid} />} */}
       </Grid>
     </Grid>
   );

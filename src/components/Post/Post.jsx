@@ -7,20 +7,35 @@ import {
   Dialog,
   Typography,
   Button,
-  Chip,
   Slider,
   TextField,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction as Action,
+  ListItemAvatar,
 } from "@material-ui/core";
 import AvatarGroup from "@material-ui/lab/AvatarGroup";
 import image from "../../assets/index";
 import { Favorite, Close } from "@material-ui/icons";
-import { likeVideo, checkMatch } from "../../http";
+import { likeVideo, checkMatch, superLikeApi } from "../../http";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleMute } from "../../store/videoSound";
 import { useHistory } from "react-router-dom";
+import QuickMessage from "../quickMessage/QuickMessage";
 export const Post = React.forwardRef(
   (
-    { username, profile_img, video_url, video_id, title, like, user_id, cover },
+    {
+      username,
+      profile_img,
+      video_url,
+      video_id,
+      title,
+      like,
+      user_id,
+      cover,
+      superLike,
+    },
     ref
   ) => {
     const classes = useStyles();
@@ -31,9 +46,13 @@ export const Post = React.forwardRef(
     const [sliderValue, setSliderValue] = useState([11, 23]);
     // eslint-disable-next-line
     const [selectedDate, setSelectedDate] = useState(new Date());
+    const [quickMessageValue, setQuickMessageValue] = useState("");
     const isMuted = useSelector((state) => state.video.muted);
     const dispatch = useDispatch();
     const [isLiked, setIsLiked] = useState(like);
+    const [superLiked, setSuperLiked] = useState(superLike);
+
+    const [openSuperDialog, setOpenSuperDialog] = useState(false);
     // eslint-disable-next-line
     const handleDateChange = (date) => {
       setSelectedDate(date);
@@ -64,6 +83,20 @@ export const Post = React.forwardRef(
       } else {
         history.push(`/home/unmatch/${id}`);
       }
+    };
+    const handleSuperLike = async () => {
+      setSuperLiked(!superLiked);
+      const { data } = await superLikeApi({ video_id });
+    };
+    const quickMessageList = [
+      `Hi ${username}, how are you doing?`,
+      `Hi ${username}, how are you doing?`,
+      `Hi ${username}, how are you doing?`,
+      `Hi ${username}, how are you doing?`,
+      `Hi ${username}, how are you doing?`,
+    ];
+    const handleSelectQuickMessage = (e) => {
+      setQuickMessageValue(e.target.value);
     };
     return (
       <Grid
@@ -138,6 +171,19 @@ export const Post = React.forwardRef(
                       <img
                         src={isMuted ? image.mute : image.unMute}
                         className={classes.muteIcon}
+                        alt=""
+                      />
+                    </IconButton>
+                  </Grid>
+                  <Grid item>
+                    <IconButton onClick={handleSuperLike}>
+                      <img
+                        src={superLiked ? image.superLikePink : image.superlike}
+                        className={
+                          superLiked
+                            ? classes.superLikeActiveIcon
+                            : classes.superLikeIcon
+                        }
                         alt=""
                       />
                     </IconButton>
@@ -249,31 +295,23 @@ export const Post = React.forwardRef(
                 Quick Message
               </Typography>
             </Grid>
-            <Grid item>
-              <Grid item>
-                <Chip
-                  className={classes.chip}
-                  label="Hi <Username>, how are you doing?"
+            <Grid
+              item
+              container
+              direction="column"
+              wrap="nowrap"
+              className={classes.quickMessageContainer}
+            >
+              {quickMessageList.map((item, index) => (
+                <QuickMessage
+                  label={item}
+                  name="origin"
+                  id={index}
+                  key={index}
+                  value={item}
+                  handleShow={handleSelectQuickMessage}
                 />
-              </Grid>
-              <Grid item>
-                <Chip
-                  className={classes.chip}
-                  label="Hi <Username>, how are you doing?"
-                />
-              </Grid>
-              <Grid item>
-                <Chip
-                  className={classes.chip}
-                  label="Hi <Username>, how are you doing?"
-                />
-              </Grid>
-              <Grid item>
-                <Chip
-                  className={classes.chip}
-                  label="Hi <Username>, how are you doing?"
-                />
-              </Grid>
+              ))}
             </Grid>
             <Grid item>
               <Button
@@ -392,6 +430,133 @@ export const Post = React.forwardRef(
                   Continue
                 </Button>
               </Grid>
+            </Grid>
+          </Grid>
+        </Dialog>
+        <Dialog
+          className={classes.superDialog}
+          open={openSuperDialog}
+          onClose={() => setOpenSuperDialog(false)}
+        >
+          <Grid
+            container
+            direction="column"
+            alignItems="center"
+            className={classes.superDialogContainer}
+          >
+            <Grid item container justifyContent="flex-end">
+              <IconButton
+                onClick={() => setOpenSuperDialog(false)}
+                className={classes.closeButton}
+              >
+                <Close className={classes.closeIcon} />
+              </IconButton>
+            </Grid>
+            <Grid item>
+              <Typography className={classes.superDialogTitle}>
+                Get Instant Spark
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Typography className={classes.superDialogSubtitle}>
+                Buy instant spark to get their attention
+              </Typography>
+            </Grid>
+            <Grid item container>
+              <List dense style={{ width: "90%", marginInline: "auto" }}>
+                <ListItem divider className={classes.listItem}>
+                  <ListItemAvatar>
+                    <img
+                      className={classes.image}
+                      src={image.superLikePink}
+                      alt=""
+                    />
+                  </ListItemAvatar>
+                  <ListItemText
+                    className={classes.listItemText}
+                    primary="500"
+                    secondary="$4.99"
+                  />
+                  <Action className={classes.action}>
+                    <Button
+                      className={classes.button}
+                      variant="contained"
+                      color="primary"
+                    >
+                      Select
+                    </Button>
+                  </Action>
+                </ListItem>
+                <ListItem className={classes.listItem} divider>
+                  <ListItemAvatar>
+                    <img
+                      className={classes.image}
+                      src={image.superLikePink}
+                      alt=""
+                    />
+                  </ListItemAvatar>
+                  <ListItemText
+                    className={classes.listItemText}
+                    primary="500"
+                    secondary="$4.99"
+                  />
+                  <Action className={classes.action}>
+                    <Button
+                      className={classes.button}
+                      variant="contained"
+                      color="primary"
+                    >
+                      Select
+                    </Button>
+                  </Action>
+                </ListItem>
+                <ListItem className={classes.listItem} divider>
+                  <ListItemAvatar>
+                    <img
+                      className={classes.image}
+                      src={image.superLikePink}
+                      alt=""
+                    />
+                  </ListItemAvatar>
+                  <ListItemText
+                    className={classes.listItemText}
+                    primary="500"
+                    secondary="$4.99"
+                  />
+                  <Action className={classes.action}>
+                    <Button
+                      className={classes.button}
+                      variant="contained"
+                      color="primary"
+                    >
+                      Select
+                    </Button>
+                  </Action>
+                </ListItem>
+                <ListItem className={classes.listItem} divider>
+                  <ListItemAvatar>
+                    <img
+                      className={classes.image}
+                      src={image.superLikePink}
+                      alt=""
+                    />
+                  </ListItemAvatar>
+                  <ListItemText
+                    className={classes.listItemText}
+                    primary="500"
+                    secondary="$4.99"
+                  />
+                  <Action className={classes.action}>
+                    <Button
+                      className={classes.button}
+                      variant="contained"
+                      color="primary"
+                    >
+                      Select
+                    </Button>
+                  </Action>
+                </ListItem>
+              </List>
             </Grid>
           </Grid>
         </Dialog>

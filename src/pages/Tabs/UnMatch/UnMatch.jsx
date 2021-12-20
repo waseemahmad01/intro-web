@@ -261,6 +261,7 @@ const useStyles = makeStyles((theme) => ({
     marginRight: "20px",
     [theme.breakpoints.down("lg")]: {
       maxWidth: "25px",
+      marginTop: "7px",
     },
   },
   message: {
