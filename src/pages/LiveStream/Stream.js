@@ -29,14 +29,14 @@ import { Gift } from "../../components/Gift/Gift";
 export const Stream = (props) => {
   const { audience } = props;
   const channelName = props.match.params.id;
-  const streamId = props.match.params.id;
+  const streamId = props.match.params.sId;
   const user = useSelector((state) => state.auth.user.data);
   const classes = useStyles();
   const liveRef = useRef();
   const username = user.username;
   const socket = useContext(SocketContext);
   // eslint-disable-next-line
-  const [guestWindow, setGuestWindow] = useState(false);
+  const [guestWindow, setGuestWindow] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [isWaiting, setIsWaiting] = useState(false);
   const [exit, setExit] = useState(false);
@@ -65,6 +65,7 @@ export const Stream = (props) => {
   // Agora setUp
 
   let client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
+  let loopClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -74,6 +75,7 @@ export const Stream = (props) => {
   };
 
   let remoteUsers = {};
+  const remoteUser = useRef();
 
   // Agora client options
 
@@ -138,6 +140,22 @@ export const Stream = (props) => {
     });
   };
 
+  const loopJoin = async () => {
+    options.uid = await loopClient.join(
+      options.appId,
+      options.channel,
+      options.token || null,
+      options.uid || null
+    );
+    client.on("user-published", handleUserPublished);
+    client.on("user-joined", handleLoopUserJoined);
+    client.on("user-left", handleUserLeft);
+    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+    localTracks.videoTrack.play(liveRef.current);
+    await client.publish(Object.values(localTracks));
+  };
+
   const subscribe = async (user, mediaType) => {
     const uid = user.uid;
     await client.subscribe(user, mediaType);
@@ -145,6 +163,19 @@ export const Stream = (props) => {
 
     if (mediaType === "video") {
       user.videoTrack.play(liveRef.current);
+    }
+    if (mediaType === "audio") {
+      user.audioTrack.play();
+    }
+  };
+
+  const handleLoopUserJoined = async (user, mediaType) => {
+    const uid = user.uid;
+    remoteUsers[uid] = user;
+    await loopClient.subscribe(user, mediaType);
+    console.log("Successfully Subscribes.");
+    if (mediaType === "video") {
+      user.videoTrack.play(remoteUser.current);
     }
     if (mediaType === "audio") {
       user.audioTrack.play();
@@ -283,28 +314,34 @@ export const Stream = (props) => {
       props.history.goBack();
     }
   };
-
   const handleHostLeft = () => {
     props.history.goBack();
   };
-
   const RTMLeave = async () => {
     console.log("Client logged out of RTM");
 
-    await clientRTM.logout();
-    setIsLoggedIn(false);
+    if (isLoggedIn) {
+      await clientRTM.logout();
+      setIsLoggedIn(false);
+    }
   };
+  const handleEndStream = () => {
+    leave();
+  };
+  const startLiveLoop = async () => {};
   useEffect(() => {
-    // join();
-    // rtmSetup();
+    join();
+    rtmSetup();
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition((pos) => {
         setLocation({ lon: pos.coords.longitude, lat: pos.coords.latitude });
       });
     }
     return () => {
-      // leave();
-      // RTMLeave();
+      if (isLoggedIn) {
+        leave();
+        RTMLeave();
+      }
     };
     // eslint-disable-next-line
   }, []);
@@ -422,7 +459,7 @@ export const Stream = (props) => {
               </div>
             )}
             {guestWindow ? (
-              <div className={classes.guestBox}>
+              <div className={classes.guestBox} ref={remoteUser}>
                 <div
                   style={{
                     position: "relative",
@@ -608,9 +645,17 @@ export const Stream = (props) => {
         }
         className={classes.utilityContainer}
       >
-        <ViewerBox />
+        {/* <ViewerBox /> */}
         {audience && <Gift />}
-        {/* {audience ? <ViewerBox /> : <StreamerBox channelId={userUid} />} */}
+        {audience ? (
+          <ViewerBox streamId={streamId} streamer={channelName} />
+        ) : (
+          <StreamerBox
+            joinLiveLoop={loopJoin}
+            endStream={handleEndStream}
+            channelId={userUid}
+          />
+        )}
       </Grid>
     </Grid>
   );

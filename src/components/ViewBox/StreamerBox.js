@@ -10,6 +10,7 @@ import {
   Hidden,
   IconButton,
   Button,
+  Dialog,
 } from "@material-ui/core";
 import image from "../../assets/index";
 import { useTransition, animated } from "react-spring";
@@ -211,11 +212,46 @@ const useStyles = makeStyles((theme) => ({
       width: "1.25rem",
     },
   },
+  dialog: {
+    "& .MuiDialog-paper": {
+      backgroundColor: theme.palette.common.lightPink,
+      borderRadius: "10px",
+    },
+  },
+  dialogContainer: {
+    width: "380px",
+    height: "380px",
+    padding: "3rem 1rem",
+  },
+  dialogTitle: {
+    margin: 0,
+    fontSize: "33px",
+    background: "-webkit-linear-gradient(#654AAB, #E77783)",
+    "-webkit-background-clip": "text",
+    "-webkit-text-fill-color": "transparent",
+    fontWeight: "bold",
+  },
+  dialogSubtitle: {
+    margin: "0",
+    fontSize: "18px",
+    color: "#929292",
+    marginTop: "15px",
+    marginBottom: "51px",
+  },
+  dialogButtons: {
+    width: "250px",
+    height: "55px",
+    borderRadius: "28px",
+    textTransform: "none",
+    fontSize: "20px",
+    marginBlock: "10px",
+  },
 }));
-export const StreamerBox = ({ channelId }) => {
+export const StreamerBox = ({ channelId, endStream, joinLiveLoop }) => {
   const classes = useStyles();
   const [tab, setTab] = useState(0);
   const [liveLoop, setLiveLoop] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
 
   const handleTab = (event, newTab) => {
     setTab(newTab);
@@ -249,6 +285,11 @@ export const StreamerBox = ({ channelId }) => {
     setSheetVisible(false);
     setIsSecondSheet(true);
     setSecondSheetTab(0);
+    setOpenDialog(true);
+  };
+  const handleNotNow = () => {
+    setOpenDialog(false);
+    handleSheetClose();
   };
   const tabs = {
     0: Gems,
@@ -387,6 +428,7 @@ export const StreamerBox = ({ channelId }) => {
                     setTab={setTab}
                     setSheetVisible={setSheetVisible}
                     channelId={channelId}
+                    joinLiveLoop={joinLiveLoop}
                   />
                 </Grid>
               </Grid>
@@ -472,7 +514,7 @@ export const StreamerBox = ({ channelId }) => {
               icon={
                 <img
                   src={tab === 2 ? image.liveloopActive : image.stopwatch}
-                  alt="camera-icon"
+                  alt="liveloop-icon"
                   className={classes.tabIcon}
                 />
               }
@@ -493,6 +535,50 @@ export const StreamerBox = ({ channelId }) => {
           </Tabs>
         )}
       </Grid>
+      <Dialog
+        open={openDialog}
+        className={classes.dialog}
+        onClose={() => setOpenDialog(false)}
+      >
+        <Grid
+          item
+          container
+          className={classes.dialogContainer}
+          direction="column"
+        >
+          <Typography className={classes.dialogTitle}>Live Loop</Typography>
+          <Typography className={classes.dialogSubtitle}>
+            Please end stream to start Live Loop!
+          </Typography>
+          <Grid
+            item
+            container
+            direction="column"
+            alignItems="center"
+            spacing={2}
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              className={classes.dialogButtons}
+              onClick={() => {
+                endStream();
+                setOpenDialog(false);
+              }}
+            >
+              End Stream
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              className={classes.dialogButtons}
+              onClick={handleNotNow}
+            >
+              Not Now
+            </Button>
+          </Grid>
+        </Grid>
+      </Dialog>
     </Grid>
   );
 };

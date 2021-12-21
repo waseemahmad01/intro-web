@@ -17,13 +17,15 @@ import {
   useTheme,
   useMediaQuery,
 } from "@material-ui/core";
-import { allVideos } from "../../http";
 import image from "../../assets/index";
 import { Close } from "@material-ui/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleMute } from "../../store/videoSound";
-export const MeetPost = React.forwardRef((props, ref) => {
+import { useHistory } from "react-router-dom";
+import { checkMatch } from "../../http";
+export const MeetPost = ({ allVideos, page, setPage, totalPage }) => {
   const classes = useStyles();
+  const history = useHistory();
   // eslint-disable-next-line
   const theme = useTheme();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
@@ -31,9 +33,8 @@ export const MeetPost = React.forwardRef((props, ref) => {
   const [openSuperDialog, setOpenSuperDialog] = useState(false);
   const isMuted = useSelector((state) => state.video.muted);
   const dispatch = useDispatch();
-  const [totalPages, setTotalPages] = useState(0);
-  const [page, setPage] = useState(1);
-  const [videos, setVideos] = useState([]);
+  const [totalPages, setTotalPages] = useState(totalPage);
+  const [videos, setVideos] = useState(allVideos);
   const [index, setIndex] = useState(0);
   const [animate, setAnimate] = useState(false);
   const transition = useTransition(animate, {
@@ -62,13 +63,15 @@ export const MeetPost = React.forwardRef((props, ref) => {
     }
   };
 
-  useEffect(() => {
-    (async () => {
-      const { data } = await allVideos(page, 100, ``);
-      setVideos(shuffle(data.data));
-      setTotalPages(data.totalPages);
-    })();
-  }, [page]);
+  const handleImageClick = async (id) => {
+    const { data } = await checkMatch(id);
+    if (data.data) {
+      history.push(`/home/match/${id}`);
+    } else {
+      history.push(`/home/unmatch/${id}`);
+    }
+  };
+
   useEffect(() => {
     setAnimate(true);
   }, [index]);
@@ -83,7 +86,6 @@ export const MeetPost = React.forwardRef((props, ref) => {
                 container
                 alignItems="flex-start"
                 className={classes.postContainer}
-                ref={ref}
                 style={{
                   marginBottom: lgScreen ? undefined : "0.75rem",
                   height: lgScreen ? "485px" : "730px",
@@ -105,8 +107,9 @@ export const MeetPost = React.forwardRef((props, ref) => {
                         alignItems="center"
                       >
                         <Avatar
-                          component={Link}
-                          to="/home/match"
+                          onClick={() =>
+                            handleImageClick(videos[index].user_id)
+                          }
                           src={
                             videos.length !== 0
                               ? videos[index].profile_image
@@ -357,4 +360,4 @@ export const MeetPost = React.forwardRef((props, ref) => {
       )}
     </>
   );
-});
+};

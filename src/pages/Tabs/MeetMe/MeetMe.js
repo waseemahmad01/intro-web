@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-export const MeetMe = () => {
+export const MeetMe = ({ allVideos, setPage, page, totalPage }) => {
   const classes = useStyles();
   return (
     <Grid container direction="column" className={classes.container}>
@@ -35,7 +35,12 @@ export const MeetMe = () => {
         <Typography className={classes.title}>Meet Me</Typography>
       </Grid>
       <Grid item container className={classes.postContainer}>
-        <MeetPost />
+        <MeetPost
+          allVideos={allVideos}
+          setPage={setPage}
+          page={page}
+          totalPage={totalPage}
+        />
       </Grid>
     </Grid>
   );

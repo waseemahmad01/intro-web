@@ -10,14 +10,18 @@ import {
   Hidden,
   IconButton,
   InputBase,
+  Dialog,
+  Button,
 } from "@material-ui/core";
 import image from "../../assets/index";
 import { useTransition, animated } from "react-spring";
-import { Gems } from "../BottomSheetComponents/Gems/Gems";
+// import { Gems } from "../BottomSheetComponents/Gems/Gems";
 import { Guest } from "../BottomSheetComponents/Guest/Guest";
 import { Refil } from "../BottomSheetComponents/Refill/Refil";
-import { BuyGems } from "../BottomSheetComponents/BuyGems/BuyGems";
+// import { BuyGems } from "../BottomSheetComponents/BuyGems/BuyGems";
 import GemsAward from "../BottomSheetComponents/GemsAward/GemsAward";
+import { makeGuestRequest } from "../../http";
+import { useSelector } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -198,11 +202,46 @@ const useStyles = makeStyles((theme) => ({
       marginTop: "3.5rem",
     },
   },
+  requestDialog: {
+    "& .MuiDialog-paper": {
+      backgroundColor: theme.palette.common.lightPink,
+      borderRadius: "10px",
+    },
+  },
+  dialogContainer: {
+    width: "380px",
+    height: "350px",
+    padding: "3rem 1rem",
+  },
+  dialogTitle: {
+    margin: 0,
+    fontSize: "33px",
+    background: "-webkit-linear-gradient(#654AAB, #E77783)",
+    "-webkit-background-clip": "text",
+    "-webkit-text-fill-color": "transparent",
+    fontWeight: "bold",
+  },
+  dialogSubtitle: {
+    margin: "0",
+    fontSize: "18px",
+    color: "#929292",
+    marginTop: "15px",
+    marginBottom: "51px",
+  },
+  dialogButton: {
+    width: "250px",
+    height: "55px",
+    borderRadius: "28px",
+    textTransform: "none",
+    fontSize: "20px",
+    marginBlock: "10px",
+  },
 }));
 
-export const ViewerBox = () => {
+export const ViewerBox = ({ streamId, streamer }) => {
   const classes = useStyles();
   const [tab, setTab] = useState(0);
+  const user = useSelector((state) => state.auth.user.data);
 
   const handleTab = (event, newTab) => {
     setTab(newTab);
@@ -211,11 +250,32 @@ export const ViewerBox = () => {
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const [sheetVisible, setSheetVisible] = useState(false);
 
+  const [openDialog, setOpenDialog] = useState(false);
+
   const transition = useTransition(sheetVisible, {
     from: { height: "0%", opacity: 0 },
     enter: { height: "100%", opacity: 1 },
     leave: { height: "0%", opacity: 0 },
   });
+  const handleRequest = async () => {
+    try {
+      const apiData = {
+        user: {
+          username: user.username,
+          userId: user._id,
+          image: user.profile_image,
+        },
+        id: streamId,
+        type: "request",
+      };
+      console.log(apiData);
+      const { data } = await makeGuestRequest(apiData);
+      console.log(data);
+      setSheetVisible(true);
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
   const tabs = {
     0: Guest,
     1: Refil,
@@ -354,7 +414,7 @@ export const ViewerBox = () => {
         <Grid item style={{ width: "40%" }}>
           <Tabs className={classes.tabs} value={tab} onChange={handleTab}>
             <Tab
-              onClick={() => setSheetVisible(true)}
+              onClick={() => setOpenDialog(true)}
               className={classes.tab}
               icon={
                 <img src={image.adduser} className={classes.tabIcons} alt="" />
@@ -375,6 +435,34 @@ export const ViewerBox = () => {
           </Tabs>
         </Grid>
       </Grid>
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        className={classes.requestDialog}
+      >
+        <Grid
+          item
+          container
+          direction="column"
+          alignItems="center"
+          className={classes.dialogContainer}
+        >
+          <Typography className={classes.dialogTitle}>
+            Join as a Guest
+          </Typography>
+          <Typography className={classes.dialogSubtitle}>
+            Let {streamer} know you would like to join the fun!
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            className={classes.dialogButton}
+            onClick={handleRequest}
+          >
+            Request
+          </Button>
+        </Grid>
+      </Dialog>
     </Grid>
   );
 };

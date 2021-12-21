@@ -61,6 +61,9 @@ export const AllTabs = () => {
   const [height, setHeight] = useState([]);
   const [filterUpdated, setFilterUpdated] = useState(0);
   const [isAnyOpen, setIsAnyOpen] = useState(false);
+  const [meetMeVideos, setMeetMeVideos] = useState([]);
+  const [meetMeTotalPage, setMeetMeTotalPage] = useState(0);
+  const [meetMePageNumber, setMeetMePageNumber] = useState(1);
   // filters end
   const observer = useRef();
   const lastElementRef = useCallback((node) => {
@@ -128,6 +131,15 @@ export const AllTabs = () => {
   });
 
   const url = window.location.pathname;
+  const shuffle = (a) => {
+    let array = a;
+    let i = array.length;
+    while (i--) {
+      const ri = Math.floor(Math.random() * i);
+      [array[i], array[ri]] = [array[ri], array[i]];
+    }
+    return array;
+  };
 
   useEffect(() => {
     if (url === "/home/explore") {
@@ -166,6 +178,17 @@ export const AllTabs = () => {
     }
     // eslint-disable-next-line
   }, [changing, url, filterUpdated]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await getAllVideos(meetMePageNumber, 100, "");
+      let videos = data.data.filter((e) => !e.like && !e.superLike);
+      videos = shuffle(videos);
+      setMeetMeVideos(videos);
+      setMeetMeTotalPage(data.totalPages);
+    })();
+    // }
+  }, [meetMePageNumber, url]);
 
   const tabItems = [
     {
@@ -303,7 +326,15 @@ export const AllTabs = () => {
               setIsAnyOpen={setIsAnyOpen}
               component={Explore}
             />
-            <ProtectedRoute exact path="/home/meetme" component={MeetMe} />
+            <ProtectedRoute
+              exact
+              path="/home/meetme"
+              allVideos={meetMeVideos}
+              setPage={setMeetMePageNumber}
+              page={meetMePageNumber}
+              totalPage={meetMeTotalPage}
+              component={MeetMe}
+            />
             <ProtectedRoute exact path="/home/inbox" component={Inbox} />
             <ProtectedRoute exact path="/home/mylikes" component={MyLikes} />
             <ProtectedRoute exact path="/home/online" component={Online} />

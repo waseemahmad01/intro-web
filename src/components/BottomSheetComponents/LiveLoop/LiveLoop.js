@@ -133,6 +133,7 @@ export const LiveLoop = ({
   handleSheetClose,
   setTab,
   setSheetVisible,
+  joinLiveLoop,
 }) => {
   const classes = useStyles();
   const user = useSelector((state) => state.auth.user.data);
@@ -209,6 +210,7 @@ export const LiveLoop = ({
       handleSheetClose();
       setTab(1);
       setSheetVisible(true);
+      joinLiveLoop();
     } catch (err) {
       console.log(err.message);
     }
