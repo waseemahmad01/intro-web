@@ -19,7 +19,11 @@ import { useDispatch } from "react-redux";
 import { getUser } from "./http/index";
 import { submit } from "./store/user";
 import { SocketContext } from "./http/socket";
-import { onMessageListener } from "./firebaseInit";
+import {
+  onMessageListener,
+  subscribeTokenToTopic,
+  getToken,
+} from "./firebaseInit";
 import ProtectedRoute from "./pages/ProtectedRoute/ProtectedRoute";
 
 function App(props) {
@@ -41,6 +45,10 @@ function App(props) {
         dispatch(submit(data));
         socket.emit("login", data.data._id);
         const step = data.data.step;
+        const token = await getToken();
+        subscribeTokenToTopic(token, "liveuser");
+        subscribeTokenToTopic(token, `${data.data._id}_liveloop`);
+        subscribeTokenToTopic(token, `${data.data._id}_joinlive`);
         switch (step) {
           case "/home":
             if (props.history.location.pathname === "/") {

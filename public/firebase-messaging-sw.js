@@ -16,14 +16,14 @@ firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(function (payload) {
-  // console.log("background notification", payload);
-  const notificationTitle = payload.notification.title;
-  const notificationOptions = {
-    notificationBody: payload.notification.body,
-    icon: "./logo.png",
-  };
-  return self.registration.showNotification(
-    notificationTitle,
-    notificationOptions
-  );
+  console.log("background notification", payload);
+  // const notificationTitle = payload.notification.title || "";
+  // const notificationOptions = {
+  //   notificationBody: payload.notification.body || "",
+  //   icon: "./logo.png",
+  // };
+  // return self.registration.showNotification(
+  //   (notificationTitle = ""),
+  //   (notificationOptions = {})
+  // );
 });

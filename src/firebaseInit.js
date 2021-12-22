@@ -15,21 +15,16 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-export let token = "";
+export var token = "";
 
-export const getToken = () => {
-  try {
-    messaging
-      .getToken({ vapidKey: process.env.REACT_APP_VAPID_KEY })
-      .then((currentToken) => {
-        subscribeTokenToTopic(currentToken, "liveuser");
-        token = currentToken;
-      });
-  } catch (err) {
-    console.log(err);
-  }
+export const getToken = async () => {
+  const token = await messaging.getToken({
+    vapidKey: process.env.REACT_APP_VAPID_KEY,
+  });
+  return token;
 };
 export function subscribeTokenToTopic(token, topic) {
+  const url = `https://iid.googleapis.com/iid/v1/${token}/rel/topics/${topic}`;
   fetch(`https://iid.googleapis.com/iid/v1/${token}/rel/topics/${topic}`, {
     method: "POST",
     headers: new Headers({
@@ -40,7 +35,7 @@ export function subscribeTokenToTopic(token, topic) {
       if (response.status < 200 || response.status >= 400) {
         console.log(response.status, response);
       }
-      console.log(`"${topic}" is subscribed`);
+      console.log(`"${topic}" is subscribed`, url);
     })
     .catch((error) => {
       console.error(error.result);
@@ -51,7 +46,7 @@ export function subscribeTokenToTopic(token, topic) {
 export const onMessageListener = () => {
   return new Promise((resolve) => {
     messaging.onMessage((payload) => {
-      resolve(payload);
+      resolve(payload.data);
     });
   });
 };

@@ -3,6 +3,8 @@ import { makeStyles, Grid, Avatar } from "@material-ui/core";
 import image from "../../../assets/index";
 import { getGuestRequests } from "../../../http/index";
 import { useSelector } from "react-redux";
+import { makeGuestRequest } from "../../../http/index";
+import { subscribeTokenToTopic } from "../../../firebaseInit";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -63,19 +65,30 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const Guest = () => {
+export const Guest = ({ roleChange, streamId }) => {
   const classes = useStyles();
   const user = useSelector((state) => state.auth.user.data);
-  const [requestUsers, setRequestUsers] = useState(["hy"]);
+  const [requestUsers, setRequestUsers] = useState([]);
+
+  const handleRoleUpdate = async (username, userId, image) => {
+    const apiData = {
+      user: {
+        username,
+        userId,
+        image,
+      },
+      id: streamId,
+      type: "join",
+    };
+    const { data } = await makeGuestRequest(apiData);
+    console.log(data);
+  };
 
   useEffect(() => {
     (async () => {
       const { data } = await getGuestRequests(user.username);
-      if (data.data !== null) {
-        setRequestUsers(data.data.requestUsers);
-      } else {
-        setRequestUsers([]);
-      }
+      console.log(data);
+      setRequestUsers(data.data.requsetUsers);
     })();
   }, []);
   return (
@@ -107,9 +120,20 @@ export const Guest = () => {
       {requestUsers.length !== 0 ? (
         <div className={classes.containerInner}>
           {requestUsers.map((item, index) => (
-            <Grid item container alignItems="center" className={classes.user}>
-              <Avatar src={image.img} className={classes.profile} />
-              <span className={classes.username}>username</span>
+            <Grid
+              key={index}
+              item
+              container
+              alignItems="center"
+              className={classes.user}
+              user_id={item.user_id}
+              // onClick={() => roleChange(item.channelId)}
+              onClick={() =>
+                handleRoleUpdate(item.username, item.userId, item.image)
+              }
+            >
+              <Avatar src={item.image} className={classes.profile} />
+              <span className={classes.username}>{item.username}</span>
             </Grid>
           ))}
         </div>

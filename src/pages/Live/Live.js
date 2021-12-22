@@ -22,7 +22,7 @@ import { TopBar } from "../../components/TopBar/TopBar";
 import { LiveFilter } from "../../components/LiveFilter/LiveFilter";
 import { liveStreamUsers } from "../../http/index";
 import { useSelector } from "react-redux";
-import { onMessageListener } from "../../firebaseInit";
+import { onMessageListener, subscribeTokenToTopic } from "../../firebaseInit";
 
 const useStyles = makeStyles((theme) => ({
   container: {

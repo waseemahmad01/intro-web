@@ -249,7 +249,7 @@ export const ViewerBox = ({ streamId, streamer }) => {
   const theme = useTheme();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const [sheetVisible, setSheetVisible] = useState(false);
-
+  const [requested, setRequested] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
 
   const transition = useTransition(sheetVisible, {
@@ -268,10 +268,8 @@ export const ViewerBox = ({ streamId, streamer }) => {
         id: streamId,
         type: "request",
       };
-      console.log(apiData);
       const { data } = await makeGuestRequest(apiData);
-      console.log(data);
-      setSheetVisible(true);
+      setOpenDialog(false);
     } catch (err) {
       console.log(err.message);
     }

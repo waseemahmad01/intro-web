@@ -247,7 +247,12 @@ const useStyles = makeStyles((theme) => ({
     marginBlock: "10px",
   },
 }));
-export const StreamerBox = ({ channelId, endStream, joinLiveLoop }) => {
+export const StreamerBox = ({
+  channelId,
+  endStream,
+  joinLiveLoop,
+  roleChange,
+}) => {
   const classes = useStyles();
   const [tab, setTab] = useState(0);
   const [liveLoop, setLiveLoop] = useState(false);
@@ -399,7 +404,11 @@ export const StreamerBox = ({ channelId, endStream, joinLiveLoop }) => {
                   </IconButton>
                 </Grid>
                 <Grid item className={classes.sheetContent}>
-                  <TabComponent setLiveLoop={setLiveLoop} liveLoop={LiveLoop} />
+                  <TabComponent
+                    setLiveLoop={setLiveLoop}
+                    roleChange={roleChange}
+                    liveLoop={LiveLoop}
+                  />
                 </Grid>
               </Grid>
             </animated.div>

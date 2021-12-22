@@ -25,6 +25,7 @@ import { goLive } from "../../http";
 import api from "../../http";
 import { SocketContext } from "../../http/socket";
 import { Gift } from "../../components/Gift/Gift";
+import { onMessageListener } from "../../firebaseInit";
 
 export const Stream = (props) => {
   const { audience } = props;
@@ -33,9 +34,12 @@ export const Stream = (props) => {
   const user = useSelector((state) => state.auth.user.data);
   const classes = useStyles();
   const liveRef = useRef();
+  const guest = useRef();
   const username = user.username;
   const socket = useContext(SocketContext);
   // eslint-disable-next-line
+  // const [liveStreamId, setLiveStreamId] = useState("hello");
+  const liveStreamId = useRef("");
   const [guestWindow, setGuestWindow] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [isWaiting, setIsWaiting] = useState(false);
@@ -68,6 +72,7 @@ export const Stream = (props) => {
   let loopClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [roleUpdated, setRoleUpdated] = useState(false);
 
   let localTracks = {
     videoTrack: null,
@@ -76,7 +81,6 @@ export const Stream = (props) => {
 
   let remoteUsers = {};
   const remoteUser = useRef();
-
   // Agora client options
 
   const options = {
@@ -131,6 +135,7 @@ export const Stream = (props) => {
       }
     }
     remoteUsers = {};
+
     await client.leave();
     console.log("Client successfuly left the channel");
     const res = api.delete("/api/deleteliveuser", {
@@ -162,6 +167,10 @@ export const Stream = (props) => {
     console.log("Successfully Subscribes.");
 
     if (mediaType === "video") {
+      if (roleUpdated && options.role === "host") {
+        setGuestWindow(true);
+        user.videoTrack.play(guest.current);
+      }
       user.videoTrack.play(liveRef.current);
     }
     if (mediaType === "audio") {
@@ -199,7 +208,9 @@ export const Stream = (props) => {
     delete remoteUsers[id];
     // removePlayer();
   };
-  const handleClientRoleChanged = () => {};
+  const handleClientRoleChanged = () => {
+    console.log("role changed");
+  };
   // let clientRTM;
   const clientRTM = AgoraRTM.createInstance(options.appId, {
     enableLogUpload: false,
@@ -223,7 +234,7 @@ export const Stream = (props) => {
             console.log("AgoraRTM client channel join success");
             // get all members in RTM channel
             channel.getMembers().then((memberNames) => {
-              setMembers(memberNames);
+              setMembers(memberNames.length);
 
               clientRTM.on("MessageFromPeer", ({ text }, peerId) => {
                 console.log(peerId + "changed your role to " + text);
@@ -245,9 +256,10 @@ export const Stream = (props) => {
               channel.on("MemberJoined", () => {
                 // get all members in RTM channel
                 const data = {
-                  id: streamId,
-                  count: +1,
+                  id: liveStreamId.current,
+                  count: 1,
                 };
+                console.log(liveStreamId.current);
                 socket.emit("livestreamcount", data);
                 channel.getMembers().then((memberNames) => {
                   setMembers(memberNames.length);
@@ -256,9 +268,10 @@ export const Stream = (props) => {
 
               channel.on("MemberLeft", () => {
                 const data = {
-                  id: streamId,
+                  id: liveStreamId.current,
                   count: -1,
                 };
+                console.log(liveStreamId.current);
                 socket.emit("livestreamcount", data);
                 channel.getMembers().then((memberNames) => {
                   setMembers(memberNames.length);
@@ -270,23 +283,27 @@ export const Stream = (props) => {
       })
       .catch((err) => console.log(err.message));
   };
-  const roleChange = () => {
-    const peerId = options.uid;
-    let peerMessage = options.role === "host" ? "audience" : "host";
-    clientRTM
-      .sendMessageToPeer(
-        {
-          text: peerMessage,
-        },
-        peerId
-      )
-      .then((sendResult) => {
-        if (sendResult.hasPeerReceived) {
-          console.log("message recieved by " + peerId);
-        } else {
-          console.log("message sent to " + peerId);
-        }
-      });
+  const roleChange = (data) => {
+    if (data.type === 0) {
+      leave();
+      options.role = "host";
+      setRoleUpdated(true);
+      join();
+    }
+    // clientRTM
+    //   .sendMessageToPeer(
+    //     {
+    //       text: peerMessage,
+    //     },
+    //     peerId
+    //   )
+    //   .then((sendResult) => {
+    //     if (sendResult.hasPeerReceived) {
+    //       console.log("message recieved by " + peerId);
+    //     } else {
+    //       console.log("message sent to " + peerId);
+    //     }
+    //   });
   };
 
   const handleStreamStarted = async () => {
@@ -307,7 +324,8 @@ export const Stream = (props) => {
         },
       };
       const { data } = await goLive(goLiveData);
-      console.log("Api res ==>", data);
+      liveStreamId.current = data.id;
+      console.log("Api res ==>", data.id);
       setIsStarted(true);
     } catch (err) {
       console.log("Something went wrong");
@@ -338,13 +356,18 @@ export const Stream = (props) => {
       });
     }
     return () => {
-      if (isLoggedIn) {
-        leave();
-        RTMLeave();
-      }
+      RTMLeave();
+      leave();
     };
     // eslint-disable-next-line
   }, []);
+  useEffect(() => {
+    onMessageListener().then((data) => {
+      if (data.topic === `${user._id}_joinlive`) {
+        roleChange(data);
+      }
+    });
+  });
   return (
     <Grid
       container
@@ -377,7 +400,7 @@ export const Stream = (props) => {
                   alt="eye-icon"
                 />
                 <span className={classes.count}>
-                  {members.length ? members.length - 1 : 0}
+                  {members === 0 ? 0 : members - 1}
                 </span>
               </div>
             </Grid>
@@ -396,7 +419,6 @@ export const Stream = (props) => {
             <Dialog
               className={classes.endStreamDialog}
               open={closeStream}
-              onOpen={() => setCloseStream(true)}
               onClose={() => setCloseStream(false)}
             >
               <Grid
@@ -459,7 +481,11 @@ export const Stream = (props) => {
               </div>
             )}
             {guestWindow ? (
-              <div className={classes.guestBox} ref={remoteUser}>
+              <div
+                className={classes.guestBox}
+                style={{ zIndex: 3 }}
+                ref={guest}
+              >
                 <div
                   style={{
                     position: "relative",
@@ -654,6 +680,8 @@ export const Stream = (props) => {
             joinLiveLoop={loopJoin}
             endStream={handleEndStream}
             channelId={userUid}
+            roleChange={roleChange}
+            streamId={streamId}
           />
         )}
       </Grid>
