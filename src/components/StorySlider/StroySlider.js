@@ -11,10 +11,9 @@ import { Splide, SplideSlide } from "@splidejs/react-splide";
 // import Story from "../stories/Story";
 import "@splidejs/splide/dist/css/themes/splide-default.min.css";
 import "@splidejs/splide/dist/css/themes/splide-default.min.css";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 import { ChevronRight, ChevronLeft } from "@material-ui/icons";
-import { setMute } from "../../store/videoSound";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -195,11 +194,10 @@ const useStyles = makeStyles((theme) => ({
 export const StorySlider = ({ setIsAnyOpen }) => {
   const classes = useStyles();
   const videoRef = useRef();
-  const dispatch = useDispatch();
   const stories = useSelector((state) => state.stories.stories);
   const [openDialog, setOpenDialog] = useState(false);
+  // eslint-disable-next-line
   const [allStories, setAllStories] = useState(stories || []);
-  const muted = useSelector((state) => state.video.muted);
   const [mainIndex, setMainIndex] = useState(0);
   const [storyIndex, setStoryIndex] = useState(0);
   const [progress, setProgress] = useState(0);

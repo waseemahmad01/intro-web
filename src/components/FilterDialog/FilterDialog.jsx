@@ -98,7 +98,8 @@ export const FilterDialog = ({
 }) => {
   const classes = useStyles();
   let obj = {};
-  options.map((option) => {
+  // eslint-disable-next-line
+  options.foreach((option) => {
     obj[option] = false;
   });
   const [state, setState] = useState(obj);

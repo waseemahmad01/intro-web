@@ -166,7 +166,6 @@ const useStyles = makeStyles((theme) => ({
     height: "596px",
     borderRadius: "16px",
     position: "relative",
-    borderRadius: "16px",
     overflow: "hidden",
     "& video": {
       width: "100%",
@@ -443,6 +442,7 @@ export const UserProfile = (props) => {
   };
   const handleDeleteVideo = async () => {
     try {
+      // eslint-disable-next-line
       const { data } = await deleteVideo(deleteId);
       const videosArray = videos.filter((video) => video._id !== deleteId);
       setVideos(videosArray);
@@ -520,6 +520,7 @@ export const UserProfile = (props) => {
   });
   useEffect(() => {
     if (isDialogOpen) {
+      // eslint-disable-next-line
       videosRef.current.map((video) => {
         video.pause();
       });

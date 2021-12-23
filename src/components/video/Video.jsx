@@ -35,7 +35,6 @@ const useStyles = makeStyles((theme) => ({
     height: "596px",
     borderRadius: "16px",
     position: "relative",
-    borderRadius: "16px",
     overflow: "hidden",
     "& video": {
       width: "100%",
@@ -352,6 +351,7 @@ export const Video = React.forwardRef(
     const mutedState = useSelector((state) => state.video.muted);
     const [openDialog, setOpenDialog] = useState(false);
     const [quickMessage, setQuickMessage] = useState(false);
+    // eslint-disable-next-line
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [date, setDate] = useState(false);
     const [isLiked, setIsLiked] = useState(like);
@@ -369,6 +369,7 @@ export const Video = React.forwardRef(
       const { data } = await likeVideo({ video_id });
       setOpenDialog(data.matched);
     };
+    // eslint-disable-next-line
     const handleDateChange = (date) => {
       setSelectedDate(date);
     };

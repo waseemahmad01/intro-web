@@ -53,9 +53,11 @@ export const Register = () => {
         break;
       case "/get-user-photos":
         setStep(8);
+        break;
       default:
         break;
     }
+    // eslint-disable-next-line
   }, []);
   return (
     <>

@@ -557,6 +557,7 @@ export const RegisterThree = ({ onNext }) => {
       console.log(err);
     }
   };
+  // eslint-disable-next-line
   const handleQuickMessageSelect = (e) => {
     console.log(e.target);
   };

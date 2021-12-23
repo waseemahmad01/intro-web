@@ -93,7 +93,6 @@ export const HeightFilter = ({
   setIsAnyOpen,
 }) => {
   const classes = useStyles();
-  let obj = {};
   const toFeet = (cm) => {
     const realFeets = (cm * 0.3937) / 12;
     let feets = Math.floor(realFeets);
@@ -107,6 +106,7 @@ export const HeightFilter = ({
   let heightObj = {};
   height.map((item) => (heightObj[item] = toFeet(item)));
   const newHeight = Object.values(heightObj);
+  // eslint-disable-next-line
   const [options, setOptions] = useState({ height: newHeight });
   const [value, setValue] = useState({ height: `5'8"` });
   const handleSet = () => {

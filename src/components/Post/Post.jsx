@@ -46,6 +46,7 @@ export const Post = React.forwardRef(
     const [sliderValue, setSliderValue] = useState([11, 23]);
     // eslint-disable-next-line
     const [selectedDate, setSelectedDate] = useState(new Date());
+    // eslint-disable-next-line
     const [quickMessageValue, setQuickMessageValue] = useState("");
     const isMuted = useSelector((state) => state.video.muted);
     const dispatch = useDispatch();
@@ -86,6 +87,7 @@ export const Post = React.forwardRef(
     };
     const handleSuperLike = async () => {
       setSuperLiked(!superLiked);
+      // eslint-disable-next-line
       const { data } = await superLikeApi({ video_id });
     };
     const quickMessageList = [

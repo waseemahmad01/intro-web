@@ -4,7 +4,6 @@ import image from "../../../assets/index";
 import { getGuestRequests } from "../../../http/index";
 import { useSelector } from "react-redux";
 import { makeGuestRequest } from "../../../http/index";
-import { subscribeTokenToTopic } from "../../../firebaseInit";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -90,6 +89,7 @@ export const Guest = ({ roleChange, streamId }) => {
       console.log(data);
       setRequestUsers(data.data.requsetUsers);
     })();
+    // eslint-disable-next-line
   }, []);
   return (
     <Grid

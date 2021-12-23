@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useStyles } from "./styles";
-import { Link } from "react-router-dom";
 import { useTransition, animated } from "react-spring";
 import {
   Grid,
@@ -33,7 +32,9 @@ export const MeetPost = ({ allVideos, page, setPage, totalPage }) => {
   const [openSuperDialog, setOpenSuperDialog] = useState(false);
   const isMuted = useSelector((state) => state.video.muted);
   const dispatch = useDispatch();
+  // eslint-disable-next-line
   const [totalPages, setTotalPages] = useState(totalPage);
+  // eslint-disable-next-line
   const [videos, setVideos] = useState(allVideos);
   const [index, setIndex] = useState(0);
   const [animate, setAnimate] = useState(false);
@@ -41,15 +42,6 @@ export const MeetPost = ({ allVideos, page, setPage, totalPage }) => {
     from: { x: 500, opacity: 0 },
     enter: { x: 0, opacity: 1 },
   });
-  const shuffle = (a) => {
-    let array = a;
-    let i = array.length;
-    while (i--) {
-      const ri = Math.floor(Math.random() * i);
-      [array[i], array[ri]] = [array[ri], array[i]];
-    }
-    return array;
-  };
   const handleCloseButton = () => {
     if (index === videos.length - 1 && page < totalPages) {
       setPage(page + 1);

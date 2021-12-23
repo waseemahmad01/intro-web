@@ -154,9 +154,9 @@ export const LiveLoop = ({
   const handleValueLabel = (value) => {
     return `${value}mi`;
   };
-  const handleClick = (e) => {
-    e.target.classList.toggle(classes.active);
-  };
+  // const handleClick = (e) => {
+  //   e.target.classList.toggle(classes.active);
+  // };
   const dateFilters = ["men", "women", "everyone"];
   const handleGender = (e) => {
     setGender(e.target.value);
@@ -205,6 +205,7 @@ export const LiveLoop = ({
         gender_identifier: getGenderIdentifier(),
         age: user.date_of_birth.age,
       };
+      // eslint-disable-next-line
       const { data } = await createLiveloop(apiData);
       setLiveLoop(true);
       handleSheetClose();

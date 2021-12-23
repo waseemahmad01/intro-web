@@ -357,8 +357,9 @@ export const UnMatch = (props) => {
     }
     return `${feets}'${inches}"`;
   };
-
+  // eslint-disable-next-line
   const handleLike = async (id) => {
+    // eslint-disable-next-line
     const { data } = await likeVideo(id);
   };
   const handleScroll = () => {

@@ -40,7 +40,7 @@ export const Stream = (props) => {
   // eslint-disable-next-line
   // const [liveStreamId, setLiveStreamId] = useState("hello");
   const liveStreamId = useRef("");
-  const [guestWindow, setGuestWindow] = useState(true);
+  const [guestWindow, setGuestWindow] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [isWaiting, setIsWaiting] = useState(false);
   const [exit, setExit] = useState(false);
@@ -72,6 +72,7 @@ export const Stream = (props) => {
   let loopClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // eslint-disable-next-line
   const [roleUpdated, setRoleUpdated] = useState(false);
 
   let localTracks = {
@@ -94,16 +95,15 @@ export const Stream = (props) => {
 
   const rtmSetup = () => {
     RTMJoin();
-    options.role = audience ? "audience" : "host";
   };
 
   const join = async () => {
     client.setClientRole(options.role);
     if (options.role === "audience") {
+      console.log("running ======> audience");
       client.on("user-published", handleUserPublished);
       client.on("user-joined", handleUserJoined);
       client.on("user-left", handleUserLeft);
-      client.on("client-role-changed", handleClientRoleChanged);
     }
     options.uid = await client.join(
       options.appId,
@@ -113,10 +113,10 @@ export const Stream = (props) => {
     );
     setUserUid(options.uid);
     if (options.role === "host") {
+      console.log("running ======> host");
       client.on("user-published", handleUserPublished);
       client.on("user-joined", handleUserJoined);
       client.on("user-left", handleUserLeft);
-      client.on("client-role-changed", handleClientRoleChanged);
       localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
       localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
       localTracks.videoTrack.play(liveRef.current);
@@ -124,7 +124,6 @@ export const Stream = (props) => {
       console.log("Successfully Published");
     }
   };
-
   const leave = async () => {
     for (let trackName in localTracks) {
       let track = localTracks[trackName];
@@ -137,12 +136,15 @@ export const Stream = (props) => {
     remoteUsers = {};
 
     await client.leave();
-    console.log("Client successfuly left the channel");
-    const res = api.delete("/api/deleteliveuser", {
-      data: {
-        username: username,
-      },
-    });
+    if (options.role === "host") {
+      console.log("Client successfuly left the channel");
+      // eslint-disable-next-line
+      const res = await api.delete("/api/deleteliveuser", {
+        data: {
+          username: username,
+        },
+      });
+    }
   };
 
   const loopJoin = async () => {
@@ -162,19 +164,24 @@ export const Stream = (props) => {
   };
 
   const subscribe = async (user, mediaType) => {
-    const uid = user.uid;
-    await client.subscribe(user, mediaType);
-    console.log("Successfully Subscribes.");
+    try {
+      // eslint-disable-next-line
+      const uid = user.uid;
+      await client.subscribe(user, mediaType);
+      console.log("Successfully Subscribes.");
 
-    if (mediaType === "video") {
-      if (roleUpdated && options.role === "host") {
-        setGuestWindow(true);
-        user.videoTrack.play(guest.current);
+      if (mediaType === "video") {
+        if (roleUpdated && options.role === "host") {
+          setGuestWindow(true);
+          user.videoTrack.play(guest.current);
+        }
+        user.videoTrack.play(liveRef.current);
       }
-      user.videoTrack.play(liveRef.current);
-    }
-    if (mediaType === "audio") {
-      user.audioTrack.play();
+      if (mediaType === "audio") {
+        user.audioTrack.play();
+      }
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -194,6 +201,7 @@ export const Stream = (props) => {
   const handleUserPublished = (user, mediaType) => {
     const id = user.uid;
     remoteUsers[id] = user;
+    console.log(mediaType);
     subscribe(user, mediaType);
   };
 
@@ -208,6 +216,7 @@ export const Stream = (props) => {
     delete remoteUsers[id];
     // removePlayer();
   };
+  // eslint-disable-next-line
   const handleClientRoleChanged = () => {
     console.log("role changed");
   };
@@ -216,14 +225,14 @@ export const Stream = (props) => {
     enableLogUpload: false,
   });
   const RTMJoin = async () => {
-    let accountName = audience ? channelName : user.username;
+    // let accountName = audience ? channelName : user.username;
     // login
     clientRTM
       .login({
-        uid: accountName,
+        uid: options.uid,
       })
       .then(() => {
-        console.log("AgoraRTM client login success. username : " + accountName);
+        console.log("AgoraRTM client login success. username : " + options.uid);
         setIsLoggedIn(true);
         // RTM channel join
         let channelName = options.channel;
@@ -235,24 +244,6 @@ export const Stream = (props) => {
             // get all members in RTM channel
             channel.getMembers().then((memberNames) => {
               setMembers(memberNames.length);
-
-              clientRTM.on("MessageFromPeer", ({ text }, peerId) => {
-                console.log(peerId + "changed your role to " + text);
-                if (text === "host") {
-                  leave();
-                  options.role = "host";
-                  console.log("Role Changed to host");
-                  client.setClientRole("host");
-                  join();
-                } else if (text === "audience") {
-                  leave();
-                  options.role = "audience";
-                  console.log("Role changed to audience");
-                  client.setClientRole("audience");
-                  join();
-                }
-              });
-
               channel.on("MemberJoined", () => {
                 // get all members in RTM channel
                 const data = {
@@ -265,7 +256,6 @@ export const Stream = (props) => {
                   setMembers(memberNames.length);
                 });
               });
-
               channel.on("MemberLeft", () => {
                 const data = {
                   id: liveStreamId.current,
@@ -284,26 +274,17 @@ export const Stream = (props) => {
       .catch((err) => console.log(err.message));
   };
   const roleChange = (data) => {
-    if (data.type === 0) {
+    if (data.type === "0") {
+      RTMLeave();
       leave();
       options.role = "host";
-      setRoleUpdated(true);
       join();
+      RTMJoin();
+
+      // join();
+      // console.log(options);
+      // setRoleUpdated(true);
     }
-    // clientRTM
-    //   .sendMessageToPeer(
-    //     {
-    //       text: peerMessage,
-    //     },
-    //     peerId
-    //   )
-    //   .then((sendResult) => {
-    //     if (sendResult.hasPeerReceived) {
-    //       console.log("message recieved by " + peerId);
-    //     } else {
-    //       console.log("message sent to " + peerId);
-    //     }
-    //   });
   };
 
   const handleStreamStarted = async () => {
@@ -332,6 +313,7 @@ export const Stream = (props) => {
       props.history.goBack();
     }
   };
+  // eslint-disable-next-line
   const handleHostLeft = () => {
     props.history.goBack();
   };
@@ -346,6 +328,7 @@ export const Stream = (props) => {
   const handleEndStream = () => {
     leave();
   };
+  // eslint-disable-next-line
   const startLiveLoop = async () => {};
   useEffect(() => {
     join();
@@ -364,6 +347,7 @@ export const Stream = (props) => {
   useEffect(() => {
     onMessageListener().then((data) => {
       if (data.topic === `${user._id}_joinlive`) {
+        console.log(data);
         roleChange(data);
       }
     });
@@ -483,7 +467,7 @@ export const Stream = (props) => {
             {guestWindow ? (
               <div
                 className={classes.guestBox}
-                style={{ zIndex: 3 }}
+                style={{ zIndex: 3, background: "red" }}
                 ref={guest}
               >
                 <div
@@ -492,6 +476,7 @@ export const Stream = (props) => {
                     height: "100%",
                     width: "100%",
                     backgroundImage: `url('image.actor')`,
+                    zIndex: 2,
                   }}
                 >
                   <IconButton className={classes.closeButton}>

@@ -144,9 +144,6 @@ export const useStyles = makeStyles((theme) => ({
       fontSize: "20px",
     },
   },
-  text: {
-    fontSize: "12px",
-  },
   dialogAction: {
     marginTop: "2rem",
     marginBottom: "3rem",

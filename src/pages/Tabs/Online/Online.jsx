@@ -7,7 +7,6 @@ import {
   useTheme,
   useMediaQuery,
 } from "@material-ui/core";
-import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { getLiveUsers, checkMatch } from "../../../http";
 import { setOnlineUsers } from "../../../store/user";
@@ -113,6 +112,7 @@ export const Online = () => {
         console.log(err.message);
       }
     })();
+    // eslint-disable-next-line
   }, []);
   return (
     <div className={classes.container} style={{ width: "100%" }}>

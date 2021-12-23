@@ -54,6 +54,7 @@ export const Explore = ({
       dispatch(setStories(data.data));
       setAllStories(data.data);
     })();
+    // eslint-disable-next-line
   }, []);
   return (
     <>

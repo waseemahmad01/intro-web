@@ -22,7 +22,7 @@ import { TopBar } from "../../components/TopBar/TopBar";
 import { LiveFilter } from "../../components/LiveFilter/LiveFilter";
 import { liveStreamUsers } from "../../http/index";
 import { useSelector } from "react-redux";
-import { onMessageListener, subscribeTokenToTopic } from "../../firebaseInit";
+import { onMessageListener } from "../../firebaseInit";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -405,6 +405,7 @@ export const Live = () => {
       fetchData(query);
       setFetchQuery(!fetchQuery);
     });
+    // eslint-disable-next-line
   }, [fetchQuery]);
   return (
     <Grid container className={classes.container}>

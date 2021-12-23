@@ -372,7 +372,9 @@ export const ProfileMatched = (props) => {
   const [videos, setVideos] = useState([]);
   const videosRef = useRef([]);
   videosRef.current = [];
+  // eslint-disable-next-line
   const handleLike = async (id) => {
+    // eslint-disable-next-line
     const { data } = await likeVideo(id);
   };
   const toFeet = (cm) => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   makeStyles,
   Grid,
@@ -7,7 +7,6 @@ import {
   Checkbox,
   FormControlLabel,
   Button,
-  Divider,
 } from "@material-ui/core";
 import image from "../../assets";
 
@@ -107,7 +106,7 @@ export const CountryFilter = ({
   const classes = useStyles();
   let obj = {};
   //   console.log(allCounrtry.default);
-  allCounrtry.default.map((country) => {
+  allCounrtry.default.foreach((country) => {
     obj[country.name] = false;
   });
   const [state, setState] = useState(obj);
