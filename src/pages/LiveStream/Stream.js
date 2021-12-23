@@ -37,6 +37,7 @@ export const Stream = (props) => {
   const liveRef = useRef();
   const guest = useRef();
   const username = user.username;
+  const user_id = user._id;
   const socket = useContext(SocketContext);
   // eslint-disable-next-line
   // const [liveStreamId, setLiveStreamId] = useState("hello");
@@ -174,7 +175,7 @@ export const Stream = (props) => {
       console.log("Successfully Subscribes.");
 
       if (mediaType === "video") {
-        if (localTracks.audioTrack) {
+        if (coHostId) {
           setGuestWindow(true);
           console.log("guest user added");
           user.videoTrack.play(guest.current);
@@ -283,6 +284,7 @@ export const Stream = (props) => {
       join();
       RTMJoin();
     } else if (data.type === "1") {
+      console.log("Notification====> changing role to audience");
       RTMLeave();
       leave();
       options.role = "audience";
@@ -298,6 +300,7 @@ export const Stream = (props) => {
       };
       // eslint-disable-last-line
       const { data } = await removeCoHost(apiData);
+      setRemoveGuest(false);
     } catch (err) {
       console.log(err.message);
     }
@@ -717,7 +720,11 @@ export const Stream = (props) => {
         {/* <ViewerBox /> */}
         {audience && <Gift />}
         {audience ? (
-          <ViewerBox streamId={streamId} streamer={channelName} />
+          <ViewerBox
+            streamId={streamId}
+            setCoHostId={setCoHostId}
+            streamer={channelName}
+          />
         ) : (
           <StreamerBox
             joinLiveLoop={loopJoin}

@@ -252,6 +252,7 @@ export const StreamerBox = ({
   endStream,
   joinLiveLoop,
   roleChange,
+  setCoHostId,
 }) => {
   const classes = useStyles();
   const [tab, setTab] = useState(0);
@@ -408,6 +409,7 @@ export const StreamerBox = ({
                     setLiveLoop={setLiveLoop}
                     roleChange={roleChange}
                     liveLoop={LiveLoop}
+                    setCoHostId={setCoHostId}
                   />
                 </Grid>
               </Grid>

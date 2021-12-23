@@ -271,6 +271,7 @@ export const ViewerBox = ({ streamId, streamer, setCoHostId }) => {
       };
       // eslint-disable-next-line
       const { data } = await makeGuestRequest(apiData);
+      setCoHostId(true);
       setOpenDialog(false);
     } catch (err) {
       console.log(err.message);
