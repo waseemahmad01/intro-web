@@ -106,7 +106,7 @@ export const CountryFilter = ({
   const classes = useStyles();
   let obj = {};
   //   console.log(allCounrtry.default);
-  allCounrtry.default.foreach((country) => {
+  allCounrtry.default.forEach((country) => {
     obj[country.name] = false;
   });
   const [state, setState] = useState(obj);
