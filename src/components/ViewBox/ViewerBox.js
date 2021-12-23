@@ -238,7 +238,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const ViewerBox = ({ streamId, streamer }) => {
+export const ViewerBox = ({ streamId, streamer, setCoHostId }) => {
   const classes = useStyles();
   const [tab, setTab] = useState(0);
   const user = useSelector((state) => state.auth.user.data);
@@ -373,7 +373,7 @@ export const ViewerBox = ({ streamId, streamer }) => {
                     </IconButton>
                   </Grid>
                   <Grid item className={classes.sheetContent}>
-                    <TabComponent />
+                    <TabComponent setCoHostId={setCoHostId} />
                   </Grid>
                 </Grid>
               </Grid>

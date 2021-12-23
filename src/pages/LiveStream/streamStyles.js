@@ -484,4 +484,49 @@ export const useStyles = makeStyles((theme) => ({
       fontSize: "16px",
     },
   },
+  guestVideo: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    width: "100%",
+    height: "100%",
+  },
+  guestUserDialog: {
+    "& .MuiDialog-paper": {
+      backgroundColor: theme.palette.common.lightPink,
+      borderRadius: "10px",
+    },
+  },
+  guestTitle: {
+    fontSize: "33px",
+    fontWeight: 700,
+    background: "-webkit-linear-gradient(#654AAB, #E77783)",
+    "-webkit-background-clip": "text",
+    "-webkit-text-fill-color": "transparent",
+    marginBottom: "10px",
+    [theme.breakpoints.down(1680)]: {
+      fontSize: "24px",
+    },
+  },
+  guestSubTitle: {
+    fontSize: "19px",
+    lineHeight: "25px",
+    color: "#929292",
+    margin: 0,
+    [theme.breakpoints.down(1680)]: {
+      fontSize: "14px",
+    },
+  },
+  guestDialogContainer: {
+    height: "380px",
+    width: "420px",
+    padding: "3rem 0rem",
+    [theme.breakpoints.down("lg")]: {
+      height: "280px",
+      width: "320px",
+      padding: "1.5rem 0rem",
+    },
+  },
 }));

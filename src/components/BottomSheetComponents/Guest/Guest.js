@@ -64,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const Guest = ({ roleChange, streamId }) => {
+export const Guest = ({ setCoHostId, streamId }) => {
   const classes = useStyles();
   const user = useSelector((state) => state.auth.user.data);
   const [requestUsers, setRequestUsers] = useState([]);
@@ -80,6 +80,7 @@ export const Guest = ({ roleChange, streamId }) => {
       type: "join",
     };
     const { data } = await makeGuestRequest(apiData);
+    setCoHostId(userId);
     console.log(data);
   };
 

@@ -26,6 +26,7 @@ import api from "../../http";
 import { SocketContext } from "../../http/socket";
 import { Gift } from "../../components/Gift/Gift";
 import { onMessageListener } from "../../firebaseInit";
+import { removeCoHost } from "../../http";
 
 export const Stream = (props) => {
   const { audience } = props;
@@ -43,10 +44,12 @@ export const Stream = (props) => {
   const [guestWindow, setGuestWindow] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [isWaiting, setIsWaiting] = useState(false);
+  const [removeGuest, setRemoveGuest] = useState(false);
   const [exit, setExit] = useState(false);
   const [blueWindow, setBlueWindow] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
   const [members, setMembers] = useState(0);
+  const [coHostId, setCoHostId] = useState("");
   const theme = useTheme();
   const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const lgScreen = useMediaQuery(theme.breakpoints.down(1680));
@@ -171,11 +174,13 @@ export const Stream = (props) => {
       console.log("Successfully Subscribes.");
 
       if (mediaType === "video") {
-        if (roleUpdated && options.role === "host") {
+        if (localTracks.audioTrack) {
           setGuestWindow(true);
+          console.log("guest user added");
           user.videoTrack.play(guest.current);
+        } else {
+          user.videoTrack.play(liveRef.current);
         }
-        user.videoTrack.play(liveRef.current);
       }
       if (mediaType === "audio") {
         user.audioTrack.play();
@@ -201,7 +206,7 @@ export const Stream = (props) => {
   const handleUserPublished = (user, mediaType) => {
     const id = user.uid;
     remoteUsers[id] = user;
-    console.log(mediaType);
+    console.log("published");
     subscribe(user, mediaType);
   };
 
@@ -216,10 +221,7 @@ export const Stream = (props) => {
     delete remoteUsers[id];
     // removePlayer();
   };
-  // eslint-disable-next-line
-  const handleClientRoleChanged = () => {
-    console.log("role changed");
-  };
+
   // let clientRTM;
   const clientRTM = AgoraRTM.createInstance(options.appId, {
     enableLogUpload: false,
@@ -280,10 +282,24 @@ export const Stream = (props) => {
       options.role = "host";
       join();
       RTMJoin();
-
-      // join();
-      // console.log(options);
-      // setRoleUpdated(true);
+    } else if (data.type === "1") {
+      RTMLeave();
+      leave();
+      options.role = "audience";
+      join();
+      RTMJoin();
+    }
+  };
+  const handleRemoveCoHost = async () => {
+    try {
+      const apiData = {
+        userId: coHostId,
+        id: streamId,
+      };
+      // eslint-disable-last-line
+      const { data } = await removeCoHost(apiData);
+    } catch (err) {
+      console.log(err.message);
     }
   };
 
@@ -465,27 +481,69 @@ export const Stream = (props) => {
               </div>
             )}
             {guestWindow ? (
-              <div
-                className={classes.guestBox}
-                style={{ zIndex: 3, background: "red" }}
-                ref={guest}
-              >
+              <div className={classes.guestBox} style={{ zIndex: 3 }}>
                 <div
                   style={{
                     position: "relative",
                     height: "100%",
                     width: "100%",
-                    backgroundImage: `url('image.actor')`,
                     zIndex: 2,
                   }}
                 >
-                  <IconButton className={classes.closeButton}>
+                  <IconButton
+                    onClick={() => setRemoveGuest(true)}
+                    className={classes.closeButton}
+                  >
                     <Close className={classes.closeIcon} />
                   </IconButton>
                   {/* <img src={image.actor} alt="" /> */}
                 </div>
+                <div className={classes.guestVideo} ref={guest}></div>
               </div>
             ) : undefined}
+            <Dialog open={removeGuest} className={classes.guestUserDialog}>
+              <Grid
+                item
+                container
+                className={classes.guestDialogContainer}
+                alignItems="center"
+                direction="column"
+                // justifyContent="space-between"
+              >
+                <Typography className={classes.guestTitle}>
+                  Are you sure?
+                </Typography>
+                <Typography className={classes.guestSubTitle}>
+                  You are removing current livestream guest
+                </Typography>
+                <Grid
+                  item
+                  container
+                  style={{ marginTop: "auto" }}
+                  alignItems="center"
+                  direction="column"
+                >
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    className={classes.endStreamButtons}
+                    style={{ marginBottom: "0.75rem" }}
+                    onClick={handleRemoveCoHost}
+                  >
+                    Remove
+                  </Button>
+
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    className={classes.endStreamButtons}
+                    onClick={() => setRemoveGuest(false)}
+                  >
+                    Not Now
+                  </Button>
+                </Grid>
+              </Grid>
+            </Dialog>
             {audience ? (
               <IconButton
                 style={{ zIndex: 1 }}
@@ -667,6 +725,7 @@ export const Stream = (props) => {
             channelId={userUid}
             roleChange={roleChange}
             streamId={streamId}
+            setCoHostId={setCoHostId}
           />
         )}
       </Grid>

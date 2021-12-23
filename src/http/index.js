@@ -98,6 +98,8 @@ export const getLiveUsers = () => api.get("api/onlineuser");
 export const checkMatch = (id) => api.get(`/api/checkmatch/${id}`);
 
 // live stream
+export const removeCoHost = (data) => api.post("/api/userleft", data);
+
 export const makeGuestRequest = (data) => api.patch("/api/liveuser", data);
 export const getGuestRequests = (data) => api.get(`/api/liveuser/${data}`);
 export const liveStreamUsers = (filter) => api.get(`/api/liveuser${filter}`);
