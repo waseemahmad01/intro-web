@@ -9,6 +9,7 @@ import {
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import { likedMe } from "../../../http";
+import image from "../../../assets";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -63,6 +64,12 @@ const useStyles = makeStyles((theme) => ({
       fontSize: "19px",
     },
   },
+  notFoundContainer: {
+    marginTop: "10rem",
+    [theme.breakpoints.down("lg")]: {
+      marginTop: "6rem",
+    },
+  },
 }));
 
 export const MyLikes = () => {
@@ -82,10 +89,23 @@ export const MyLikes = () => {
       <h1 className={classes.title}>My Likes</h1>
       <Grid
         container
-        // direction="column"
         spacing={lgScreen ? 3 : 5}
         className={classes.likesContainer}
       >
+        {likes.length === 0 && (
+          <Grid
+            container
+            justify="center"
+            alignItems="center"
+            direction="column"
+            className={classes.notFoundContainer}
+          >
+            <img src={image.find} className={classes.notFoundImage} alt="" />
+            <span className={classes.notFound}>
+              No one liked your videos yet
+            </span>
+          </Grid>
+        )}
         {likes.map((like, index) => (
           <Grid key={index} sm={3} item container spacing={2}>
             <Grid item>

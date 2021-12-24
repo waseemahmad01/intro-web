@@ -21,7 +21,7 @@ import { Close } from "@material-ui/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleMute } from "../../store/videoSound";
 import { useHistory } from "react-router-dom";
-import { checkMatch } from "../../http";
+import { checkMatch, superLikeApi } from "../../http";
 export const MeetPost = ({ allVideos, page, setPage, totalPage }) => {
   const classes = useStyles();
   const history = useHistory();
@@ -64,8 +64,27 @@ export const MeetPost = ({ allVideos, page, setPage, totalPage }) => {
     }
   };
 
+  const handleSuperLike = async (id) => {
+    // eslint-disable-next-line
+    try {
+      const { data } = await superLikeApi({ video_id: id });
+      if (index === videos.length - 1 && page < totalPages) {
+        setPage(page + 1);
+        setAnimate(!animate);
+        setIndex(0);
+      } else if (index === videos.length - 1 && page === totalPages) {
+        return;
+      } else {
+        setAnimate(!animate);
+        setIndex(index + 1);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
-    setAnimate(true);
+    if (videos.length !== 0) setAnimate(true);
   }, [index]);
   return (
     <>
@@ -199,7 +218,10 @@ export const MeetPost = ({ allVideos, page, setPage, totalPage }) => {
                             </Grid>
                             <Grid item>
                               <IconButton
-                                onClick={() => setOpenSuperDialog(true)}
+                                onClick={() =>
+                                  handleSuperLike(videos[index]._id)
+                                }
+                                // onClick={() => setOpenSuperDialog(true)}
                                 className={classes.superIcon}
                               >
                                 <img src={image.superLikePink} alt="" />

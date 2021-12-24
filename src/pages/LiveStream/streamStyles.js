@@ -81,7 +81,7 @@ export const useStyles = makeStyles((theme) => ({
     backgroundSize: "cover",
     backgroundPosition: "center",
     [theme.breakpoints.down(1680)]: {
-      height: "500px",
+      height: "525px",
     },
     "& img": {
       width: "100%",

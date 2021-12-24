@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import image from "../../assets/index";
-import { liveStreamUsers } from "../../http/index";
+// import { liveStreamUsers } from "../../http/index";
 import { useHistory } from "react-router";
 
 export const LiveFilter = ({ liveUsers }) => {
@@ -65,17 +65,25 @@ export const LiveFilter = ({ liveUsers }) => {
   };
 
   const handleJoinStream = (username, id) => {
-    history.push(`joinstream/${username}/${id}`);
+    // history.push(`joinstream/${username}/${id}/${newToken}`);
+    history.push({
+      pathname: "joinstream",
+      state: {
+        username: username,
+        id: id,
+        // token: token,
+      },
+    });
   };
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const { data } = await liveStreamUsers();
-        console.log(data);
-      } catch (err) {}
-    })();
-  }, []);
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const { data } = await liveStreamUsers();
+  //       console.log(data);
+  //     } catch (err) {}
+  //   })();
+  // }, []);
   return (
     <Grid
       container
@@ -84,6 +92,18 @@ export const LiveFilter = ({ liveUsers }) => {
       spacing={3}
       style={{ height: "100%" }}
     >
+      {liveUsers.length === 0 && (
+        <Grid
+          container
+          justify="center"
+          alignItems="center"
+          direction="column"
+          className={classes.notFoundContainer}
+        >
+          <img src={image.find} className={classes.notFoundImage} alt="" />
+          <span className={classes.notFound}>Currently no user is live</span>
+        </Grid>
+      )}
       {liveUsers.map((user) => (
         <Grid
           item

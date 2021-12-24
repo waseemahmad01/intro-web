@@ -240,7 +240,20 @@ export const Home = () => {
               <div style={{ overflowX: "auto" }} className={classes.scrollDiv}>
                 <div style={{ display: "flex" }}>
                   {matched.length === 0 && (
-                    <span className={classes.notFound}>No Matches Found</span>
+                    <Grid
+                      item
+                      container
+                      direction="column"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <img
+                        src={image.find}
+                        className={classes.notFoundImage}
+                        alt=""
+                      />
+                      <span className={classes.notFound}>No Matches Found</span>
+                    </Grid>
                   )}
                   {matched.map((item, index) => (
                     <Avatar
@@ -268,9 +281,22 @@ export const Home = () => {
               <div style={{ overflowX: "auto" }} className={classes.scrollDiv}>
                 <div style={{ display: "flex" }}>
                   {visitedMe.length === 0 && (
-                    <span className={classes.notFound}>
-                      No One Visited You Yet
-                    </span>
+                    <Grid
+                      item
+                      container
+                      direction="column"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <img
+                        src={image.find}
+                        className={classes.notFoundImage}
+                        alt=""
+                      />
+                      <span className={classes.notFound}>
+                        No one visited your profile
+                      </span>
+                    </Grid>
                   )}
                   {visitedMe.map((item, index) => (
                     <Avatar
@@ -296,9 +322,22 @@ export const Home = () => {
               <div style={{ overflowX: "auto" }} className={classes.scrollDiv}>
                 <div style={{ display: "flex" }}>
                   {iVisited.length === 0 && (
-                    <span className={classes.notFound}>
-                      You Haven't Visited Anyone Yet
-                    </span>
+                    <Grid
+                      item
+                      container
+                      direction="column"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <img
+                        src={image.find}
+                        className={classes.notFoundImage}
+                        alt=""
+                      />
+                      <span className={classes.notFound}>
+                        You haven't visited anyone's profile yet
+                      </span>
+                    </Grid>
                   )}
                   {iVisited.map((item, index) => (
                     <Avatar
@@ -341,12 +380,23 @@ export const Home = () => {
             <Grid item className={classes.listContainer}>
               <Typography className={classes.likes}>Likes</Typography>
               {likedMe.length === 0 && (
-                <span
-                  className={classes.notFound}
-                  style={{ width: "100%", textAlign: "center" }}
+                <Grid
+                  item
+                  container
+                  direction="column"
+                  alignItems="center"
+                  justifyContent="center"
+                  className={classes.notFoundContainer}
                 >
-                  No Likes Found
-                </span>
+                  <img
+                    src={image.find}
+                    className={classes.likeNotFoundImage}
+                    alt=""
+                  />
+                  <span className={classes.notFound}>
+                    No one liked your videos yet
+                  </span>
+                </Grid>
               )}
               <List className={classes.likeList}>
                 {likedMe.map((item, index) => (

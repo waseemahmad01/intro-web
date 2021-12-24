@@ -267,8 +267,8 @@ export const useStyles = makeStyles((theme) => ({
     width: "101px",
     marginTop: "-5px",
     [theme.breakpoints.down("lg")]: {
-      height: "50px",
-      width: "50px",
+      height: "65px",
+      width: "65px",
     },
   },
   badge: {
@@ -353,12 +353,10 @@ export const useStyles = makeStyles((theme) => ({
     },
   },
   notFound: {
-    fontSize: "20px",
-    marginTop: "20px",
-    marginLeft: "auto",
+    fontSize: "16px",
     [theme.breakpoints.down("lg")]: {
-      fontSize: "14px",
-      marginTop: "10px",
+      fontSize: "10px",
+      marginTop: "-2px",
     },
   },
   likeList: {
@@ -366,6 +364,24 @@ export const useStyles = makeStyles((theme) => ({
     overflowY: "auto",
     [theme.breakpoints.down("lg")]: {
       maxHeight: "320px",
+    },
+  },
+  notFoundImage: {
+    height: "3rem",
+    [theme.breakpoints.down("lg")]: {
+      height: "2rem",
+    },
+  },
+  likeNotFoundImage: {
+    height: "5rem",
+    [theme.breakpoints.down("lg")]: {
+      height: "3rem",
+    },
+  },
+  notFoundContainer: {
+    height: "calc(100% - 160px)",
+    [theme.breakpoints.down("lg")]: {
+      height: "calc(100% - 80px)",
     },
   },
 }));

@@ -32,7 +32,7 @@ export const useStyles = makeStyles((theme) => ({
     borderRadius: "25px",
     width: "392px",
     [theme.breakpoints.down("lg")]: {
-      width: "350px",
+      width: "300px",
       borderRadius: "18px",
     },
     "& .MuiAccordionSummary-expandIcon.Mui-expanded": {
@@ -46,6 +46,7 @@ export const useStyles = makeStyles((theme) => ({
     height: "85px",
     [theme.breakpoints.down("lg")]: {
       height: "55px",
+      borderRadius: "18px",
     },
   },
   details: {

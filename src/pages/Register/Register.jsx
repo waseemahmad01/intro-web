@@ -8,6 +8,7 @@ import { RegisterThree } from "../RegisterSteps/RegisterThree/RegisterThree";
 import { RegisterTwo } from "../RegisterSteps/RegisterTwo/RegisterTwo";
 import { SelectImage } from "../RegisterSteps/SelectImage/SelectImage";
 import { useSelector } from "react-redux";
+import { getUser } from "../../http";
 // import { Header } from "../../components/header/Header";
 
 export const Register = () => {
@@ -28,7 +29,12 @@ export const Register = () => {
     setStep(step + 1);
   };
   useEffect(() => {
-    const step = user.step;
+    let userData;
+    (async () => {
+      const { data } = await getUser();
+      userData = data.data;
+    })();
+    const step = userData.step;
     switch (step) {
       case "/dob" || "/username":
         setStep(1);

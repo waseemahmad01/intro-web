@@ -11,6 +11,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { getLiveUsers, checkMatch } from "../../../http";
 import { setOnlineUsers } from "../../../store/user";
 import { useHistory } from "react-router-dom";
+import image from "../../../assets";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -86,6 +87,12 @@ const useStyles = makeStyles((theme) => ({
       marginBottom: "1rem",
     },
   },
+  notFoundContainer: {
+    marginTop: "10rem",
+    [theme.breakpoints.down("lg")]: {
+      marginTop: "6rem",
+    },
+  },
 }));
 
 export const Online = () => {
@@ -122,6 +129,20 @@ export const Online = () => {
         className={classes.innerContainer}
         spacing={lgScreen ? 3 : 4}
       >
+        {onlineUsers.length === 0 && (
+          <Grid
+            container
+            justify="center"
+            alignItems="center"
+            direction="column"
+            className={classes.notFoundContainer}
+          >
+            <img src={image.find} className={classes.notFoundImage} alt="" />
+            <span className={classes.notFound}>
+              No one liked your videos yet
+            </span>
+          </Grid>
+        )}
         {onlineUsers.map((user) => (
           <Grid key={user._id} item className={classes.item}>
             <Grid container direction="column" alignItems="center">

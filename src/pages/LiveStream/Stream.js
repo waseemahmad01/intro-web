@@ -26,12 +26,13 @@ import api from "../../http";
 import { SocketContext } from "../../http/socket";
 import { Gift } from "../../components/Gift/Gift";
 import { onMessageListener } from "../../firebaseInit";
-import { removeCoHost } from "../../http";
+import { removeCoHost, agoraToken } from "../../http";
 
 export const Stream = (props) => {
+  console.log(props.history);
   const { audience } = props;
-  const channelName = props.match.params.id;
-  const streamId = props.match.params.sId;
+  const channelName = audience ? props.history.location.state.username : null;
+  const streamId = audience ? props.history.location.state.id : null;
   const user = useSelector((state) => state.auth.user.data);
   const classes = useStyles();
   const liveRef = useRef();
@@ -99,11 +100,14 @@ export const Stream = (props) => {
 
   const options = {
     appId: "eb25ec81a8bc477ebb4673ba983ceb13",
+    // appId: process.env.REACT_APP_AGORA_APPID,
     channel: audience ? channelName : user.username,
     uid: null,
     token: null,
     accountName: null,
     role: audience ? "audience" : "host",
+    // rtmToken: null,
+    // rtmUid: null,
   };
 
   const rtmSetup = () => {
@@ -332,7 +336,6 @@ export const Stream = (props) => {
 
   const handleStreamStarted = async () => {
     try {
-      console.log(location);
       const goLiveData = {
         username: user.username,
         userId: user._id,
@@ -340,6 +343,7 @@ export const Stream = (props) => {
         channelId: userUid,
         gender: getGender(),
         userStatus: user.current_status,
+        rtcToken: "this is a string",
         location: {
           coordinates: [
             location.lon || user.location.lon,
@@ -374,6 +378,21 @@ export const Stream = (props) => {
   // eslint-disable-next-line
   const startLiveLoop = async () => {};
   useEffect(() => {
+    // (async () => {
+    //   const apiData = {
+    //     isPublisher: audience ? false : true,
+    //     // isPublisher: false,
+    //     channel: options.channel,
+    //     uid: user._id,
+    //   };
+    //   const { data } = await agoraToken(apiData);
+    //   options.token = audience ? token : data.rtcToken;
+    //   options.uid = data.rtcUid;
+    //   options.rtmToken = data.rtmToken;
+    //   options.rtmUid = data.rtmUid;
+    //   // console.log(data);
+    //   // console.log(options);
+    // })();
     join();
     rtmSetup();
     if ("geolocation" in navigator) {

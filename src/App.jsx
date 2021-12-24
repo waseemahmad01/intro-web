@@ -49,6 +49,8 @@ function App(props) {
         subscribeTokenToTopic(token, "liveuser");
         subscribeTokenToTopic(token, `${data.data._id}_liveloop`);
         subscribeTokenToTopic(token, `${data.data._id}_joinlive`);
+        const res = await getUser();
+        dispatch(submit(res.data));
         switch (step) {
           case "/home":
             if (props.history.location.pathname === "/") {
@@ -118,11 +120,7 @@ function App(props) {
         <Route path="/helpcenter/livefaq" exact component={LiveFAQ} />
         <ProtectedRoute path="/live" component={Live} />
         <ProtectedRoute path="/stream" component={Stream} />
-        <ProtectedRoute
-          path="/joinstream/:id/:sId"
-          audience={true}
-          component={Stream}
-        />
+        <ProtectedRoute path="/joinstream" audience={true} component={Stream} />
       </Switch>
     </div>
   );

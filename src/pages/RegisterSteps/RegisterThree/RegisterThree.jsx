@@ -389,11 +389,11 @@ const useStyles = makeStyles((theme) => ({
     opacity: "0.4",
     position: "absolute",
     fontSize: "22px",
-    top: "20px",
+    top: "14px",
     left: "20px",
     zIndex: 0,
     [theme.breakpoints.down("lg")]: {
-      top: "11px",
+      top: "8px",
       left: "20px",
       fontSize: "15px",
     },
@@ -629,7 +629,7 @@ export const RegisterThree = ({ onNext }) => {
                           className={classes.menuItem}
                           value={"0"}
                         >
-                          <em className={classes.none}>Choose origin</em>
+                          <span className={classes.none}>Choose origin</span>
                         </MenuItem>
                         {ethnicityList.map((item) => (
                           <MenuItem value={item} key={item}>
@@ -777,7 +777,7 @@ export const RegisterThree = ({ onNext }) => {
                         )}
                       >
                         <MenuItem dense className={classes.menuItem} value={[]}>
-                          <em className={classes.none}>Choose country</em>
+                          <span className={classes.none}>Choose country</span>
                         </MenuItem>
                         {countryList.map((option, index) => (
                           <MenuItem
@@ -807,7 +807,7 @@ export const RegisterThree = ({ onNext }) => {
                       </Select>
                       {ethinic.length === 0 ? (
                         <span className={classes.customPlaceHolder}>
-                          <em> Choose Country</em>
+                          <span> Choose Country</span>
                         </span>
                       ) : undefined}
 

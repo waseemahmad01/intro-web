@@ -483,4 +483,9 @@ export const useStyles = makeStyles((theme) => ({
       marginBottom: "-10px",
     },
   },
+  superLikeIcon: {
+    [theme.breakpoints.down("lg")]: {
+      height: "2rem",
+    },
+  },
 }));
