@@ -132,7 +132,7 @@ export const Online = () => {
         {onlineUsers.length === 0 && (
           <Grid
             container
-            justify="center"
+            justifyContent="center"
             alignItems="center"
             direction="column"
             className={classes.notFoundContainer}

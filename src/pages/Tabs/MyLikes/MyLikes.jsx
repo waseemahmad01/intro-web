@@ -95,7 +95,7 @@ export const MyLikes = () => {
         {likes.length === 0 && (
           <Grid
             container
-            justify="center"
+            justifyContent="center"
             alignItems="center"
             direction="column"
             className={classes.notFoundContainer}

@@ -33,6 +33,8 @@ export const Stream = (props) => {
   const { audience } = props;
   const channelName = audience ? props.history.location.state.username : null;
   const streamId = audience ? props.history.location.state.id : null;
+  const hostUid = audience ? props.history.location.state.hostUid : null;
+  console.log(hostUid);
   const user = useSelector((state) => state.auth.user.data);
   const classes = useStyles();
   const liveRef = useRef();
@@ -143,37 +145,38 @@ export const Stream = (props) => {
   };
   const leave = async () => {
     console.log("user leaving");
-    if (coHostId) {
-      for (let trackName in remoteUserTracks) {
-        let track = localTracks[trackName];
-        if (track) {
-          track.stop();
-          track.close();
-        }
-        delete remoteUsers[remoteUserUid];
-        await client.leave();
-      }
-    } else {
-      for (let trackName in localTracks) {
-        let track = localTracks[trackName];
-        if (track) {
-          track.stop();
-          track.close();
-          localTracks[trackName] = undefined;
-        }
-      }
-      remoteUsers = {};
-      await client.leave();
-      if (options.role === "host") {
-        console.log("Client successfuly left the channel");
-        // eslint-disable-next-line
-        const res = await api.delete("/api/deleteliveuser", {
-          data: {
-            username: username,
-          },
-        });
+    for (let trackName in localTracks) {
+      let track = localTracks[trackName];
+      if (track) {
+        track.stop();
+        track.close();
+        localTracks[trackName] = undefined;
       }
     }
+    remoteUsers = {};
+    await client.leave();
+    if (options.role === "host") {
+      console.log("Client successfuly left the channel");
+      // eslint-disable-next-line
+      const res = await api.delete("/api/deleteliveuser", {
+        data: {
+          username: username,
+        },
+      });
+    }
+    // if (coHostId) {
+    //   for (let trackName in remoteUserTracks) {
+    //     let track = localTracks[trackName];
+    //     if (track) {
+    //       track.stop();
+    //       track.close();
+    //     }
+    //     delete remoteUsers[remoteUserUid];
+    //     await client.leave();
+    //   }
+    // } else {
+
+    // }
   };
 
   const loopJoin = async () => {
@@ -255,23 +258,23 @@ export const Stream = (props) => {
   const clientRTM = AgoraRTM.createInstance(options.appId, {
     enableLogUpload: false,
   });
+  let channel;
   const RTMJoin = async () => {
-    // let accountName = audience ? channelName : user.username;
-    // login
     clientRTM
       .login({
         uid: username,
       })
       .then(() => {
         console.log("AgoraRTM client login success. username : " + username);
-        setIsLoggedIn(true);
+        console.log("267 login");
         // RTM channel join
         let channelName = options.channel;
-        let channel = clientRTM.createChannel(channelName);
+        channel = clientRTM.createChannel(channelName);
         channel
           .join()
           .then(() => {
             console.log("AgoraRTM client channel join success");
+            setIsLoggedIn(true);
             // get all members in RTM channel
             channel.getMembers().then((memberNames) => {
               setMembers(memberNames.length);
@@ -306,11 +309,11 @@ export const Stream = (props) => {
   };
   const roleChange = (data) => {
     if (data.type === "0") {
-      RTMLeave();
       leave();
+      // RTMLeave();
       options.role = "host";
       join();
-      RTMJoin();
+      // RTMJoin();
     } else if (data.type === "1") {
       console.log("Notification====> changing role to audience");
       RTMLeave();
@@ -365,12 +368,8 @@ export const Stream = (props) => {
     props.history.goBack();
   };
   const RTMLeave = async () => {
+    await clientRTM.logout();
     console.log("Client logged out of RTM");
-
-    if (isLoggedIn) {
-      await clientRTM.logout();
-      setIsLoggedIn(false);
-    }
   };
   const handleEndStream = () => {
     leave();

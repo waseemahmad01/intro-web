@@ -25,7 +25,7 @@ export const LiveFilter = ({ liveUsers }) => {
   };
   // eslint-disable-next-line
   const getCityName = (lat, long) => {
-    Geocode.setApiKey("AIzaSyB_BAN0LhB9Psr2Xi8q4je-4wz05TOZ8sM");
+    // Geocode.setApiKey("AIzaSyB_BAN0LhB9Psr2Xi8q4je-4wz05TOZ8sM");
     Geocode.fromLatLng(lat, long).then(
       (response) => {
         const address = response.results[0].formatted_address;
@@ -64,13 +64,14 @@ export const LiveFilter = ({ liveUsers }) => {
     );
   };
 
-  const handleJoinStream = (username, id) => {
+  const handleJoinStream = (username, id, channelId) => {
     // history.push(`joinstream/${username}/${id}/${newToken}`);
     history.push({
       pathname: "joinstream",
       state: {
         username: username,
         id: id,
+        hostUid: channelId,
         // token: token,
       },
     });
@@ -95,7 +96,7 @@ export const LiveFilter = ({ liveUsers }) => {
       {liveUsers.length === 0 && (
         <Grid
           container
-          justify="center"
+          justifyContent="center"
           alignItems="center"
           direction="column"
           className={classes.notFoundContainer}
@@ -108,7 +109,9 @@ export const LiveFilter = ({ liveUsers }) => {
         <Grid
           item
           key={user._id}
-          onClick={() => handleJoinStream(user.username, user._id)}
+          onClick={() =>
+            handleJoinStream(user.username, user._id, user.channelId)
+          }
         >
           <div className={classes.liveUser}>
             <img
