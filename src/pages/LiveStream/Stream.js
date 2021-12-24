@@ -37,9 +37,12 @@ export const Stream = (props) => {
   const liveRef = useRef();
   const guest = useRef();
   const username = user.username;
-  const user_id = user._id;
   const socket = useContext(SocketContext);
   // eslint-disable-next-line
+  const remoteTracks = {
+    audioTrack: null,
+    videoTrack: null,
+  };
   // const [liveStreamId, setLiveStreamId] = useState("hello");
   const liveStreamId = useRef("");
   const [guestWindow, setGuestWindow] = useState(false);
@@ -83,6 +86,12 @@ export const Stream = (props) => {
     videoTrack: null,
     audioTrack: null,
   };
+
+  let remoteUserTracks = {
+    videoTrack: null,
+    audioTrack: null,
+  };
+  let remoteUserUid = "";
 
   let remoteUsers = {};
   const remoteUser = useRef();
@@ -129,25 +138,37 @@ export const Stream = (props) => {
     }
   };
   const leave = async () => {
-    for (let trackName in localTracks) {
-      let track = localTracks[trackName];
-      if (track) {
-        track.stop();
-        track.close();
-        localTracks[trackName] = undefined;
+    console.log("user leaving");
+    if (coHostId) {
+      for (let trackName in remoteUserTracks) {
+        let track = localTracks[trackName];
+        if (track) {
+          track.stop();
+          track.close();
+        }
+        delete remoteUsers[remoteUserUid];
+        await client.leave();
       }
-    }
-    remoteUsers = {};
-
-    await client.leave();
-    if (options.role === "host") {
-      console.log("Client successfuly left the channel");
-      // eslint-disable-next-line
-      const res = await api.delete("/api/deleteliveuser", {
-        data: {
-          username: username,
-        },
-      });
+    } else {
+      for (let trackName in localTracks) {
+        let track = localTracks[trackName];
+        if (track) {
+          track.stop();
+          track.close();
+          localTracks[trackName] = undefined;
+        }
+      }
+      remoteUsers = {};
+      await client.leave();
+      if (options.role === "host") {
+        console.log("Client successfuly left the channel");
+        // eslint-disable-next-line
+        const res = await api.delete("/api/deleteliveuser", {
+          data: {
+            username: username,
+          },
+        });
+      }
     }
   };
 
@@ -175,10 +196,13 @@ export const Stream = (props) => {
       console.log("Successfully Subscribes.");
 
       if (mediaType === "video") {
-        if (coHostId) {
+        if (localTracks.videoTrack && !coHostId) {
           setGuestWindow(true);
           console.log("guest user added");
+          remoteUserTracks.videoTrack = user.videoTrack;
+          remoteUserTracks.audioTrack = user.videoTrack;
           user.videoTrack.play(guest.current);
+          remoteUserUid = user.uid;
         } else {
           user.videoTrack.play(liveRef.current);
         }
@@ -232,10 +256,10 @@ export const Stream = (props) => {
     // login
     clientRTM
       .login({
-        uid: options.uid,
+        uid: username,
       })
       .then(() => {
-        console.log("AgoraRTM client login success. username : " + options.uid);
+        console.log("AgoraRTM client login success. username : " + username);
         setIsLoggedIn(true);
         // RTM channel join
         let channelName = options.channel;
