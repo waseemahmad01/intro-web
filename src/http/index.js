@@ -33,6 +33,7 @@ api.interceptors.response.use((response) => {
 // list of all the endpoints
 
 // user apis
+export const checkUsername = (data) => api.post("/api/verifyusername", data);
 export const login = (data) => api.post("/api/login", data);
 export const verify = (data) => api.post("/api/verify", data);
 export const dob = (data) => api.patch("/api/dob", data);

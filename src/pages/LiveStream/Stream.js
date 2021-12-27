@@ -203,15 +203,15 @@ export const Stream = (props) => {
       console.log("Successfully Subscribes.");
 
       if (mediaType === "video") {
-        if (localTracks.videoTrack && !coHostId) {
+        if (uid === hostUid) {
+          user.videoTrack.play(liveRef.current);
+        } else {
           setGuestWindow(true);
           console.log("guest user added");
           remoteUserTracks.videoTrack = user.videoTrack;
           remoteUserTracks.audioTrack = user.videoTrack;
           user.videoTrack.play(guest.current);
           remoteUserUid = user.uid;
-        } else {
-          user.videoTrack.play(liveRef.current);
         }
       }
       if (mediaType === "audio") {

@@ -17,6 +17,7 @@ import {
   dob,
   username,
   setLocation as setLocationApi,
+  checkUsername,
 } from "../../../http/index";
 import axios from "axios";
 import Joi from "joi-browser";
@@ -84,6 +85,21 @@ export const RegisterOne = ({ onNext }) => {
       : setErrors({ ...errors, [name]: "" });
   };
 
+  // const handleUniqueUsername = async (e) => {
+  //   const username = e.target.value;
+  //   const cancelToken = axios.CancelToken.source();
+  //   console.log(username);
+  //   const { data } = await checkUsername(
+  //     { username },
+  //     { cancelToken: cancelToken.token }
+  //   );
+  //   if (typeof cancelToken !== typeof undefined) {
+  //     cancelToken.cancel("canceled");
+  //   }
+  //   console.log(cancelToken);
+  //   console.log(data);
+  // };
+
   const calculateAge = (val) => {
     const dob = new Date(val);
     const currentDate = Date.now();
@@ -97,6 +113,14 @@ export const RegisterOne = ({ onNext }) => {
   const handleSubmit = async () => {
     const error = validate();
     if (!error) {
+      const { data } = await checkUsername({ username: user.username[0] });
+      if (data.nameExists) {
+        setErrors({
+          ...errors,
+          username: `"${user.username}" is already taken..`,
+        });
+        return;
+      }
       const dateOfBirth = {
         dob: user.dob[0],
         age: calculateAge(user.dob[0]),
@@ -181,7 +205,6 @@ export const RegisterOne = ({ onNext }) => {
               <Grid item>
                 <Input
                   label="Email Address"
-                  // placeholder="------@gmail.com"
                   type="text"
                   name="email"
                   onChange={handleUser}
@@ -207,7 +230,6 @@ export const RegisterOne = ({ onNext }) => {
                   <Input
                     label="Last Name"
                     type="text"
-                    // placeholder="last name"
                     name="lastname"
                     onChange={handleUser}
                     value={user.lastname}
@@ -220,7 +242,6 @@ export const RegisterOne = ({ onNext }) => {
                 <Input
                   label="Choose a unique username"
                   type="text"
-                  // placeholder="username"
                   name="username"
                   onChange={handleUser}
                   value={user.username}
@@ -242,10 +263,8 @@ export const RegisterOne = ({ onNext }) => {
                       e.target.type = "text";
                       setType("text");
                     }}
-                    // col={6}
                     name="dob"
                     onChange={handleUser}
-                    // value={moment(user.dob).format("MMM Do YYYY").toString()}
                     value={
                       type === "text" && user.dob !== "" ? showDate() : user.dob
                     }
@@ -253,7 +272,6 @@ export const RegisterOne = ({ onNext }) => {
                     helperText={errors.dob}
                   />
                 </Grid>
-                {/* <Grid item sm={6}></Grid> */}
               </Grid>
               <Grid
                 item
@@ -281,9 +299,7 @@ export const RegisterOne = ({ onNext }) => {
                 </Grid>
               </Grid>
               <Grid item container justifyContent="center">
-                {/* <Link to="/registertwo"> */}
                 <CustomIconButton disabled={!checked} onClick={handleSubmit} />
-                {/* </Link> */}
               </Grid>
               <Grid item container justifyContent="center">
                 <Typography className={classes.p} variant="body1">
@@ -297,9 +313,6 @@ export const RegisterOne = ({ onNext }) => {
           </form>
         </Grid>
       </Grid>
-      {/* <div className={classes.bgImage}>
-				<img src={bgImage} alt="backgroundImage" />
-			</div> */}
     </Grid>
   );
 };
