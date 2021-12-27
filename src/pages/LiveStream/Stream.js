@@ -34,7 +34,8 @@ export const Stream = (props) => {
   const channelName = audience ? props.history.location.state.username : null;
   const streamId = audience ? props.history.location.state.id : null;
   const hostUid = audience ? props.history.location.state.hostUid : null;
-  console.log(hostUid);
+  // console.log(hostUid);
+  const request = useSelector((state) => state.stream.request);
   const user = useSelector((state) => state.auth.user.data);
   const classes = useStyles();
   const liveRef = useRef();
@@ -56,7 +57,9 @@ export const Stream = (props) => {
   const [blueWindow, setBlueWindow] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
   const [members, setMembers] = useState(0);
-  const [coHostId, setCoHostId] = useState("");
+  // const [coHostId, setCoHostId] = useState(false);
+  const [coHostUserId, setCoHostUserId] = useState("");
+  // const [request, setRequest] = useState(false);
   const theme = useTheme();
   const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const lgScreen = useMediaQuery(theme.breakpoints.down(1680));
@@ -205,7 +208,8 @@ export const Stream = (props) => {
       if (mediaType === "video") {
         if (uid === hostUid) {
           user.videoTrack.play(liveRef.current);
-        } else {
+        } else if (!request) {
+          alert(request);
           setGuestWindow(true);
           console.log("guest user added");
           remoteUserTracks.videoTrack = user.videoTrack;
@@ -326,7 +330,7 @@ export const Stream = (props) => {
   const handleRemoveCoHost = async () => {
     try {
       const apiData = {
-        userId: coHostId,
+        userId: coHostUserId,
         id: streamId,
       };
       // eslint-disable-last-line
@@ -762,11 +766,7 @@ export const Stream = (props) => {
         {/* <ViewerBox /> */}
         {audience && <Gift />}
         {audience ? (
-          <ViewerBox
-            streamId={streamId}
-            setCoHostId={setCoHostId}
-            streamer={channelName}
-          />
+          <ViewerBox streamId={streamId} streamer={channelName} />
         ) : (
           <StreamerBox
             joinLiveLoop={loopJoin}
@@ -774,7 +774,7 @@ export const Stream = (props) => {
             channelId={userUid}
             roleChange={roleChange}
             streamId={streamId}
-            setCoHostId={setCoHostId}
+            setCoHostUserId={setCoHostUserId}
           />
         )}
       </Grid>

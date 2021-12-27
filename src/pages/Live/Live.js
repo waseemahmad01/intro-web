@@ -385,6 +385,7 @@ export const Live = () => {
     try {
       const { data } = await liveStreamUsers(query);
       setLiveUsers(data.data);
+      console.log(data.data);
     } catch (err) {
       console.log(err.message);
     }

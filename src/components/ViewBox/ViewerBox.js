@@ -21,7 +21,8 @@ import { Refil } from "../BottomSheetComponents/Refill/Refil";
 // import { BuyGems } from "../BottomSheetComponents/BuyGems/BuyGems";
 import GemsAward from "../BottomSheetComponents/GemsAward/GemsAward";
 import { makeGuestRequest } from "../../http";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setRequest } from "../../store/stream";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -238,10 +239,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const ViewerBox = ({ streamId, streamer, setCoHostId }) => {
+export const ViewerBox = ({ streamId, streamer }) => {
   const classes = useStyles();
   const [tab, setTab] = useState(0);
   const user = useSelector((state) => state.auth.user.data);
+  const dispatch = useDispatch();
 
   const handleTab = (event, newTab) => {
     setTab(newTab);
@@ -271,7 +273,10 @@ export const ViewerBox = ({ streamId, streamer, setCoHostId }) => {
       };
       // eslint-disable-next-line
       const { data } = await makeGuestRequest(apiData);
-      setCoHostId(true);
+      dispatch(setRequest(true));
+      // setRequest((prev) => !prev);
+      // console.log(request);
+
       setOpenDialog(false);
     } catch (err) {
       console.log(err.message);
@@ -374,7 +379,7 @@ export const ViewerBox = ({ streamId, streamer, setCoHostId }) => {
                     </IconButton>
                   </Grid>
                   <Grid item className={classes.sheetContent}>
-                    <TabComponent setCoHostId={setCoHostId} />
+                    <TabComponent />
                   </Grid>
                 </Grid>
               </Grid>
