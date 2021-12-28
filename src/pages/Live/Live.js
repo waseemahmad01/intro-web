@@ -403,6 +403,7 @@ export const Live = () => {
   }, [query]);
   useEffect(() => {
     onMessageListener().then((message) => {
+      console.log(message);
       fetchData(query);
       setFetchQuery(!fetchQuery);
     });

@@ -3,14 +3,14 @@ import { createSlice } from "@reduxjs/toolkit";
 const stream = createSlice({
   name: "stream",
   initialState: {
-    request: false,
+    coHostUid: false,
   },
   reducers: {
-    setRequest: (state, action) => {
-      state.request = action.payload;
+    setCoHostUid: (state, action) => {
+      state.coHostUid = action.payload;
     },
   },
 });
 
-export const { setRequest } = stream.actions;
+export const { setCoHostUid } = stream.actions;
 export default stream.reducer;

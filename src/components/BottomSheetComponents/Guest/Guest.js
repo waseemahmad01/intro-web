@@ -81,7 +81,6 @@ export const Guest = ({ setCoHostId, streamId }) => {
     };
     const { data } = await makeGuestRequest(apiData);
     setCoHostId(userId);
-    console.log(data);
   };
 
   useEffect(() => {

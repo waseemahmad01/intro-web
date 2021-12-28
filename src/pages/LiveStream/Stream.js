@@ -43,12 +43,9 @@ export const Stream = (props) => {
   const username = user.username;
   const socket = useContext(SocketContext);
   // eslint-disable-next-line
-  const remoteTracks = {
-    audioTrack: null,
-    videoTrack: null,
-  };
+
   // const [liveStreamId, setLiveStreamId] = useState("hello");
-  const liveStreamId = useRef("");
+  const liveStreamId = useRef(streamId);
   const [guestWindow, setGuestWindow] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [isWaiting, setIsWaiting] = useState(false);
@@ -65,12 +62,12 @@ export const Stream = (props) => {
   const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const lgScreen = useMediaQuery(theme.breakpoints.down(1680));
   const [userUid, setUserUid] = useState(null);
-  const [remoteUid, setRemoteUid] = useState(null);
   const [location, setLocation] = useState({
     lon: "",
     lat: "",
   });
   const [closeStream, setCloseStream] = useState(false);
+  const [coHostUid, setCoHostUid] = useState(null);
   const getGender = () => {
     const gender = user.identify.gender;
     if (gender.toLowerCase() === "male") {
@@ -86,20 +83,12 @@ export const Stream = (props) => {
   let client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
   let loopClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   // eslint-disable-next-line
-  const [roleUpdated, setRoleUpdated] = useState(false);
-
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   let localTracks = {
     videoTrack: null,
     audioTrack: null,
   };
-
-  let remoteUserTracks = {
-    videoTrack: null,
-    audioTrack: null,
-  };
-  let remoteUserUid = "";
 
   let remoteUsers = {};
   const remoteUser = useRef();
@@ -158,42 +147,17 @@ export const Stream = (props) => {
         localTracks[trackName] = undefined;
       }
     }
-    alert(userUid, remoteUserUid);
-    if (userUid === remoteUserUid) {
-      alert("running");
-      for (let trackname in remoteUserTracks) {
-        let track = remoteUserTracks[trackname];
-        if (track) {
-          track.stop();
-          track.close();
-          remoteUserTracks[trackname] = undefined;
-        }
-      }
-    }
     remoteUsers = {};
     await client.leave();
-    if (isStarted) {
-      console.log("Client successfuly left the channel");
-      // eslint-disable-next-line
+    console.log("Client successfuly left the channel");
+    // eslint-disable-next-line
+    if (!audience) {
       const res = await api.delete("/api/deleteliveuser", {
         data: {
           username: username,
         },
       });
     }
-    // if (coHostId) {
-    //   for (let trackName in remoteUserTracks) {
-    //     let track = localTracks[trackName];
-    //     if (track) {
-    //       track.stop();
-    //       track.close();
-    //     }
-    //     delete remoteUsers[remoteUserUid];
-    //     await client.leave();
-    //   }
-    // } else {
-
-    // }
   };
 
   const loopJoin = async () => {
@@ -225,10 +189,8 @@ export const Stream = (props) => {
         } else if (!coHostRef.current) {
           setGuestWindow(true);
           console.log("guest user added");
-          remoteUserTracks.videoTrack = user.videoTrack;
-          remoteUserTracks.audioTrack = user.videoTrack;
           user.videoTrack.play(guest.current);
-          remoteUserUid = user.uid;
+          localStorage.setItem("uid", uid);
         }
       }
       if (mediaType === "audio") {
@@ -267,9 +229,15 @@ export const Stream = (props) => {
 
   const handleUserLeft = (user) => {
     alert("user left");
-    console.log("logging logging loggin");
-    console.log(user);
+    // console.log("logging logging loggin");
+    // console.log(user);
     const id = user.uid;
+    const uid = localStorage.getItem("uid");
+    alert(`${user.uid} == ${uid}`);
+    if (user.uid == uid) {
+      alert("removing guest window");
+      setGuestWindow(false);
+    }
     delete remoteUsers[id];
     // removePlayer();
   };
@@ -304,7 +272,6 @@ export const Stream = (props) => {
                   id: liveStreamId.current,
                   count: 1,
                 };
-                console.log(liveStreamId.current);
                 socket.emit("livestreamcount", data);
                 channel.getMembers().then((memberNames) => {
                   setMembers(memberNames.length);
@@ -315,7 +282,6 @@ export const Stream = (props) => {
                   id: liveStreamId.current,
                   count: -1,
                 };
-                console.log(liveStreamId.current);
                 socket.emit("livestreamcount", data);
                 channel.getMembers().then((memberNames) => {
                   setMembers(memberNames.length);
@@ -335,13 +301,10 @@ export const Stream = (props) => {
       join();
       // RTMJoin();
     } else if (data.type === "1") {
-      alert("Notification====> changing role to audience");
       console.log("Notification====> changing role to audience");
-      await leave();
-      alert("left");
+      leave();
       options.role = "audience";
       join();
-      alert("join");
     }
   };
   const handleRemoveCoHost = async () => {
