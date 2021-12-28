@@ -239,7 +239,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const ViewerBox = ({ streamId, streamer }) => {
+export const ViewerBox = ({ streamId, streamer, coHostRef }) => {
   const classes = useStyles();
   const [tab, setTab] = useState(0);
   const user = useSelector((state) => state.auth.user.data);
@@ -273,7 +273,8 @@ export const ViewerBox = ({ streamId, streamer }) => {
       };
       // eslint-disable-next-line
       const { data } = await makeGuestRequest(apiData);
-      dispatch(setRequest(true));
+      // dispatch(setRequest(true));
+      coHostRef.current = true;
       // setRequest((prev) => !prev);
       // console.log(request);
 

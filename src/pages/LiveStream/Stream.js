@@ -26,7 +26,7 @@ import api from "../../http";
 import { SocketContext } from "../../http/socket";
 import { Gift } from "../../components/Gift/Gift";
 import { onMessageListener } from "../../firebaseInit";
-import { removeCoHost, agoraToken } from "../../http";
+import { removeCoHost } from "../../http";
 
 export const Stream = (props) => {
   console.log(props.history);
@@ -59,11 +59,13 @@ export const Stream = (props) => {
   const [members, setMembers] = useState(0);
   // const [coHostId, setCoHostId] = useState(false);
   const [coHostUserId, setCoHostUserId] = useState("");
+  const coHostRef = useRef();
   // const [request, setRequest] = useState(false);
   const theme = useTheme();
   const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const lgScreen = useMediaQuery(theme.breakpoints.down(1680));
   const [userUid, setUserUid] = useState(null);
+  const [remoteUid, setRemoteUid] = useState(null);
   const [location, setLocation] = useState({
     lon: "",
     lat: "",
@@ -156,9 +158,21 @@ export const Stream = (props) => {
         localTracks[trackName] = undefined;
       }
     }
+    alert(userUid, remoteUserUid);
+    if (userUid === remoteUserUid) {
+      alert("running");
+      for (let trackname in remoteUserTracks) {
+        let track = remoteUserTracks[trackname];
+        if (track) {
+          track.stop();
+          track.close();
+          remoteUserTracks[trackname] = undefined;
+        }
+      }
+    }
     remoteUsers = {};
     await client.leave();
-    if (options.role === "host") {
+    if (isStarted) {
       console.log("Client successfuly left the channel");
       // eslint-disable-next-line
       const res = await api.delete("/api/deleteliveuser", {
@@ -208,8 +222,7 @@ export const Stream = (props) => {
       if (mediaType === "video") {
         if (uid === hostUid) {
           user.videoTrack.play(liveRef.current);
-        } else if (!request) {
-          alert(request);
+        } else if (!coHostRef.current) {
           setGuestWindow(true);
           console.log("guest user added");
           remoteUserTracks.videoTrack = user.videoTrack;
@@ -253,6 +266,9 @@ export const Stream = (props) => {
   };
 
   const handleUserLeft = (user) => {
+    alert("user left");
+    console.log("logging logging loggin");
+    console.log(user);
     const id = user.uid;
     delete remoteUsers[id];
     // removePlayer();
@@ -311,7 +327,7 @@ export const Stream = (props) => {
       })
       .catch((err) => console.log(err.message));
   };
-  const roleChange = (data) => {
+  const roleChange = async (data) => {
     if (data.type === "0") {
       leave();
       // RTMLeave();
@@ -319,12 +335,13 @@ export const Stream = (props) => {
       join();
       // RTMJoin();
     } else if (data.type === "1") {
+      alert("Notification====> changing role to audience");
       console.log("Notification====> changing role to audience");
-      RTMLeave();
-      leave();
+      await leave();
+      alert("left");
       options.role = "audience";
       join();
-      RTMJoin();
+      alert("join");
     }
   };
   const handleRemoveCoHost = async () => {
@@ -381,21 +398,6 @@ export const Stream = (props) => {
   // eslint-disable-next-line
   const startLiveLoop = async () => {};
   useEffect(() => {
-    // (async () => {
-    //   const apiData = {
-    //     isPublisher: audience ? false : true,
-    //     // isPublisher: false,
-    //     channel: options.channel,
-    //     uid: user._id,
-    //   };
-    //   const { data } = await agoraToken(apiData);
-    //   options.token = audience ? token : data.rtcToken;
-    //   options.uid = data.rtcUid;
-    //   options.rtmToken = data.rtmToken;
-    //   options.rtmUid = data.rtmUid;
-    //   // console.log(data);
-    //   // console.log(options);
-    // })();
     join();
     rtmSetup();
     if ("geolocation" in navigator) {
@@ -414,6 +416,8 @@ export const Stream = (props) => {
       if (data.topic === `${user._id}_joinlive`) {
         console.log(data);
         roleChange(data);
+      } else if (data.topic === "delliveuser") {
+        props.history.goBack();
       }
     });
   });
@@ -766,7 +770,11 @@ export const Stream = (props) => {
         {/* <ViewerBox /> */}
         {audience && <Gift />}
         {audience ? (
-          <ViewerBox streamId={streamId} streamer={channelName} />
+          <ViewerBox
+            streamId={streamId}
+            coHostRef={coHostRef}
+            streamer={channelName}
+          />
         ) : (
           <StreamerBox
             joinLiveLoop={loopJoin}

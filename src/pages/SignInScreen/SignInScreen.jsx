@@ -348,6 +348,7 @@ export const SignInScreen = (props) => {
         subscribeTokenToTopic(token, "liveuser");
         subscribeTokenToTopic(token, `${data.data._id}_liveloop`);
         subscribeTokenToTopic(token, `${data.data._id}_joinlive`);
+        subscribeTokenToTopic(token, "delliveuser");
         const res = await getUser();
         if (data.data.step === "/home") {
           props.history.push("home");
