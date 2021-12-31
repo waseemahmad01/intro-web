@@ -14,6 +14,7 @@ import { LiveFAQ } from "./pages/Help/LiveFAQ";
 import { AllTabs } from "./pages/TabsContainer/AllTabs";
 import { Live } from "./pages/Live/Live";
 import { Stream } from "./pages/LiveStream/Stream";
+import JoinStream from "./pages/LiveStream/JoinStream";
 // import { Battle } from "./pages/Battle/Battle";
 import { useDispatch } from "react-redux";
 import { getUser } from "./http/index";
@@ -121,7 +122,7 @@ function App(props) {
         <Route path="/helpcenter/livefaq" exact component={LiveFAQ} />
         <ProtectedRoute path="/live" component={Live} />
         <ProtectedRoute path="/stream" component={Stream} />
-        <ProtectedRoute path="/joinstream" audience={true} component={Stream} />
+        <ProtectedRoute path="/joinstream" component={JoinStream} />
       </Switch>
     </div>
   );

@@ -17,25 +17,22 @@ import { useStyles } from "./streamStyles";
 import AgoraRTC from "agora-rtc-sdk-ng";
 import AgoraRTM from "agora-rtm-sdk";
 import image from "../../assets/index";
-import { StreamerBox } from "../../components/ViewBox/StreamerBox";
 import { ViewerBox } from "../../components/ViewBox/ViewerBox";
 import { Close } from "@material-ui/icons";
 import { useSelector } from "react-redux";
-import { goLive, removeCoHost } from "../../http";
+import { removeCoHost } from "../../http";
 import api from "../../http";
 import { SocketContext } from "../../http/socket";
 import { Gift } from "../../components/Gift/Gift";
 import { onMessageListener } from "../../firebaseInit";
 
-export const Stream = (props) => {
+const JoinStream = (props) => {
   const classes = useStyles();
   const theme = useTheme();
   const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
-  const lgScreen = useMediaQuery(theme.breakpoints.down(1680));
-  const { audience } = props;
-  const channelName = audience ? props.history.location.state.username : null;
-  const streamId = audience ? props.history.location.state.id : null;
-  const hostUid = audience ? props.history.location.state.hostUid : null;
+  const channelName = props.history.location.state.username;
+  const streamId = props.history.location.state.id;
+  const hostUid = props.history.location.state.hostUid;
   const user = useSelector((state) => state.auth.user.data);
   const username = user.username;
   const liveRef = useRef();
@@ -45,57 +42,32 @@ export const Stream = (props) => {
   const socket = useContext(SocketContext);
   const [guestWindow, setGuestWindow] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [isWaiting, setIsWaiting] = useState(false);
   const [removeGuest, setRemoveGuest] = useState(false);
-  const [exit, setExit] = useState(false);
-  const [blueWindow, setBlueWindow] = useState(false);
-  const [isStarted, setIsStarted] = useState(false);
   const [members, setMembers] = useState(0);
   const [coHostUserId, setCoHostUserId] = useState("");
   const [userUid, setUserUid] = useState(null);
-  const [location, setLocation] = useState({
-    lon: "",
-    lat: "",
-  });
   const [closeStream, setCloseStream] = useState(false);
-  const getGender = () => {
-    const gender = user.identify.gender;
-    if (gender.toLowerCase() === "male") {
-      return 1;
-    } else if (gender.toLowerCase() === "female") {
-      return 0;
-    } else {
-      return 2;
-    }
-  };
   // Agora setUp
-  let client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
-  let loopClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-
   // eslint-disable-next-line
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  let localTracks = {
+
+  var localTracks = {
     videoTrack: null,
     audioTrack: null,
   };
 
   let remoteUsers = {};
-  const remoteUser = useRef();
-  // Agora client options
-
+  //   const remoteUser = useRef();
   const options = {
     appId: process.env.REACT_APP_AGORA_APPID,
-    channel: audience ? channelName : user.username,
+    channel: channelName,
     uid: null,
     token: null,
     accountName: null,
-    role: "host",
+    role: "audience",
   };
 
-  const rtmSetup = () => {
-    RTMJoin();
-  };
-
+  let client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
   const join = async () => {
     client.setClientRole(options.role);
     if (options.role === "audience") {
@@ -117,24 +89,17 @@ export const Stream = (props) => {
       client.on("user-published", handleUserPublished);
       client.on("user-joined", handleUserJoined);
       client.on("user-left", handleUserLeft);
-      // client.on("client-role-changed", handleClientRoleChanged);
+      client.on("client-role-changed", handleClientRoleChanged);
       localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
       localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-      if (userUid === hostUid) {
-        localTracks.videoTrack.play(liveRef.current);
-      }
       await client.publish(Object.values(localTracks));
       console.log("Successfully Published");
     }
   };
 
-  const handleClientRoleChanged = (event) => {
-    console.log("client role changed");
-    console.log(event);
-  };
-
   const leave = async () => {
     console.log("user leaving");
+    console.log(localTracks);
     for (let trackName in localTracks) {
       let track = localTracks[trackName];
       console.log(track);
@@ -145,38 +110,12 @@ export const Stream = (props) => {
       }
     }
     remoteUsers = {};
-    // await client.unpublish(Object.values(localTracks));
     await client.leave();
     console.log("Client successfuly left the channel");
-    // eslint-disable-next-line
-    if (!audience) {
-      const res = await api.delete("/api/deleteliveuser", {
-        data: {
-          username: username,
-        },
-      });
-    }
-  };
-
-  const loopJoin = async () => {
-    options.uid = await loopClient.join(
-      options.appId,
-      options.channel,
-      options.token || null,
-      options.uid || null
-    );
-    client.on("user-published", handleUserPublished);
-    client.on("user-joined", handleLoopUserJoined);
-    client.on("user-left", handleUserLeft);
-    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-    localTracks.videoTrack.play(liveRef.current);
-    await client.publish(Object.values(localTracks));
   };
 
   const subscribe = async (user, mediaType) => {
     try {
-      // eslint-disable-next-line
       const uid = user.uid;
       await client.subscribe(user, mediaType);
       console.log("Successfully Subscribes.");
@@ -196,19 +135,6 @@ export const Stream = (props) => {
       }
     } catch (err) {
       console.log(err);
-    }
-  };
-
-  const handleLoopUserJoined = async (user, mediaType) => {
-    const uid = user.uid;
-    remoteUsers[uid] = user;
-    await loopClient.subscribe(user, mediaType);
-    console.log("Successfully Subscribes.");
-    if (mediaType === "video") {
-      user.videoTrack.play(remoteUser.current);
-    }
-    if (mediaType === "audio") {
-      user.audioTrack.play();
     }
   };
 
@@ -236,6 +162,54 @@ export const Stream = (props) => {
     // removePlayer();
   };
 
+  const handleClientRoleChanged = (e) => {
+    console.log("client role changed");
+    console.log(e);
+  };
+
+  const roleChange = async (data) => {
+    if (data.type === "0") {
+      //   leave();
+      //   options.role = "host";
+      //   join();
+      client.setClientRole("host");
+      console.log("channelRoleUpdate");
+      clientRTM.addOrUpdateChannelAttributes(
+        channelName,
+        { attributes: [{ channel: userUid }] },
+        { options: { enableNotificationToChannelMembers: true } }
+      );
+    } else if (data.type === "1") {
+      console.log("Notification====> changing role to audience");
+      client.setClientRole("audience");
+      clientRTM.addOrUpdateChannelAttributes(
+        channelName,
+        [{ channel: "0" }],
+        true
+      );
+      //   leave();
+      //   options.role = "audience";
+      //   join();
+    }
+  };
+  const handleRemoveCoHost = async () => {
+    try {
+      const apiData = {
+        userId: coHostUserId,
+        id: streamId,
+      };
+      // eslint-disable-last-line
+      const { data } = await removeCoHost(apiData);
+      setRemoveGuest(false);
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  const rtmSetup = () => {
+    RTMJoin();
+  };
+
   // let clientRTM;
   const clientRTM = AgoraRTM.createInstance(options.appId, {
     enableLogUpload: false,
@@ -244,10 +218,10 @@ export const Stream = (props) => {
   const RTMJoin = async () => {
     clientRTM
       .login({
-        uid: username,
+        uid: user._id,
       })
       .then(() => {
-        console.log("AgoraRTM client login success. username : " + username);
+        console.log("AgoraRTM client login success. username : " + user._id);
         console.log("267 login");
         // RTM channel join
         let channelName = options.channel;
@@ -291,79 +265,14 @@ export const Stream = (props) => {
       })
       .catch((err) => console.log(err.message));
   };
-  const roleChange = async (data) => {
-    if (data.type === "0") {
-      leave();
-      options.role = "host";
-      join();
-    } else if (data.type === "1") {
-      console.log("Notification====> changing role to audience");
-      leave();
-      options.role = "audience";
-      join();
-    }
-  };
-  const handleRemoveCoHost = async () => {
-    try {
-      const apiData = {
-        userId: coHostUserId,
-        id: streamId,
-      };
-      // eslint-disable-last-line
-      const { data } = await removeCoHost(apiData);
-      setRemoveGuest(false);
-    } catch (err) {
-      console.log(err.message);
-    }
-  };
 
-  const handleStreamStarted = async () => {
-    try {
-      const goLiveData = {
-        username: user.username,
-        userId: user._id,
-        image: user.profile_image,
-        channelId: userUid,
-        gender: getGender(),
-        userStatus: user.current_status,
-        rtcToken: "this is a string",
-        location: {
-          coordinates: [
-            location.lon || user.location.lon,
-            location.lat || user.location.lat,
-          ],
-        },
-      };
-      const { data } = await goLive(goLiveData);
-      liveStreamId.current = data.id;
-      console.log("Api res ==>", data.id);
-      setIsStarted(true);
-    } catch (err) {
-      console.log("Something went wrong");
-      props.history.goBack();
-    }
-  };
-  // eslint-disable-next-line
-  const handleHostLeft = () => {
-    props.history.goBack();
-  };
   const RTMLeave = async () => {
     await clientRTM.logout();
     console.log("Client logged out of RTM");
   };
-  const handleEndStream = () => {
-    leave();
-  };
-  // eslint-disable-next-line
-  const startLiveLoop = async () => {};
   useEffect(() => {
     join();
     rtmSetup();
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        setLocation({ lon: pos.coords.longitude, lat: pos.coords.latitude });
-      });
-    }
     return () => {
       (async () => {
         options.role = "audience";
@@ -392,7 +301,7 @@ export const Stream = (props) => {
       <Grid item container direction="column" className={classes.left}>
         <Grid item>
           <Typography className={classes.username} variant="h4">
-            {audience ? channelName : user.username}
+            {channelName}
           </Typography>
         </Grid>
         <Grid item container>
@@ -423,12 +332,14 @@ export const Stream = (props) => {
         </Grid>
         <Grid item>
           <div className={classes.streamContainer} ref={liveRef}>
-            <IconButton
-              onClick={() => setCloseStream(true)}
-              className={classes.endStreamButton}
-            >
-              <Close className={classes.endStreamIcon} />
-            </IconButton>
+            {/* {!audience && (
+              <IconButton
+                onClick={() => setCloseStream(true)}
+                className={classes.endStreamButton}
+              >
+                <Close className={classes.endStreamIcon} />
+              </IconButton>
+            )} */}
             <Dialog
               className={classes.endStreamDialog}
               open={closeStream}
@@ -474,26 +385,6 @@ export const Stream = (props) => {
                 </Grid>
               </Grid>
             </Dialog>
-            {isStarted ? undefined : (
-              <div style={{ zIndex: 1 }} className={classes.description}>
-                <TextField
-                  classes={{ root: classes.fieldRoot }}
-                  variant="standard"
-                  className={classes.textField}
-                  placeholder="Add Description"
-                  inputProps={{ className: classes.input }}
-                />
-                <Button
-                  className={classes.startButton}
-                  variant="contained"
-                  color="primary"
-                  onClick={handleStreamStarted}
-                >
-                  Start
-                </Button>
-              </div>
-            )}
-
             {guestWindow ? (
               <div className={classes.guestBox} style={{ zIndex: 3 }}>
                 <div
@@ -558,6 +449,13 @@ export const Stream = (props) => {
                 </Grid>
               </Grid>
             </Dialog>
+            <IconButton
+              style={{ zIndex: 1 }}
+              onClick={() => setOpenDialog(true)}
+              className={classes.warningButton}
+            >
+              <WarningIcon className={classes.warningIcon} />
+            </IconButton>
             <Dialog open={openDialog} className={classes.dialog}>
               <Grid
                 container
@@ -597,51 +495,6 @@ export const Stream = (props) => {
                 </Grid>
               </Grid>
             </Dialog>
-            {/* waiting overlay */}
-            {isWaiting ? (
-              <Grid
-                containaer
-                justifyContent="center"
-                alignItems="center"
-                direction="column"
-                className={classes.waitingOverly}
-              >
-                <Typography className={classes.overlyTitle}>
-                  Wait Please
-                </Typography>
-                <Typography className={classes.overlySubtitle}>
-                  You will be able to see the user's video once it is your turn
-                </Typography>
-              </Grid>
-            ) : undefined}
-            {blueWindow ? (
-              <Grid
-                container
-                direction="column"
-                alignItems="center"
-                className={classes.blueWindow}
-              >
-                <Grid item container>
-                  <IconButton
-                    onClick={() => setBlueWindow(false)}
-                    className={classes.closeButton}
-                  >
-                    <Close className={classes.closeIcon} />
-                  </IconButton>
-                </Grid>
-                <Grid
-                  item
-                  container
-                  justifyContent="center"
-                  alignItems="center"
-                  style={{ height: "100%" }}
-                >
-                  <Typography className={classes.blueWindowText}>
-                    Ask your viewers to play!
-                  </Typography>
-                </Grid>
-              </Grid>
-            ) : undefined}
           </div>
         </Grid>
         <Grid
@@ -650,79 +503,31 @@ export const Stream = (props) => {
           alignItems="center"
           className={classes.warningContainer}
         >
-          {isWaiting ? (
-            <Grid container justifyContent="space-between" alignItems="center">
-              <Typography className={classes.waitTitle}>
-                {exit ? "Are you sure?" : "Wait Please"}
-              </Typography>
-              <Typography className={classes.waitSubtitle}>
-                {exit
-                  ? "Do you really want to get out of line?"
-                  : "You are in line for the next|date with silkysilk_00. Wait for	your turn to have fun with the user."}
-              </Typography>
-              <Grid item>
-                {exit ? (
-                  <Grid container spacing={2}>
-                    <Grid item>
-                      <Button
-                        className={classes.exitSecondaryButton}
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => setIsWaiting(false)}
-                      >
-                        Leave the line
-                      </Button>
-                    </Grid>
-                    <Grid item>
-                      <Button
-                        className={classes.exitSecondaryButton}
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => setExit(false)}
-                      >
-                        Keep Waiting
-                      </Button>
-                    </Grid>
-                  </Grid>
-                ) : (
-                  <Button
-                    className={classes.exitButton}
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => setExit(true)}
-                  >
-                    EXIT
-                  </Button>
-                )}
-              </Grid>
-            </Grid>
-          ) : (
-            <>
-              <Block className={classes.block} />
-              <Typography className={classes.warning} variant="h4">
-                Don’t stream nudity or obscene/violent behavior. ever stream
-                while driving or under unsafe conditions.
-              </Typography>
-            </>
-          )}
+          <>
+            <Block className={classes.block} />
+            <Typography className={classes.warning} variant="h4">
+              Don’t stream nudity or obscene/violent behavior. ever stream while
+              driving or under unsafe conditions.
+            </Typography>
+          </>
         </Grid>
       </Grid>
       <Grid
         item
         container
         alignItems={smScreen ? undefined : "flex-end"}
-        justifyContent={lgScreen ? "center" : "flex-start"}
+        justifyContent={"flex-start"}
         className={classes.utilityContainer}
       >
-        <StreamerBox
-          joinLiveLoop={loopJoin}
-          endStream={handleEndStream}
-          channelId={userUid}
-          roleChange={roleChange}
+        <Gift />
+        <ViewerBox
           streamId={streamId}
-          setCoHostUserId={setCoHostUserId}
+          coHostRef={coHostRef}
+          streamer={channelName}
         />
       </Grid>
     </Grid>
   );
 };
+
+export default JoinStream;
