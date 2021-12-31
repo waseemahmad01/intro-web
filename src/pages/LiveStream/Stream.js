@@ -104,18 +104,19 @@ export const Stream = (props) => {
       options.uid || null
     );
     setUserUid(options.uid);
-    if (options.role === "audience") {
-      console.log("running ======> audience");
-      client.on("user-published", handleUserPublished);
-      client.on("user-joined", handleUserJoined);
-      client.on("user-left", handleUserLeft);
-      client.on("client-role-changed", handleClientRoleChanged);
-    }
+    // if (options.role === "audience") {
+    //   console.log("running ======> audience");
+    //   client.on("user-published", handleUserPublished);
+    //   client.on("user-joined", handleUserJoined);
+    //   client.on("user-left", handleUserLeft);
+    //   client.on("client-role-changed", handleClientRoleChanged);
+    // }
     if (options.role === "host") {
       console.log("running ======> host");
       client.on("user-published", handleUserPublished);
       client.on("user-joined", handleUserJoined);
       client.on("user-left", handleUserLeft);
+      client.on("user-unpublished", handleUserUnpublish);
       // client.on("client-role-changed", handleClientRoleChanged);
       localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
       localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
@@ -127,6 +128,9 @@ export const Stream = (props) => {
     }
   };
 
+  const handleUserUnpublish = (user, mediaType) => {
+    console.log("user unpublish");
+  };
   const handleClientRoleChanged = (event) => {
     console.log("client role changed");
     console.log(event);

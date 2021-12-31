@@ -20,7 +20,6 @@ import { ViewerBox } from "../../components/ViewBox/ViewerBox";
 import { Close } from "@material-ui/icons";
 import { useSelector } from "react-redux";
 import { removeCoHost } from "../../http";
-import api from "../../http";
 import { SocketContext } from "../../http/socket";
 import { Gift } from "../../components/Gift/Gift";
 import { onMessageListener } from "../../firebaseInit";
@@ -102,8 +101,13 @@ const JoinStream = (props) => {
       }
     }
     remoteUsers = {};
+    if (
+      localTracks.current.audioTrack !== null &&
+      localTracks.current.videoTrack !== null
+    ) {
+      await client.unpublish();
+    }
     await client.leave();
-    await client.unpublish();
     console.log("Client successfuly left the channel");
   };
 
@@ -233,12 +237,12 @@ const JoinStream = (props) => {
       //   await client.publish(Object.values(localTracks));
     } else if (data.type === "1") {
       console.log("Notification====> changing role to audience");
-      //   client.setClientRole("audience");
-      //   clientRTM.addOrUpdateChannelAttributes(
-      //     channelName,
-      //     [{ channel: "0" }],
-      //     true
-      //   );
+      client.setClientRole("audience");
+      clientRTM.addOrUpdateChannelAttributes(
+        channelName,
+        { channel: "0" },
+        true
+      );
       leave();
       options.role = "audience";
       join();
