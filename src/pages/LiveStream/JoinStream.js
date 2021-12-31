@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect, useContext } from "react";
 import {
   Grid,
   Typography,
-  TextField,
   Button,
   useTheme,
   useMediaQuery,
@@ -51,10 +50,10 @@ const JoinStream = (props) => {
   // eslint-disable-next-line
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  var localTracks = {
+  var localTracks = useRef({
     videoTrack: null,
     audioTrack: null,
-  };
+  });
 
   let remoteUsers = {};
   //   const remoteUser = useRef();
@@ -70,13 +69,6 @@ const JoinStream = (props) => {
   let client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
   const join = async () => {
     client.setClientRole(options.role);
-    if (options.role === "audience") {
-      console.log("running ======> audience");
-      client.on("user-published", handleUserPublished);
-      client.on("user-joined", handleUserJoined);
-      client.on("user-left", handleUserLeft);
-      client.on("client-role-changed", handleClientRoleChanged);
-    }
     options.uid = await client.join(
       options.appId,
       options.channel,
@@ -85,136 +77,36 @@ const JoinStream = (props) => {
     );
     setUserUid(options.uid);
     if (options.role === "host") {
-      console.log("running ======> host");
-      client.on("user-published", handleUserPublished);
-      client.on("user-joined", handleUserJoined);
-      client.on("user-left", handleUserLeft);
-      client.on("client-role-changed", handleClientRoleChanged);
-      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-      await client.publish(Object.values(localTracks));
+      localTracks.current.audioTrack =
+        await AgoraRTC.createMicrophoneAudioTrack();
+      localTracks.current.videoTrack = await AgoraRTC.createCameraVideoTrack();
+      await client.publish(Object.values(localTracks.current));
       console.log("Successfully Published");
     }
+    client.on("user-published", handleUserPublished);
+    client.on("user-joined", handleUserJoined);
+    client.on("user-left", handleUserLeft);
+    client.on("client-role-changed", handleClientRoleChanged);
   };
 
   const leave = async () => {
     console.log("user leaving");
-    console.log(localTracks);
-    for (let trackName in localTracks) {
-      let track = localTracks[trackName];
+    console.log(localTracks.current);
+    for (let trackName in localTracks.current) {
+      let track = localTracks.current[trackName];
       console.log(track);
       if (track) {
         track.stop();
         track.close();
-        localTracks[trackName] = undefined;
+        localTracks.current[trackName] = undefined;
       }
     }
     remoteUsers = {};
     await client.leave();
+    await client.unpublish();
     console.log("Client successfuly left the channel");
   };
 
-  const subscribe = async (user, mediaType) => {
-    try {
-      const uid = user.uid;
-      await client.subscribe(user, mediaType);
-      console.log("Successfully Subscribes.");
-
-      if (mediaType === "video") {
-        if (uid === hostUid) {
-          user.videoTrack.play(liveRef.current);
-        } else if (!coHostRef.current) {
-          setGuestWindow(true);
-          console.log("guest user added");
-          user.videoTrack.play(guest.current);
-          localStorage.setItem("uid", uid);
-        }
-      }
-      if (mediaType === "audio") {
-        user.audioTrack.play();
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const handleUserPublished = (user, mediaType) => {
-    const id = user.uid;
-    remoteUsers[id] = user;
-    console.log("published");
-    subscribe(user, mediaType);
-  };
-
-  const handleUserJoined = (user, mediaType) => {
-    const id = user.uid;
-    remoteUsers[id] = user;
-    subscribe(user, mediaType);
-  };
-
-  const handleUserLeft = (user) => {
-    const id = user.uid;
-    const uid = localStorage.getItem("uid");
-    alert(`${user.uid} == ${uid}`);
-    if (user.uid == uid) {
-      setGuestWindow(false);
-    }
-    delete remoteUsers[id];
-    // removePlayer();
-  };
-
-  const handleClientRoleChanged = (e) => {
-    console.log("client role changed");
-    console.log(e);
-  };
-
-  const roleChange = async (data) => {
-    if (data.type === "0") {
-      //   leave();
-      //   options.role = "host";
-      //   join();
-      client.setClientRole("host");
-      console.log("channelRoleUpdate");
-      clientRTM.addOrUpdateChannelAttributes(
-        channelName,
-        { attributes: [{ channel: userUid }] },
-        { options: { enableNotificationToChannelMembers: true } }
-      );
-    } else if (data.type === "1") {
-      console.log("Notification====> changing role to audience");
-      client.setClientRole("audience");
-      clientRTM.addOrUpdateChannelAttributes(
-        channelName,
-        [{ channel: "0" }],
-        true
-      );
-      //   leave();
-      //   options.role = "audience";
-      //   join();
-    }
-  };
-  const handleRemoveCoHost = async () => {
-    try {
-      const apiData = {
-        userId: coHostUserId,
-        id: streamId,
-      };
-      // eslint-disable-last-line
-      const { data } = await removeCoHost(apiData);
-      setRemoveGuest(false);
-    } catch (err) {
-      console.log(err.message);
-    }
-  };
-
-  const rtmSetup = () => {
-    RTMJoin();
-  };
-
-  // let clientRTM;
-  const clientRTM = AgoraRTM.createInstance(options.appId, {
-    enableLogUpload: false,
-  });
-  let channel;
   const RTMJoin = async () => {
     clientRTM
       .login({
@@ -266,6 +158,116 @@ const JoinStream = (props) => {
       .catch((err) => console.log(err.message));
   };
 
+  const subscribe = async (user, mediaType) => {
+    try {
+      const uid = user.uid;
+      await client.subscribe(user, mediaType);
+      console.log("Successfully Subscribes.");
+
+      if (mediaType === "video") {
+        if (uid === hostUid) {
+          user.videoTrack.play(liveRef.current);
+        } else if (!coHostRef.current) {
+          setGuestWindow(true);
+          console.log("guest user added");
+          user.videoTrack.play(guest.current);
+          localStorage.setItem("uid", uid);
+        }
+      }
+      if (mediaType === "audio") {
+        user.audioTrack.play();
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleUserPublished = (user, mediaType) => {
+    const id = user.uid;
+    remoteUsers[id] = user;
+    console.log("published");
+    subscribe(user, mediaType);
+  };
+
+  const handleUserJoined = (user, mediaType) => {
+    console.log("Id compare => ", options.uid, user.uid);
+    if (options.uid == user.uid) {
+      console.log("alert");
+      clientRTM.addOrUpdateChannelAttributes(
+        channelName,
+        { channel: String(userUid) },
+        true
+      );
+    }
+    const id = user.uid;
+    remoteUsers[id] = user;
+    subscribe(user, mediaType);
+  };
+
+  const handleUserLeft = (user) => {
+    console.log("client role changed");
+    const id = user.uid;
+    const uid = localStorage.getItem("uid");
+    alert(`${user.uid} == ${uid}`);
+    if (user.uid == uid) {
+      setGuestWindow(false);
+    }
+    delete remoteUsers[id];
+    // removePlayer();
+  };
+
+  const handleClientRoleChanged = (e) => {
+    console.log("client role changed");
+    console.log(e);
+  };
+
+  const roleChange = async (data) => {
+    if (data.type === "0") {
+      leave();
+      options.role = "host";
+      join();
+      //   await client.setClientRole("host");
+      //   console.log("channelRoleUpdate");
+      //   localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+      //   localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+      //   await client.publish(Object.values(localTracks));
+    } else if (data.type === "1") {
+      console.log("Notification====> changing role to audience");
+      //   client.setClientRole("audience");
+      //   clientRTM.addOrUpdateChannelAttributes(
+      //     channelName,
+      //     [{ channel: "0" }],
+      //     true
+      //   );
+      leave();
+      options.role = "audience";
+      join();
+    }
+  };
+  const handleRemoveCoHost = async () => {
+    try {
+      const apiData = {
+        userId: coHostUserId,
+        id: streamId,
+      };
+      // eslint-disable-last-line
+      const { data } = await removeCoHost(apiData);
+      setRemoveGuest(false);
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  const rtmSetup = () => {
+    RTMJoin();
+  };
+
+  // let clientRTM;
+  const clientRTM = AgoraRTM.createInstance(options.appId, {
+    enableLogUpload: false,
+  });
+  let channel;
+
   const RTMLeave = async () => {
     await clientRTM.logout();
     console.log("Client logged out of RTM");
@@ -278,6 +280,7 @@ const JoinStream = (props) => {
         options.role = "audience";
         await leave();
         RTMLeave();
+        window.location.reload();
       })();
     };
     // eslint-disable-next-line

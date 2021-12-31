@@ -18,7 +18,6 @@ import AgoraRTC from "agora-rtc-sdk-ng";
 import AgoraRTM from "agora-rtm-sdk";
 import image from "../../assets/index";
 import { StreamerBox } from "../../components/ViewBox/StreamerBox";
-import { ViewerBox } from "../../components/ViewBox/ViewerBox";
 import { Close } from "@material-ui/icons";
 import { useSelector } from "react-redux";
 import { goLive, removeCoHost } from "../../http";
@@ -98,13 +97,6 @@ export const Stream = (props) => {
 
   const join = async () => {
     client.setClientRole(options.role);
-    if (options.role === "audience") {
-      console.log("running ======> audience");
-      client.on("user-published", handleUserPublished);
-      client.on("user-joined", handleUserJoined);
-      client.on("user-left", handleUserLeft);
-      client.on("client-role-changed", handleClientRoleChanged);
-    }
     options.uid = await client.join(
       options.appId,
       options.channel,
@@ -112,6 +104,13 @@ export const Stream = (props) => {
       options.uid || null
     );
     setUserUid(options.uid);
+    if (options.role === "audience") {
+      console.log("running ======> audience");
+      client.on("user-published", handleUserPublished);
+      client.on("user-joined", handleUserJoined);
+      client.on("user-left", handleUserLeft);
+      client.on("client-role-changed", handleClientRoleChanged);
+    }
     if (options.role === "host") {
       console.log("running ======> host");
       client.on("user-published", handleUserPublished);
@@ -135,6 +134,7 @@ export const Stream = (props) => {
 
   const leave = async () => {
     console.log("user leaving");
+    console.log(localTracks);
     for (let trackName in localTracks) {
       let track = localTracks[trackName];
       console.log(track);
@@ -147,15 +147,14 @@ export const Stream = (props) => {
     remoteUsers = {};
     // await client.unpublish(Object.values(localTracks));
     await client.leave();
+    await client.unpublish();
     console.log("Client successfuly left the channel");
     // eslint-disable-next-line
-    if (!audience) {
-      const res = await api.delete("/api/deleteliveuser", {
-        data: {
-          username: username,
-        },
-      });
-    }
+    const res = await api.delete("/api/deleteliveuser", {
+      data: {
+        username: username,
+      },
+    });
   };
 
   const loopJoin = async () => {
@@ -184,7 +183,7 @@ export const Stream = (props) => {
       if (mediaType === "video") {
         if (uid === hostUid) {
           user.videoTrack.play(liveRef.current);
-        } else if (!coHostRef.current) {
+        } else {
           setGuestWindow(true);
           console.log("guest user added");
           user.videoTrack.play(guest.current);
@@ -228,7 +227,6 @@ export const Stream = (props) => {
   const handleUserLeft = (user) => {
     const id = user.uid;
     const uid = localStorage.getItem("uid");
-    alert(`${user.uid} == ${uid}`);
     if (user.uid == uid) {
       setGuestWindow(false);
     }
