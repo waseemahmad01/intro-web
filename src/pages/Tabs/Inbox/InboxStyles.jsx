@@ -472,4 +472,43 @@ export const useStyles = makeStyles((theme) => ({
       fontSize: "15px",
     },
   },
+  gifPicker: {
+    position: "absolute",
+    height: "500px",
+    top: "-500px",
+    [theme.breakpoints.down("lg")]: {
+      height: "300px",
+      top: "-300px",
+    },
+    "& .EXKLM": {
+      minWidth: "100%",
+      height: "480px",
+      [theme.breakpoints.down("lg")]: {
+        height: "280px",
+      },
+    },
+    "& .fGONoI": {
+      width: "100%",
+      height: "100%",
+      borderRadius: "12px",
+      padding: "10px",
+    },
+    "& .cwIxDu": {
+      display: "block",
+      textAlign: "center",
+      "& img": {
+        width: "50%",
+        borderRadius: "18px",
+        [theme.breakpoints.down("lg")]: {
+          width: "50%",
+        },
+      },
+    },
+  },
+  emojiContainer: {
+    position: "absolute",
+    height: "250px",
+    top: "-252px",
+    verticalAlign: "top",
+  },
 }));

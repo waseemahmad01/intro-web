@@ -173,28 +173,32 @@ export const useStyles = makeStyles((theme) => ({
     },
   },
   quickMessageDialogContent: {
-    paddingBottom: "23px",
+    paddingBlock: "23px",
+    height: "570px",
+    width: "410px",
+    boxSizing: "border-box",
   },
   quickMessageTitle: {
     margin: "0",
-    color: "#000",
+    color: "#000000",
     fontSize: "27px",
-    fontWeight: 500,
+    fontWeight: "600",
     marginBottom: "16px",
-    paddingTop: "23px",
-    [theme.breakpoints.down(1680)]: {
+    [theme.breakpoints.down("lg")]: {
       fontSize: "20px",
-      paddingTop: "0.75rem",
     },
   },
   quickMessageContainer: {
-    maxHeight: "380px",
-    height: "380px",
-    overflowY: "auto",
+    // backgroundColor: "red",
     paddingInline: "45px",
-    [theme.breakpoints.down(1680)]: {
-      paddingInline: "0.75rem",
-    },
+    maxHeight: "340px",
+    overflowY: "scroll",
+    // height: "340px",
+    // overflowY: "auto",
+    // paddingInline: "45px",
+    // [theme.breakpoints.down(1680)]: {
+    //   paddingInline: "0.75rem",
+    // },
   },
   quickMessageButton: {
     width: "275px",

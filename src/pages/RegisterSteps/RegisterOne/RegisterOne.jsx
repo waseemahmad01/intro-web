@@ -134,8 +134,8 @@ export const RegisterOne = ({ onNext }) => {
         step: "/gender-selection",
       };
       const locationData = {
-        lon: location.lon,
-        lat: location.lat,
+        lon: String(location.lon),
+        lat: String(location.lat),
         geoHash: "geoHash",
         visible: true,
         step: "/gender-selection",

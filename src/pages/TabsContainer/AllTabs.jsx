@@ -31,7 +31,7 @@ import {
   ThumbUpAltRounded,
   PersonRounded,
 } from "@material-ui/icons";
-import { allVideos as getAllVideos } from "../../http/index";
+import { allVideos as getAllVideos, allChats } from "../../http/index";
 // import { ethnicityList } from "../../data";
 // import { setStories } from "../../store/stories";
 export const AllTabs = () => {
@@ -189,6 +189,13 @@ export const AllTabs = () => {
     })();
     // }
   }, [meetMePageNumber, url]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await allChats();
+      console.log(data);
+    })();
+  }, []);
 
   const tabItems = [
     {

@@ -113,4 +113,7 @@ export const deleteLiveUser = (data) => api.delete("/api/deleteliveuser", data);
 export const createLiveloop = (data) => api.post("/api/liveloop", data);
 export const getLiveLoopRequests = (query) => api.get(`/api/liveloop?${query}`);
 
+// chat apis
+export const allChats = () => api.get("/api/match");
+
 export default api;

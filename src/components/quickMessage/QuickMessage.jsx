@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     zIndex: -1,
     "&:checked+label": {
-      border: `2px solid ${theme.palette.primary.main}`,
+      boxShadow: `0px 0px 0px 2px ${theme.palette.primary.main} inset`,
     },
   },
   container: {

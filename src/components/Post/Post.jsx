@@ -44,6 +44,14 @@ export const Post = React.forwardRef(
     const [quickMessage, setQuickMessage] = useState(false);
     const [date, setDate] = useState(false);
     const [sliderValue, setSliderValue] = useState([11, 23]);
+    const [matchData, setMatchData] = useState({
+      liked_by: "",
+      liked_by_name: "",
+      liked_by_profile_image: "",
+      liked_to: "",
+      liked_to_name: "",
+      liked_to_profile_image: "",
+    });
     // eslint-disable-next-line
     const [selectedDate, setSelectedDate] = useState(new Date());
     // eslint-disable-next-line
@@ -75,6 +83,8 @@ export const Post = React.forwardRef(
     const handleLike = async () => {
       setIsLiked(!isLiked);
       const { data } = await likeVideo({ video_id });
+      setMatchData(data.data);
+      console.log(data);
       setOpenDialog(data.matched);
     };
     const handleProfileClick = async (id) => {
@@ -91,11 +101,14 @@ export const Post = React.forwardRef(
       const { data } = await superLikeApi({ video_id });
     };
     const quickMessageList = [
-      `Hi ${username}, how are you doing?`,
-      `Hi ${username}, how are you doing?`,
-      `Hi ${username}, how are you doing?`,
-      `Hi ${username}, how are you doing?`,
-      `Hi ${username}, how are you doing?`,
+      `Hi ${username}, how are you?🖐`,
+      `Hey there! Any luck meeting someone off of Intro yet?`,
+      `How it is going ${username}?`,
+      `Hey ${username}? How is your night going?`,
+      `Hi ${username}? How is your day going?`,
+      `Hi ${username}! Any fun plans coming up?`,
+      `Hi ${username}, hope you've having a nice day?`,
+      `How are you doing ${username} ?`,
     ];
     const handleSelectQuickMessage = (e) => {
       setQuickMessageValue(e.target.value);
@@ -212,11 +225,14 @@ export const Post = React.forwardRef(
           >
             <Grid item>
               <AvatarGroup className={classes.avatarGroup} spacing="small">
-                <Avatar className={classes.dialogImage} src={image.jhon} />
+                <Avatar
+                  className={classes.dialogImage}
+                  src={matchData.liked_by_profile_image}
+                />
                 <Avatar
                   style={{ zIndex: 2 }}
                   className={classes.dialogImage}
-                  src={image.img}
+                  src={matchData.liked_to_profile_image}
                 />
               </AvatarGroup>
             </Grid>
@@ -285,7 +301,11 @@ export const Post = React.forwardRef(
             </Grid>
           </Grid>
         </Dialog>
-        <Dialog className={classes.quickMessageDialog} open={quickMessage}>
+        <Dialog
+          // scroll="body"
+          className={classes.quickMessageDialog}
+          open={quickMessage}
+        >
           <Grid
             container
             direction="column"

@@ -24,6 +24,8 @@ import {
 } from "@material-ui/icons";
 import { Link } from "react-router-dom";
 import image from "../../../assets/index";
+import Picker, { SKIN_TONE_MEDIUM_DARK } from "emoji-picker-react";
+import GifPicker from "react-giphy-picker";
 
 export const Inbox = () => {
   const classes = useStyles();
@@ -31,8 +33,17 @@ export const Inbox = () => {
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const [one, setOne] = useState(false);
   const [two, setTwo] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
+  const [showGif, setShowGif] = useState(false);
+  const [message, setMessage] = useState("");
   const refOne = useRef();
   const refTwo = useRef();
+  const onEmojiClick = (e, emoji) => {
+    setMessage(message + emoji.emoji);
+  };
+  const handleMessage = (e) => {
+    setMessage(e.target.value);
+  };
   const handleOne = () => {
     setOne(!one);
     setTwo(false);
@@ -45,14 +56,6 @@ export const Inbox = () => {
     refOne.current.classList.remove(`${classes.rotate}`);
     refTwo.current.classList.toggle(`${classes.rotate}`);
   };
-  // const handleProfileClick = async (id) => {
-  //   const { data } = await checkMatch(id);
-  //   if (data.data) {
-  //     history.push(`/home/match/${id}`);
-  //   } else {
-  //     history.push(`/home/unmatch/${id}`);
-  //   }
-  // };
   return (
     <Grid container direction="column" className={classes.container}>
       <Grid item>
@@ -304,7 +307,7 @@ export const Inbox = () => {
               className={classes.messageInputBox}
               style={{ paddingInline: "1rem" }}
             >
-              <Grid item style={{ width: "90%" }}>
+              <Grid item style={{ width: "90%", position: "relative" }}>
                 <Grid
                   container
                   alignItems="center"
@@ -312,18 +315,36 @@ export const Inbox = () => {
                   className={classes.chatInput}
                 >
                   <Grid item>
-                    <IconButton className={classes.iconButton}>
+                    <IconButton
+                      onClick={() => {
+                        setShowEmoji(!showEmoji);
+                        setShowGif(false);
+                      }}
+                      className={classes.iconButton}
+                    >
                       <Emoji className={classes.emojiIcon} />
                     </IconButton>
                   </Grid>
                   <InputBase
+                    value={message}
+                    onChange={handleMessage}
                     className={classes.inputBase}
                     placeholder="Write a message..."
                     inputProps={{ className: classes.inputProps }}
+                    onFocus={() => {
+                      setShowEmoji(false);
+                      setShowGif(false);
+                    }}
                   />
 
                   <Grid item>
-                    <IconButton className={classes.iconButton}>
+                    <IconButton
+                      onClick={() => {
+                        setShowGif(!showGif);
+                        setShowEmoji(false);
+                      }}
+                      className={classes.iconButton}
+                    >
                       <GifSharp className={classes.gifIcon} />
                     </IconButton>
                     <IconButton
@@ -347,6 +368,24 @@ export const Inbox = () => {
                     </IconButton>
                   </Grid>
                 </Grid>
+                {showGif && (
+                  <div className={`${classes.gifPicker}`}>
+                    <GifPicker />
+                  </div>
+                )}
+
+                {showEmoji && (
+                  <div className={classes.emojiContainer}>
+                    <Picker
+                      pickerStyle={{ width: "100%", height: "250px" }}
+                      onEmojiClick={onEmojiClick}
+                      disableAutoFocus={true}
+                      skinTone={SKIN_TONE_MEDIUM_DARK}
+                      groupNames={{ smileys_people: "PEOPLE" }}
+                      native
+                    />
+                  </div>
+                )}
               </Grid>
               <Grid item>
                 <IconButton className={classes.sendButton}>
