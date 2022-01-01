@@ -32,7 +32,7 @@ const JoinStream = (props) => {
   const streamId = props.history.location.state.id;
   const hostUid = props.history.location.state.hostUid;
   const user = useSelector((state) => state.auth.user.data);
-  const username = user.username;
+  //   const username = user.username;
   const liveRef = useRef();
   const guest = useRef();
   const liveStreamId = useRef(streamId);
@@ -66,6 +66,7 @@ const JoinStream = (props) => {
   };
 
   let client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
+
   const join = async () => {
     client.setClientRole(options.role);
     options.uid = await client.join(
@@ -85,7 +86,11 @@ const JoinStream = (props) => {
     client.on("user-published", handleUserPublished);
     client.on("user-joined", handleUserJoined);
     client.on("user-left", handleUserLeft);
-    client.on("client-role-changed", handleClientRoleChanged);
+    client.on("connection-state-change", (currState, revState, reason) => {
+      console.log("connection-state-change");
+      console.log(currState, revState, reason);
+      alert("connection-state-change");
+    });
   };
 
   const leave = async () => {
@@ -105,7 +110,10 @@ const JoinStream = (props) => {
       localTracks.current.audioTrack !== null &&
       localTracks.current.videoTrack !== null
     ) {
-      await client.unpublish();
+      client
+        .unpublish()
+        .then((data) => console.log(data, "unpublish success"))
+        .catch((err) => console.log(err.message));
     }
     await client.leave();
     console.log("Client successfuly left the channel");
@@ -212,7 +220,6 @@ const JoinStream = (props) => {
     console.log("client role changed");
     const id = user.uid;
     const uid = localStorage.getItem("uid");
-    alert(`${user.uid} == ${uid}`);
     if (user.uid == uid) {
       setGuestWindow(false);
     }
@@ -230,11 +237,6 @@ const JoinStream = (props) => {
       leave();
       options.role = "host";
       join();
-      //   await client.setClientRole("host");
-      //   console.log("channelRoleUpdate");
-      //   localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-      //   localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-      //   await client.publish(Object.values(localTracks));
     } else if (data.type === "1") {
       console.log("Notification====> changing role to audience");
       client.setClientRole("audience");
@@ -248,6 +250,7 @@ const JoinStream = (props) => {
       join();
     }
   };
+
   const handleRemoveCoHost = async () => {
     try {
       const apiData = {
@@ -281,10 +284,10 @@ const JoinStream = (props) => {
     rtmSetup();
     return () => {
       (async () => {
-        options.role = "audience";
+        // options.role = "audience";
         await leave();
         RTMLeave();
-        window.location.reload();
+        // window.location.reload();
       })();
     };
     // eslint-disable-next-line
@@ -402,12 +405,15 @@ const JoinStream = (props) => {
                     zIndex: 2,
                   }}
                 >
-                  <IconButton
-                    onClick={() => setRemoveGuest(true)}
-                    className={classes.closeButton}
-                  >
-                    <Close className={classes.closeIcon} />
-                  </IconButton>
+                  {options.uid === hostUid && (
+                    <IconButton
+                      onClick={() => setRemoveGuest(true)}
+                      className={classes.closeButton}
+                    >
+                      <Close className={classes.closeIcon} />
+                    </IconButton>
+                  )}
+
                   {/* <img src={image.actor} alt="" /> */}
                 </div>
                 <div className={classes.guestVideo} ref={guest}></div>

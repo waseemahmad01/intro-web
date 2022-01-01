@@ -329,7 +329,7 @@ export const ViewerBox = ({ streamId, streamer, coHostRef }) => {
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item contianer>
+            <Grid item>
               <Grid item container>
                 <Grid item xs={2}></Grid>
                 <Grid item xs={10}>

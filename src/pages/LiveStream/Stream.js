@@ -104,28 +104,19 @@ export const Stream = (props) => {
       options.uid || null
     );
     setUserUid(options.uid);
-    // if (options.role === "audience") {
-    //   console.log("running ======> audience");
-    //   client.on("user-published", handleUserPublished);
-    //   client.on("user-joined", handleUserJoined);
-    //   client.on("user-left", handleUserLeft);
-    //   client.on("client-role-changed", handleClientRoleChanged);
-    // }
-    if (options.role === "host") {
-      console.log("running ======> host");
-      client.on("user-published", handleUserPublished);
-      client.on("user-joined", handleUserJoined);
-      client.on("user-left", handleUserLeft);
-      client.on("user-unpublished", handleUserUnpublish);
-      // client.on("client-role-changed", handleClientRoleChanged);
-      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-      if (userUid === hostUid) {
-        localTracks.videoTrack.play(liveRef.current);
-      }
-      await client.publish(Object.values(localTracks));
-      console.log("Successfully Published");
+    console.log("running ======> host");
+    client.on("user-published", handleUserPublished);
+    client.on("user-joined", handleUserJoined);
+    client.on("user-left", handleUserLeft);
+    client.on("user-unpublished", handleUserUnpublish);
+    // client.on("client-role-changed", handleClientRoleChanged);
+    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+    if (userUid === hostUid) {
+      localTracks.videoTrack.play(liveRef.current);
     }
+    await client.publish(Object.values(localTracks));
+    console.log("Successfully Published");
   };
 
   const handleUserUnpublish = (user, mediaType) => {
