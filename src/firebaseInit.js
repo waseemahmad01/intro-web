@@ -1,6 +1,7 @@
 import firebase from "firebase/app";
 import "firebase/messaging";
 import "firebase/firestore";
+import "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBDg-iNi9TEuXDx4MwJJ-CYxOwatSBFvk4",
@@ -16,6 +17,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 export const db = firebase.firestore();
+export const cloudStorage = firebase.storage();
 export var token = "";
 
 export const getToken = async () => {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useStyles } from "./postStyles";
 import {
   Grid,
@@ -23,6 +23,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggleMute } from "../../store/videoSound";
 import { useHistory } from "react-router-dom";
 import QuickMessage from "../quickMessage/QuickMessage";
+import { db } from "../../firebaseInit";
+import { SocketContext } from "../../http/socket";
 export const Post = React.forwardRef(
   (
     {
@@ -40,6 +42,7 @@ export const Post = React.forwardRef(
   ) => {
     const classes = useStyles();
     const history = useHistory();
+    const socket = useContext(SocketContext);
     const [openDialog, setOpenDialog] = useState(false);
     const [quickMessage, setQuickMessage] = useState(false);
     const [date, setDate] = useState(false);
@@ -57,10 +60,12 @@ export const Post = React.forwardRef(
     // eslint-disable-next-line
     const [quickMessageValue, setQuickMessageValue] = useState("");
     const isMuted = useSelector((state) => state.video.muted);
+    const currentUser = useSelector((state) => state.auth.user.data);
     const dispatch = useDispatch();
     const [isLiked, setIsLiked] = useState(like);
     const [superLiked, setSuperLiked] = useState(superLike);
-
+    const [chatId, setChatId] = useState("");
+    const [otherUser, setOtherUser] = useState("");
     const [openSuperDialog, setOpenSuperDialog] = useState(false);
     // eslint-disable-next-line
     const handleDateChange = (date) => {
@@ -85,7 +90,11 @@ export const Post = React.forwardRef(
       const { data } = await likeVideo({ video_id });
       setMatchData(data.data);
       console.log(data);
-      setOpenDialog(data.matched);
+      if (data.matched) {
+        setOpenDialog(data.matched);
+        setChatId(data.chatId);
+        setOtherUser(data.data.liked_to);
+      }
     };
     const handleProfileClick = async (id) => {
       const { data } = await checkMatch(id);
@@ -112,6 +121,41 @@ export const Post = React.forwardRef(
     ];
     const handleSelectQuickMessage = (e) => {
       setQuickMessageValue(e.target.value);
+    };
+    const handleSendQuickMessage = () => {
+      const date = new Date();
+      const docId = date.getTime();
+      const timestamp = date.toISOString();
+      const doc = {
+        content: quickMessageValue,
+        filename: "",
+        idFrom: currentUser._id,
+        idTo: otherUser,
+        thumb: 0,
+        timestamp: timestamp,
+        type: 0,
+      };
+      setQuickMessage(false);
+      let messages = [];
+      db.collection("messages")
+        .doc(chatId)
+        .collection(chatId)
+        .onSnapshot((snapshot) => {
+          snapshot.docs.forEach((doc) => messages.push(doc.data()));
+        });
+      db.collection("messages")
+        .doc(chatId)
+        .collection(chatId)
+        .doc(docId.toString())
+        .set(doc);
+
+      socket.emit("lastmessage", {
+        msg: quickMessageValue,
+        chatId: chatId,
+        userId: currentUser._id,
+        firstMsg: messages.length === 0 ? currentUser._id : otherUser,
+        lastmsgTime: docId,
+      });
     };
     return (
       <Grid
@@ -340,7 +384,7 @@ export const Post = React.forwardRef(
                 className={classes.quickMessageButton}
                 variant="contained"
                 color="primary"
-                onClick={() => setQuickMessage(false)}
+                onClick={handleSendQuickMessage}
               >
                 Select
               </Button>

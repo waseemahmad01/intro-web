@@ -64,6 +64,7 @@ export const AllTabs = () => {
   const [meetMeVideos, setMeetMeVideos] = useState([]);
   const [meetMeTotalPage, setMeetMeTotalPage] = useState(0);
   const [meetMePageNumber, setMeetMePageNumber] = useState(1);
+  const [chats, setChats] = useState([]);
   // filters end
   const observer = useRef();
   const lastElementRef = useCallback((node) => {
@@ -193,7 +194,8 @@ export const AllTabs = () => {
   useEffect(() => {
     (async () => {
       const { data } = await allChats();
-      console.log(data);
+      console.log(data.data);
+      setChats(data.data);
     })();
   }, []);
 
@@ -342,7 +344,12 @@ export const AllTabs = () => {
               totalPage={meetMeTotalPage}
               component={MeetMe}
             />
-            <ProtectedRoute exact path="/home/inbox" component={Inbox} />
+            <ProtectedRoute
+              exact
+              path="/home/inbox"
+              chats={chats}
+              component={Inbox}
+            />
             <ProtectedRoute exact path="/home/mylikes" component={MyLikes} />
             <ProtectedRoute exact path="/home/online" component={Online} />
             <ProtectedRoute

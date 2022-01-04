@@ -231,6 +231,9 @@ export const useStyles = makeStyles((theme) => ({
     padding: "0 1rem",
     maxWidth: "70%",
   },
+  messageContainer: {
+    marginBlock: "10px",
+  },
   incomingMessage: {
     margin: "0",
     backgroundColor: "rgba(254, 133, 140, 0.10)",
@@ -280,6 +283,9 @@ export const useStyles = makeStyles((theme) => ({
     boxShadow: theme.shadows[3],
     borderRadius: "33px",
     height: "100%",
+    [theme.breakpoints.down("lg")]: {
+      borderRadius: "20px",
+    },
   },
   chatsTitle: {
     color: "#000",
@@ -299,7 +305,8 @@ export const useStyles = makeStyles((theme) => ({
     marginBottom: "1rem",
     [theme.breakpoints.down("lg")]: {
       padding: "0rem 1rem",
-      height: "50px",
+      height: "55px",
+      borderRadius: "10px",
     },
   },
   listImage: {
@@ -452,10 +459,31 @@ export const useStyles = makeStyles((theme) => ({
   },
   containerDiv: {
     height: "570px",
+    overflowY: "auto",
     [theme.breakpoints.down("lg")]: {
-      height: "300px",
+      height: "390px",
       padding: "1rem",
       paddingBottom: "0",
+    },
+  },
+  messageAvatar: {
+    height: "46px",
+    width: "46px",
+    marginRight: "26px",
+    [theme.breakpoints.down("lg")]: {
+      height: "25px",
+      width: "25px",
+      marginRight: "13px",
+    },
+  },
+  messageAvatar2: {
+    height: "46px",
+    width: "46px",
+    marginLeft: "26px",
+    [theme.breakpoints.down("lg")]: {
+      height: "25px",
+      width: "25px",
+      marginLeft: "13px",
     },
   },
   record: {
@@ -510,5 +538,58 @@ export const useStyles = makeStyles((theme) => ({
     height: "250px",
     top: "-252px",
     verticalAlign: "top",
+  },
+  recorder: {
+    position: "absolute",
+    height: "300px",
+    top: "-302px",
+    width: "100%",
+    verticalAlign: "top",
+    "& ._1ceqH": {
+      minWidth: "100%",
+      height: "100%",
+      padding: "0",
+      "& ._1YOWG": {
+        "& ._eV_dK": {
+          color: "#000000",
+        },
+      },
+    },
+    "& ._2fG9h": {
+      height: "100%",
+      padding: "0",
+    },
+    "& ._dt3-T": {
+      minHeight: "0",
+      height: "100%",
+      borderRadius: "10px",
+      overflow: "hidden",
+    },
+    "& ._3bC73": {
+      backgroundColor: "#ededed",
+    },
+    "& ._1lB9c": {
+      padding: "5px 10px",
+      background: theme.palette.common.darkPink,
+    },
+    "& ._1Yplu": {
+      marginTop: "190px",
+      display: "flex",
+      justifyContent: "space-between",
+    },
+    "& ._f2DT8": {
+      "& span": {
+        color: "#000000",
+      },
+      "& p": {
+        color: "#000000",
+      },
+    },
+  },
+  gifs: {
+    width: "120px",
+    [theme.breakpoints.down("lg")]: {
+      width: "80px",
+    },
   },
 }));
