@@ -34,10 +34,12 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
     "react-spring": "^9.2.4",
+    "react-video-recorder": "^3.19.1",
     "react-voice-recorder": "^2.1.2",
     "react-webcam": "^6.0.0",
     "redux": "^4.1.1",
     "socket.io-client": "^2.4.0",
+    "styled-components": "^5.3.3",
     "web-vitals": "^1.0.1"
   },
   "scripts": {

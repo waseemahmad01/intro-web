@@ -1,4 +1,10 @@
-import React, { useRef, useEffect, useState, useCallback } from "react";
+import React, {
+  useRef,
+  useEffect,
+  useState,
+  useCallback,
+  useContext,
+} from "react";
 import {
   Grid,
   List,
@@ -22,6 +28,8 @@ import { NavLink } from "react-router-dom";
 import { ProfileMatched } from "../Tabs/ProfileMatched/ProfileMatched";
 import { UnMatch } from "../Tabs/UnMatch/UnMatch";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
+import { SocketContext } from "../../http/socket";
+import { useSelector } from "react-redux";
 // import { getStories } from "../../http/index";
 import {
   HomeRounded,
@@ -37,6 +45,8 @@ import { allVideos as getAllVideos, allChats } from "../../http/index";
 export const AllTabs = () => {
   const classes = useStyles();
   const theme = useTheme();
+  const socket = useContext(SocketContext);
+  const currentUser = useSelector((state) => state.auth.user.data);
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const [videos, setVideos] = useState([]);
   const allVideos = useRef([]);
@@ -192,12 +202,20 @@ export const AllTabs = () => {
   }, [meetMePageNumber, url]);
 
   useEffect(() => {
+    const url = window.location.pathname;
     (async () => {
       const { data } = await allChats();
       console.log(data.data);
       setChats(data.data);
     })();
-  }, []);
+    socket.on(`chatUpdate_${currentUser._id}`, () => {
+      (async () => {
+        const { data } = await allChats();
+        console.log(data.data);
+        setChats(data.data);
+      })();
+    });
+  }, [url]);
 
   const tabItems = [
     {

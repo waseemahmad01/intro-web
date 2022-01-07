@@ -592,4 +592,56 @@ export const useStyles = makeStyles((theme) => ({
       width: "80px",
     },
   },
+  dialog: {
+    "& .MuiDialog-paper": {
+      borderRadius: "10px",
+      padding: "10px",
+      backgroundColor: theme.palette.common.lightPink,
+    },
+  },
+  videoRecorderContainer: {
+    borderRadius: "10px",
+    overflow: "hidden",
+  },
+  videoDiv: {
+    borderRadius: "10px",
+    overflow: "hidden",
+    height: "500px",
+    width: "500px",
+    [theme.breakpoints.down("lg")]: {
+      height: "350px",
+      width: "350px",
+    },
+    "& .iSDLnZ": {
+      color: theme.palette.primary.main,
+    },
+    "& .icEoTt": {
+      backgroundColor: theme.palette.primary.main,
+    },
+    "& .vJroN": {
+      backgroundColor: theme.palette.primary.main,
+    },
+    "& .dBzviu": {
+      backgroundColor: theme.palette.primary.main,
+    },
+  },
+  uploadButton: {
+    height: "65px",
+    width: "264px",
+    fontSize: "20px",
+    fontWeight: "600",
+    textTransform: "none",
+    borderRadius: "33px",
+    marginBlock: "20px 10px",
+    marginInline: "auto",
+    "&:disabled": {
+      backgroundColor: "grey",
+    },
+    [theme.breakpoints.down("lg")]: {
+      height: "50px",
+      width: "180px",
+      borderRadius: "26px",
+      marginBlock: "10px 5px",
+    },
+  },
 }));

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   makeStyles,
   Grid,
@@ -17,6 +17,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { toggleMute } from "../../store/videoSound";
 import image from "../../assets";
 import { likeVideo, superLikeApi } from "../../http";
+import { db } from "../../firebaseInit";
+import { SocketContext } from "../../http/socket";
+import QuickMessage from "../quickMessage/QuickMessage";
 
 const useStyles = makeStyles((theme) => ({
   postTitle: {
@@ -341,23 +344,54 @@ const useStyles = makeStyles((theme) => ({
   },
   superlike: {
     transition: "0.6s ease",
+    [theme.breakpoints.down("lg")]: {
+      height: "2rem",
+    },
   },
 }));
 
 export const Video = React.forwardRef(
-  ({ video_title, video_url, like, video_id, match, superLike }, ref) => {
+  (
+    {
+      video_title,
+      video_url,
+      like,
+      video_id,
+      match,
+      superLike,
+      username,
+      user_id,
+    },
+    ref
+  ) => {
     const classes = useStyles();
     const dispatch = useDispatch();
+    const socket = useContext(SocketContext);
     const mutedState = useSelector((state) => state.video.muted);
+    const currentUser = useSelector((state) => state.auth.user.data);
     const [openDialog, setOpenDialog] = useState(false);
     const [quickMessage, setQuickMessage] = useState(false);
     // eslint-disable-next-line
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [date, setDate] = useState(false);
     const [isLiked, setIsLiked] = useState(like);
+    const [chatId, setChatId] = useState("");
 
     const [sliderValue, setSliderValue] = useState([11, 23]);
     const [superLiked, setSuperLiked] = useState(superLike);
+    const [quickMessageValue, setQuickMessageValue] = useState("");
+
+    const quickMessageList = [
+      `Hi ${username}, how are you?🖐`,
+      `Hey there! Any luck meeting someone off of Intro yet?`,
+      `How it is going ${username}?`,
+      `Hey ${username}? How is your night going?`,
+      `Hi ${username}? How is your day going?`,
+      `Hi ${username}! Any fun plans coming up?`,
+      `Hi ${username}, hope you've having a nice day?`,
+      `How are you doing ${username} ?`,
+    ];
+
     const handleSuperLike = async () => {
       console.log(video_id);
       const { data } = await superLikeApi({ video_id });
@@ -367,7 +401,10 @@ export const Video = React.forwardRef(
     const handleLike = async () => {
       setIsLiked(!isLiked);
       const { data } = await likeVideo({ video_id });
-      setOpenDialog(data.matched);
+      if (data.matched) {
+        setChatId(data.chatId);
+        setOpenDialog(data.matched);
+      }
     };
     // eslint-disable-next-line
     const handleDateChange = (date) => {
@@ -386,6 +423,43 @@ export const Video = React.forwardRef(
     };
     const handleTime = (event, time) => {
       setSliderValue(time);
+    };
+    const handleSelectQuickMessage = (e) => {
+      setQuickMessageValue(e.target.value);
+    };
+    const handleSendQuickMessage = () => {
+      const docId = new Date(Date.now()).getTime().toString();
+      let timestamp = new Date(Date.now()).toISOString();
+      const doc = {
+        content: quickMessageValue,
+        filename: "",
+        idFrom: currentUser._id,
+        idTo: user_id,
+        thumb: 0,
+        timestamp: timestamp,
+        type: 0,
+      };
+      setQuickMessage(false);
+      let messages = [];
+      db.collection("messages")
+        .doc(chatId)
+        .collection(chatId)
+        .onSnapshot((snapshot) => {
+          snapshot.docs.forEach((doc) => messages.push(doc.data()));
+        });
+      db.collection("messages")
+        .doc(chatId)
+        .collection(chatId)
+        .doc(docId.toString())
+        .set(doc);
+
+      socket.emit("lastmessage", {
+        msg: quickMessageValue,
+        chatId: chatId,
+        userId: currentUser._id,
+        firstMsg: messages.length === 0 ? currentUser._id : user_id,
+        lastmsgTime: timestamp,
+      });
     };
     return (
       <>
@@ -543,38 +617,30 @@ export const Video = React.forwardRef(
                 Quick Message
               </Typography>
             </Grid>
-            <Grid item>
-              <Grid item>
-                <Chip
-                  className={classes.chip}
-                  label="Hi <Username>, how are you doing?"
+            <Grid
+              item
+              container
+              direction="column"
+              wrap="nowrap"
+              className={classes.quickMessageContainer}
+            >
+              {quickMessageList.map((item, index) => (
+                <QuickMessage
+                  label={item}
+                  name="origin"
+                  id={index}
+                  key={index}
+                  value={item}
+                  handleShow={handleSelectQuickMessage}
                 />
-              </Grid>
-              <Grid item>
-                <Chip
-                  className={classes.chip}
-                  label="Hi <Username>, how are you doing?"
-                />
-              </Grid>
-              <Grid item>
-                <Chip
-                  className={classes.chip}
-                  label="Hi <Username>, how are you doing?"
-                />
-              </Grid>
-              <Grid item>
-                <Chip
-                  className={classes.chip}
-                  label="Hi <Username>, how are you doing?"
-                />
-              </Grid>
+              ))}
             </Grid>
             <Grid item>
               <Button
                 className={classes.quickMessageButton}
                 variant="contained"
                 color="primary"
-                onClick={() => setQuickMessage(false)}
+                onClick={handleSendQuickMessage}
               >
                 Select
               </Button>

@@ -123,9 +123,8 @@ export const Post = React.forwardRef(
       setQuickMessageValue(e.target.value);
     };
     const handleSendQuickMessage = () => {
-      const date = new Date();
-      const docId = date.getTime();
-      const timestamp = date.toISOString();
+      const docId = new Date(Date.now()).getTime().toString();
+      let timestamp = new Date(Date.now()).toISOString();
       const doc = {
         content: quickMessageValue,
         filename: "",
@@ -154,7 +153,7 @@ export const Post = React.forwardRef(
         chatId: chatId,
         userId: currentUser._id,
         firstMsg: messages.length === 0 ? currentUser._id : otherUser,
-        lastmsgTime: docId,
+        lastmsgTime: timestamp,
       });
     };
     return (

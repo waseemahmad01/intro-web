@@ -501,85 +501,13 @@ export const UnMatch = (props) => {
               video_title={video.video_title}
               ref={addToRef}
               video_id={video._id}
+              username={video.user_name}
+              user_id={video.user_id}
             />
           ))}
-          {/* <Grid
-            item
-            container
-            className={classes.post}
-            direction="column"
-            alignItems="center"
-          >
-            <Grid item>
-              <Typography className={classes.postTitle}>
-                Worst idea ever has?
-              </Typography>
-              <div className={classes.postContainer}>
-                <img src={image.post} alt="" />
-                <div className={classes.iconContainer}>
-                  <Grid
-                    container
-                    className={classes.icons}
-                    justifyContent="space-between"
-                    alignItems="flex-end"
-                  >
-                    <Grid item>
-                      <IconButton>
-                        <img
-                          src={image.mute}
-                          className={classes.muteIcon}
-                          alt=""
-                        />
-                      </IconButton>
-                    </Grid>
-                    <Grid item>
-                      <IconButton>
-                        <Favorite className={classes.likeIcon} />
-                      </IconButton>
-                    </Grid>
-                  </Grid>
-                </div>
-              </div>
-            </Grid>
-          </Grid> */}
         </Grid>
       </Grid>
-      <Grid item container direction="column" className={classes.right}>
-        <Grid
-          item
-          container
-          direction="column"
-          alignItems="center"
-          className={classes.messageBoxContainer}
-        >
-          <Typography className={classes.messageBoxTitle}>
-            Quick Message
-          </Typography>
-          <Grid item container>
-            <Typography className={classes.message}>
-              To send a personalized message, subscribe to our premium services
-            </Typography>
-          </Grid>
-          <Grid
-            item
-            container
-            alignItems="center"
-            justifyContent="space-between"
-            className={classes.input}
-          >
-            <Grid item>
-              <InputBase
-                className={classes.inputBase}
-                placeholder="Select a Message"
-                inputProps={{ className: classes.inputEl }}
-              />
-            </Grid>
-            <Grid item>
-              <img className={classes.sendIcon} src={image.navigation} alt="" />
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
+      <Grid item container direction="column" className={classes.right}></Grid>
     </Grid>
   );
 };

@@ -43,6 +43,20 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("lg")]: {
       maxHeight: "55vh",
     },
+    "& .picker-item": {
+      fontSize: "20px",
+      "&.picker-item-selected": {
+        color: "#FE858C !important",
+      },
+    },
+    "& .picker-highlight": {
+      "&:before": {
+        background: "#000000",
+      },
+      "&:after": {
+        background: "#000000",
+      },
+    },
   },
   formControll: {
     width: "100%",

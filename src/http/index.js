@@ -57,6 +57,7 @@ export const setLocation = (data) => api.patch("/api/location", data);
 
 export const getUser = () => api.get("/api/user");
 export const getUserById = (id) => api.get(`/api/user/${id}`);
+export const getMatchById = (id) => api.get(`/api/getmatchbyid/${id}`);
 
 // matches
 

@@ -15,8 +15,8 @@ import {
   useMediaQuery,
   Collapse,
   CircularProgress,
+  Dialog,
 } from "@material-ui/core";
-import img from "../../../assets/img.png";
 import {
   ExpandMore,
   Mic,
@@ -36,6 +36,7 @@ import "react-voice-recorder/dist/index.css";
 import { useSelector } from "react-redux";
 import { SocketContext } from "../../../http/socket";
 import GifImage from "../../../components/GifImage/GifImage";
+import VideoRecorder from "react-video-recorder";
 
 export const Inbox = (props) => {
   const classes = useStyles();
@@ -46,12 +47,13 @@ export const Inbox = (props) => {
   const socket = useContext(SocketContext);
   const [one, setOne] = useState(false);
   const [two, setTwo] = useState(false);
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(-1);
   const [showEmoji, setShowEmoji] = useState(false);
   const [showGif, setShowGif] = useState(false);
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
   const [showRecorder, setShowRecorder] = useState(false);
+  const [openVideoDialog, setOpenVideoDialog] = useState(false);
   const [user, setUser] = useState({
     phonenumber: "",
     socialMedia_id: "",
@@ -101,9 +103,10 @@ export const Inbox = (props) => {
     children: { have_children: "", want_children: "", visible: false },
     prompt: [{ question: "", url: "" }],
   });
+  const [recordedVideo, setRecordedVideo] = useState(null);
   const [activeChat, setActiveChat] = useState({
-    chatId: chats[0].chatId,
-    userId: chats[0].matched_ids.to,
+    chatId: "",
+    userId: "",
   });
   const scroll = useRef();
   const [audioDetails, setAudioDetails] = useState({
@@ -118,6 +121,9 @@ export const Inbox = (props) => {
   });
   const refOne = useRef();
   const refTwo = useRef();
+  const handleOpenVideoDialog = () => {
+    setOpenVideoDialog(true);
+  };
   const onEmojiClick = (e, emoji) => {
     setMessage(message + emoji.emoji);
   };
@@ -194,16 +200,56 @@ export const Inbox = (props) => {
     });
   };
 
+  const handleKeyUp = (e) => {
+    if (e.keyCode === 13) {
+      handleSendMessage();
+    }
+  };
+
   const handleAudioStop = (data) => {
-    console.log(data);
     setAudioDetails(data);
+  };
+
+  const handleVideoUpload = async () => {
+    const { chatId, userId } = activeChat;
+    const docId = new Date(Date.now()).getTime().toString();
+    let timestamp = new Date(Date.now()).toISOString();
+    const docRef = cloudStorage.ref();
+    const fileRef = docRef.child(`${docId}.mp4`);
+    const doc = {
+      content: "pending",
+      filename: `${timestamp}.mp4`,
+      idFrom: currentUser._id,
+      idTo: userId,
+      thumb: 0,
+      timestamp: timestamp,
+      type: 1,
+    };
+    setOpenVideoDialog(false);
+    const ref = db
+      .collection("messages")
+      .doc(chatId)
+      .collection(chatId)
+      .doc(docId.toString());
+    ref.set(doc);
+    setShowRecorder(false);
+    await fileRef.put(recordedVideo);
+    setRecordedVideo(null);
+    const downloadURL = await fileRef.getDownloadURL();
+    ref.update({ content: downloadURL });
+    socket.emit("lastmessage", {
+      msg: "📹",
+      chatId: chatId,
+      userId: currentUser._id,
+      firstMsg: chat.length === 0 ? currentUser._id : userId,
+      lastmsgTime: timestamp,
+    });
   };
 
   const handleAudioUpload = async (file) => {
     const { chatId, userId } = activeChat;
-    const docId = new Date().getTime().toString();
-    let tzoffset = new Date().getTimezoneOffset() * 60000; //offset in milliseconds
-    let timestamp = new Date(Date.now() - tzoffset).toISOString().slice(0, -1);
+    const docId = new Date(Date.now()).getTime().toString();
+    let timestamp = new Date(Date.now()).toISOString();
     const docRef = cloudStorage.ref();
     const fileRef = docRef.child(`${docId}.acc`);
     const doc = {
@@ -225,6 +271,13 @@ export const Inbox = (props) => {
     await fileRef.put(file);
     const downloadURL = await fileRef.getDownloadURL();
     ref.update({ content: downloadURL });
+    socket.emit("lastmessage", {
+      msg: "🎤",
+      chatId: chatId,
+      userId: currentUser._id,
+      firstMsg: chat.length === 0 ? currentUser._id : userId,
+      lastmsgTime: timestamp,
+    });
   };
 
   const handleCountDown = (data) => {
@@ -248,9 +301,8 @@ export const Inbox = (props) => {
   const handleSendMessage = () => {
     const { chatId, userId } = activeChat;
     // const date = new Date();
-    const docId = new Date().getTime().toString();
-    let tzoffset = new Date().getTimezoneOffset() * 60000; //offset in milliseconds
-    let timestamp = new Date(Date.now() - tzoffset).toISOString().slice(0, -1);
+    const docId = new Date(Date.now()).getTime().toString();
+    let timestamp = new Date(Date.now()).toISOString();
     const doc = {
       content: message,
       filename: "",
@@ -260,7 +312,6 @@ export const Inbox = (props) => {
       timestamp: timestamp,
       type: 0,
     };
-    console.log(doc);
     db.collection("messages")
       .doc(chatId)
       .collection(chatId)
@@ -273,15 +324,14 @@ export const Inbox = (props) => {
       chatId: chatId,
       userId: currentUser._id,
       firstMsg: chat.length === 0 ? currentUser._id : userId,
-      lastmsgTime: docId,
+      lastmsgTime: timestamp,
     });
   };
 
   const handleGif = (gif) => {
     const { chatId, userId } = activeChat;
-    const docId = new Date().getTime().toString();
-    let tzoffset = new Date().getTimezoneOffset() * 60000; //offset in milliseconds
-    let timestamp = new Date(Date.now() - tzoffset).toISOString().slice(0, -1);
+    const docId = new Date(Date.now()).getTime().toString();
+    let timestamp = new Date(Date.now()).toISOString();
     const doc = {
       content: gif.original.webp,
       filename: "",
@@ -296,33 +346,42 @@ export const Inbox = (props) => {
       .collection(chatId)
       .doc(docId.toString())
       .set(doc);
+    socket.emit("lastmessage", {
+      msg: "🖼",
+      chatId: chatId,
+      userId: currentUser._id,
+      firstMsg: chat.length === 0 ? currentUser._id : userId,
+      lastmsgTime: timestamp,
+    });
     setMessage("");
     setShowGif(false);
   };
 
   useEffect(() => {
     const { chatId, userId } = activeChat;
-    socket.emit("chatStatus", {
-      chatId: chatId,
-      userId: currentUser._id,
-      userTo: userId,
-      userStatus: currentUser.current_status === 0 ? 0 : 1,
-    });
+    if (chatId !== "" && userId !== "") {
+      socket.emit("chatStatus", {
+        chatId: chatId,
+        userId: currentUser._id,
+        userTo: userId,
+        userStatus: 1,
+      });
 
-    (async () => {
-      const { data } = await getUserById(userId);
-      setUser(data.data);
-      db.collection("messages")
-        .doc(chatId)
-        .collection(chatId)
-        .onSnapshot((snapshot) => {
-          let messages = [];
-          snapshot.docs.forEach((doc) => messages.push(doc.data()));
-          setChat(messages);
-          if (scroll.current)
-            scroll.current.scrollIntoView({ behavior: "smooth" });
-        });
-    })();
+      (async () => {
+        const { data } = await getUserById(userId);
+        setUser(data.data);
+        db.collection("messages")
+          .doc(chatId)
+          .collection(chatId)
+          .onSnapshot((snapshot) => {
+            let messages = [];
+            snapshot.docs.forEach((doc) => messages.push(doc.data()));
+            setChat(messages);
+            if (scroll.current)
+              scroll.current.scrollIntoView({ behavior: "smooth" });
+          });
+      })();
+    }
   }, [activeChat]);
   return (
     <Grid container direction="column" className={classes.container}>
@@ -376,13 +435,13 @@ export const Inbox = (props) => {
                 </Button>
               </Grid>
             </Grid>
-            <Grid
-              item
-              container
-              onClick={handleOne}
-              className={classes.collapseContainer}
-            >
-              <Grid item container justifyContent="space-between">
+            <Grid item container className={classes.collapseContainer}>
+              <Grid
+                onClick={handleOne}
+                item
+                container
+                justifyContent="space-between"
+              >
                 <Typography className={classes.childAccordionHeading}>
                   Shared Media
                 </Typography>
@@ -417,13 +476,13 @@ export const Inbox = (props) => {
                 </Grid>
               </Collapse>
             </Grid>
-            <Grid
-              item
-              container
-              onClick={handleTwo}
-              className={classes.collapseContainer}
-            >
-              <Grid item container justifyContent="space-between">
+            <Grid item container className={classes.collapseContainer}>
+              <Grid
+                item
+                onClick={handleTwo}
+                container
+                justifyContent="space-between"
+              >
                 <Typography className={classes.childAccordionHeading}>
                   Support
                 </Typography>
@@ -500,7 +559,7 @@ export const Inbox = (props) => {
               </Grid>
             </Grid>
             <div className={classes.containerDiv}>
-              {chat.map(({ content, idFrom, type }, index) => {
+              {chat.map(({ content, idFrom, type, timestamp }, index) => {
                 let showProfile;
                 if (index > 0) {
                   showProfile = chat[index - 1].idFrom !== chat[index].idFrom;
@@ -713,89 +772,6 @@ export const Inbox = (props) => {
                 }
               })}
               <div ref={scroll} />
-              {/* <Grid item>
-                <Typography className={classes.chatDate}>
-                  Sunday, 27th June at 2:46PM
-                </Typography>
-              </Grid>
-              <Grid
-                item
-                container
-                style={{ marginTop: "1rem", background: "red" }}
-              >
-                <Avatar src={img} />
-                <Grid item className={classes.incomingContainer}>
-                  <Grid
-                    container
-                    spacing={1}
-                    direction="column"
-                    alignItems="flex-start"
-                  >
-                    <Grid item style={{ display: "inline-block" }}>
-                      <Typography className={classes.incomingMessage}>
-                        Hi, how is it going?
-                      </Typography>
-                    </Grid>
-                    <Grid item style={{ display: "inline-block" }}>
-                      <Typography className={classes.incomingMessage}>
-                        How long have you been using intro?
-                      </Typography>
-                    </Grid>
-                    <Grid item style={{ display: "inline-block" }}>
-                      <Audio />
-                    </Grid>
-                    <Grid item style={{ display: "inline-block" }}>
-                      <Video />
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Grid
-                item
-                container
-                alignItems="flex-start"
-                direction="row-reverse"
-                style={{ marginTop: "1rem" }}
-              >
-                <Avatar src={img} />
-                <Grid item className={classes.outgoingContainer}>
-                  <Grid
-                    container
-                    spacing={1}
-                    direction="column"
-                    alignItems="flex-end"
-                  >
-                    <Grid item style={{ display: "inline-block" }}>
-                      <Typography className={classes.outgoingMessage}>
-                        Hey, amazing! I've been using intro for a few weeks now!
-                        what a feature packed app this has become!
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Grid item container style={{ marginTop: "1rem" }}>
-                <Avatar src={img} />
-                <Grid item className={classes.incomingContainer}>
-                  <Grid
-                    container
-                    spacing={1}
-                    direction="column"
-                    alignItems="flex-start"
-                  >
-                    <Grid item style={{ display: "inline-block" }}>
-                      <Typography className={classes.incomingMessage}>
-                        Absolutely!!!
-                      </Typography>
-                    </Grid>
-                    <Grid item style={{ display: "inline-block" }}>
-                      <Typography className={classes.incomingMessage}>
-                        It's a pleasure to talk to you!
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid> */}
             </div>
             <Grid
               item
@@ -825,6 +801,7 @@ export const Inbox = (props) => {
                   </Grid>
                   <InputBase
                     value={message}
+                    onKeyUp={handleKeyUp}
                     onChange={handleMessage}
                     className={classes.inputBase}
                     placeholder="Write a message..."
@@ -860,6 +837,7 @@ export const Inbox = (props) => {
                       <Mic className={classes.icons} />
                     </IconButton>
                     <IconButton
+                      onClick={handleOpenVideoDialog}
                       style={{ marginRight: "15px" }}
                       className={classes.iconButton}
                     >
@@ -869,6 +847,32 @@ export const Inbox = (props) => {
                         alt=""
                       />
                     </IconButton>
+                    <Dialog open={openVideoDialog} className={classes.dialog}>
+                      <Grid
+                        item
+                        container
+                        direction="column"
+                        className={classes.videoRecorderContainer}
+                      >
+                        <div className={classes.videoDiv}>
+                          <VideoRecorder
+                            onRecordingComplete={(videoBlob) => {
+                              setRecordedVideo(videoBlob);
+                              console.log("videoBlob", videoBlob);
+                            }}
+                          />
+                        </div>
+                        <Button
+                          disabled={recordedVideo === null ? true : false}
+                          variant="contained"
+                          color="primary"
+                          onClick={handleVideoUpload}
+                          className={classes.uploadButton}
+                        >
+                          Upload video
+                        </Button>
+                      </Grid>
+                    </Dialog>
                   </Grid>
                 </Grid>
                 {showGif && (
@@ -969,7 +973,10 @@ export const Inbox = (props) => {
                       }
                     >
                       <ListItemAvatar className={classes.listItemAvatar}>
-                        <Avatar className={classes.listImage} src={img} />
+                        <Avatar
+                          className={classes.listImage}
+                          src={chat.matched_images.to}
+                        />
                       </ListItemAvatar>
                       <ListItemText
                         classes={{ root: classes.listItemTextRoot }}
