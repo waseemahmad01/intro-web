@@ -295,7 +295,26 @@ export const useStyles = makeStyles((theme) => ({
       fontSize: "18px",
     },
   },
-
+  scrollDiv: {
+    height: "600px",
+    width: "100%",
+    overflowY: "auto",
+    "&::-webkit-scrollbar-track": {
+      background: "transparent",
+      maxHeight: "50%",
+      height: "50%",
+    },
+    "&::-webkit-scrollbar": {
+      width: 7,
+    },
+    "&::-webkit-scrollbar-thumb": {
+      background: theme.palette.common.darkPink,
+      borderRadius: "20px",
+    },
+    [theme.breakpoints.down("lg")]: {
+      height: "400px",
+    },
+  },
   listItemRoot: {
     backgroundColor: "#fff",
     borderRadius: "20px",
@@ -460,6 +479,18 @@ export const useStyles = makeStyles((theme) => ({
   containerDiv: {
     height: "570px",
     overflowY: "auto",
+    "&::-webkit-scrollbar-track": {
+      background: "transparent",
+      maxHeight: "50%",
+      height: "50%",
+    },
+    "&::-webkit-scrollbar": {
+      width: 5,
+    },
+    "&::-webkit-scrollbar-thumb": {
+      background: theme.palette.common.darkPink,
+      borderRadius: "20px",
+    },
     [theme.breakpoints.down("lg")]: {
       height: "390px",
       padding: "1rem",

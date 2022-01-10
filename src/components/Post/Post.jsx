@@ -7,8 +7,6 @@ import {
   Dialog,
   Typography,
   Button,
-  Slider,
-  TextField,
   List,
   ListItem,
   ListItemText,
@@ -22,9 +20,11 @@ import { likeVideo, checkMatch, superLikeApi } from "../../http";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleMute } from "../../store/videoSound";
 import { useHistory } from "react-router-dom";
-import QuickMessage from "../quickMessage/QuickMessage";
 import { db } from "../../firebaseInit";
 import { SocketContext } from "../../http/socket";
+import QuickMessageDialog from "../quickMessageDialog/QuickMessageDialog";
+import DateScheduler from "../dateSchedular/DateScheduler";
+import { onMessage } from "../../utils/firestoreFunctions";
 export const Post = React.forwardRef(
   (
     {
@@ -43,10 +43,7 @@ export const Post = React.forwardRef(
     const classes = useStyles();
     const history = useHistory();
     const socket = useContext(SocketContext);
-    const [openDialog, setOpenDialog] = useState(false);
     const [quickMessage, setQuickMessage] = useState(false);
-    const [date, setDate] = useState(false);
-    const [sliderValue, setSliderValue] = useState([11, 23]);
     const [matchData, setMatchData] = useState({
       liked_by: "",
       liked_by_name: "",
@@ -55,9 +52,6 @@ export const Post = React.forwardRef(
       liked_to_name: "",
       liked_to_profile_image: "",
     });
-    // eslint-disable-next-line
-    const [selectedDate, setSelectedDate] = useState(new Date());
-    // eslint-disable-next-line
     const [quickMessageValue, setQuickMessageValue] = useState("");
     const isMuted = useSelector((state) => state.video.muted);
     const currentUser = useSelector((state) => state.auth.user.data);
@@ -67,10 +61,9 @@ export const Post = React.forwardRef(
     const [chatId, setChatId] = useState("");
     const [otherUser, setOtherUser] = useState("");
     const [openSuperDialog, setOpenSuperDialog] = useState(false);
-    // eslint-disable-next-line
-    const handleDateChange = (date) => {
-      setSelectedDate(date);
-    };
+    const [openDialog, setOpenDialog] = useState(false);
+    const [date, setDate] = useState(false);
+
     const handleQuickMessage = () => {
       setOpenDialog(false);
       setQuickMessage(true);
@@ -79,23 +72,18 @@ export const Post = React.forwardRef(
       setOpenDialog(false);
       setDate(true);
     };
-    const handleTime = (event, time) => {
-      setSliderValue(time);
-    };
-    const handleValueLabel = (value) => {
-      return `${value}o'clock`;
-    };
+
     const handleLike = async () => {
       setIsLiked(!isLiked);
       const { data } = await likeVideo({ video_id });
       setMatchData(data.data);
-      console.log(data);
       if (data.matched) {
         setOpenDialog(data.matched);
         setChatId(data.chatId);
         setOtherUser(data.data.liked_to);
       }
     };
+
     const handleProfileClick = async (id) => {
       const { data } = await checkMatch(id);
       if (data.data) {
@@ -106,32 +94,22 @@ export const Post = React.forwardRef(
     };
     const handleSuperLike = async () => {
       setSuperLiked(!superLiked);
-      // eslint-disable-next-line
       const { data } = await superLikeApi({ video_id });
+      setMatchData(data.data);
+      if (data.matched) {
+        setOpenDialog(data.matched);
+        setChatId(data.chatId);
+        setOtherUser(data.data.liked_to);
+      }
     };
-    const quickMessageList = [
-      `Hi ${username}, how are you?🖐`,
-      `Hey there! Any luck meeting someone off of Intro yet?`,
-      `How it is going ${username}?`,
-      `Hey ${username}? How is your night going?`,
-      `Hi ${username}? How is your day going?`,
-      `Hi ${username}! Any fun plans coming up?`,
-      `Hi ${username}, hope you've having a nice day?`,
-      `How are you doing ${username} ?`,
-    ];
-    const handleSelectQuickMessage = (e) => {
-      setQuickMessageValue(e.target.value);
-    };
+
     const handleSendQuickMessage = () => {
-      const docId = new Date(Date.now()).getTime().toString();
-      let timestamp = new Date(Date.now()).toISOString();
       const doc = {
         content: quickMessageValue,
         filename: "",
         idFrom: currentUser._id,
         idTo: otherUser,
         thumb: 0,
-        timestamp: timestamp,
         type: 0,
       };
       setQuickMessage(false);
@@ -142,19 +120,13 @@ export const Post = React.forwardRef(
         .onSnapshot((snapshot) => {
           snapshot.docs.forEach((doc) => messages.push(doc.data()));
         });
-      db.collection("messages")
-        .doc(chatId)
-        .collection(chatId)
-        .doc(docId.toString())
-        .set(doc);
-
-      socket.emit("lastmessage", {
-        msg: quickMessageValue,
-        chatId: chatId,
-        userId: currentUser._id,
-        firstMsg: messages.length === 0 ? currentUser._id : otherUser,
-        lastmsgTime: timestamp,
-      });
+      onMessage(
+        doc,
+        chatId,
+        socket,
+        currentUser._id,
+        messages.length === 0 ? currentUser._id : otherUser
+      );
     };
     return (
       <Grid
@@ -344,160 +316,14 @@ export const Post = React.forwardRef(
             </Grid>
           </Grid>
         </Dialog>
-        <Dialog
-          // scroll="body"
-          className={classes.quickMessageDialog}
+        <QuickMessageDialog
           open={quickMessage}
-        >
-          <Grid
-            container
-            direction="column"
-            alignItems="center"
-            className={classes.quickMessageDialogContent}
-          >
-            <Grid item>
-              <Typography className={classes.quickMessageTitle}>
-                Quick Message
-              </Typography>
-            </Grid>
-            <Grid
-              item
-              container
-              direction="column"
-              wrap="nowrap"
-              className={classes.quickMessageContainer}
-            >
-              {quickMessageList.map((item, index) => (
-                <QuickMessage
-                  label={item}
-                  name="origin"
-                  id={index}
-                  key={index}
-                  value={item}
-                  handleShow={handleSelectQuickMessage}
-                />
-              ))}
-            </Grid>
-            <Grid item>
-              <Button
-                className={classes.quickMessageButton}
-                variant="contained"
-                color="primary"
-                onClick={handleSendQuickMessage}
-              >
-                Select
-              </Button>
-            </Grid>
-          </Grid>
-        </Dialog>
-        <Dialog
-          open={date}
-          onClose={() => setDate(false)}
-          className={classes.dateDialog}
-        >
-          <Grid
-            container
-            direction="column"
-            alignItems="center"
-            className={classes.dateDialogContainer}
-          >
-            <Grid item container>
-              <Grid item container justifyContent="space-between">
-                <Grid item>
-                  <Typography className={classes.dateDialogTitle}>
-                    Date Scheduler
-                    <img
-                      src={image.dotedwatchblue}
-                      className={classes.watchblue}
-                      alt=""
-                    />
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <IconButton
-                    onClick={() => setDate(false)}
-                    className={classes.closeButton}
-                  >
-                    <Close className={classes.closeIcon} />
-                  </IconButton>
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid
-              item
-              container
-              direction="column"
-              alignItems="center"
-              className={classes.innerContainer}
-            >
-              <Grid item>
-                <Typography className={classes.availableText}>
-                  I am available
-                </Typography>
-              </Grid>
-              <Grid item>
-                <TextField
-                  fullWidth
-                  style={{ color: "#000" }}
-                  classes={{ root: classes.dateRoot }}
-                  inputProps={{ className: classes.date }}
-                  type="date"
-                />
-              </Grid>
-              <Grid item container>
-                <Slider
-                  onChange={handleTime}
-                  value={sliderValue}
-                  defaultValue={[11, 23]}
-                  min={1}
-                  max={24}
-                  valueLabelDisplay="on"
-                  classes={{ root: classes.sliderRoot }}
-                  valueLabelFormat={handleValueLabel}
-                />
-              </Grid>
-
-              <Grid
-                item
-                container
-                justifyContent="space-between"
-                className={classes.dialogIconContainer}
-              >
-                <Grid item>
-                  <img
-                    src={image.phoneBlue}
-                    className={classes.iconImage1}
-                    alt=""
-                  />
-                </Grid>
-                <Grid item>
-                  <img
-                    src={image.videoBlue}
-                    className={classes.iconImage}
-                    alt=""
-                  />
-                </Grid>
-                <Grid item>
-                  <img
-                    src={image.message}
-                    className={classes.iconImage1}
-                    alt=""
-                  />
-                </Grid>
-              </Grid>
-              <Grid item>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  className={classes.continueButton}
-                  onClick={() => setDate(false)}
-                >
-                  Continue
-                </Button>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Dialog>
+          setOpen={setQuickMessage}
+          username={username}
+          setQuickMessage={setQuickMessageValue}
+          sendMessage={handleSendQuickMessage}
+        />
+        <DateScheduler open={date} setOpen={setDate} />
         <Dialog
           className={classes.superDialog}
           open={openSuperDialog}

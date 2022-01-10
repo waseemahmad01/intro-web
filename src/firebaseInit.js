@@ -3,15 +3,26 @@ import "firebase/messaging";
 import "firebase/firestore";
 import "firebase/storage";
 
+const {
+  REACT_APP_FIREBASE_API_KEY,
+  REACT_APP_FIREBASE_AUTH_DOMAIN,
+  REACT_APP_FIREBASE_DB_URL,
+  REACT_APP_FIREBASE_PROJECT_ID,
+  REACT_APP_FIREBASE_STORAGE_BUCKET,
+  REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  REACT_APP_FIREBASE_APP_ID,
+  REACT_APP_MEASUREMENT_ID,
+} = process.env;
+
 const firebaseConfig = {
-  apiKey: "AIzaSyBDg-iNi9TEuXDx4MwJJ-CYxOwatSBFvk4",
-  authDomain: "coral-mariner-289404.firebaseapp.com",
-  databaseURL: "https://coral-mariner-289404.firebaseio.com",
-  projectId: "coral-mariner-289404",
-  storageBucket: "coral-mariner-289404.appspot.com",
-  messagingSenderId: "340022628106",
-  appId: "1:340022628106:web:f4d284c5c6610d4418f4f3",
-  measurementId: "G-W4J550FM1B",
+  apiKey: REACT_APP_FIREBASE_API_KEY,
+  authDomain: REACT_APP_FIREBASE_AUTH_DOMAIN,
+  databaseURL: REACT_APP_FIREBASE_DB_URL,
+  projectId: REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: REACT_APP_FIREBASE_APP_ID,
+  measurementId: REACT_APP_MEASUREMENT_ID,
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -38,7 +49,7 @@ export function subscribeTokenToTopic(token, topic) {
       if (response.status < 200 || response.status >= 400) {
         console.log(response.status, response);
       }
-      console.log(`"${topic}" is subscribed`, url);
+      // console.log(`"${topic}" is subscribed`, url);
     })
     .catch((error) => {
       console.error(error.result);

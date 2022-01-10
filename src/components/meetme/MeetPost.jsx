@@ -39,7 +39,7 @@ export const MeetPost = ({ allVideos, page, setPage, totalPage }) => {
   const [index, setIndex] = useState(0);
   const [animate, setAnimate] = useState(false);
   const transition = useTransition(animate, {
-    from: { x: 500, opacity: 0 },
+    from: { x: 450, opacity: 0 },
     enter: { x: 0, opacity: 1 },
   });
   const handleCloseButton = () => {

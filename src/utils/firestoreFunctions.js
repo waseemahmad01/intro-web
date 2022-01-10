@@ -1,46 +1,66 @@
-// import { db, cloudStorage } from "../firebaseInit";
+import { db, cloudStorage } from "../firebaseInit";
 
-// export const onMessage = (
-//   chatId,
-//   fromId,
-//   toId,
-//   message,
-//   filename,
-//   type,
-//   socket
-// ) => {
-//   const docId = new Date().getTime().toString();
-//   let tzoffset = new Date().getTimezoneOffset() * 60000;
-//   let timestamp = new Date(Date.now() - tzoffset).toISOString().slice(0, -1);
-//   const doc = {
-//     content: message,
-//     filename: filename || "",
-//     idFrom: fromId,
-//     idTo: toId,
-//     thumb: 0,
-//     timestamp: timestamp,
-//     type: type,
-//   };
-//   const ref = db
-//     .collection("messages")
-//     .doc(chatId)
-//     .collection(chatId)
-//     .doc(docId);
-//   ref.set(doc);
-//   socket.emit("lastmessage", {
-//     // msg: message,
-//     // chatId: chatId,
-//     // userId: currentUser._id,
-//     // firstMsg: chat.length === 0 ? currentUser._id : userId,
-//     // lastmsgTime: docId,
-//   });
-//   return { ref, docId };
-// };
+export const onMessage = (payload, chatId, socket, userId, firstMsg) => {
+  const date = new Date();
+  const doc = { ...payload };
+  doc.timestamp = date.toISOString();
+  const docId = date.getTime().toString();
 
-// export const onFileUpload = async (file, docId) => {
-//   const ref = cloudStorage.ref();
-//   const fileRef = ref.child(`${docId}.acc`);
-//   await fileRef.put(file);
-//   const downloadURL = fileRef.getDownloadURL();
-//   return downloadURL;
-// };
+  db.collection("messages").doc(chatId).collection(chatId).doc(docId).set(doc);
+
+  const data = {
+    msg: doc.type === 0 ? doc.content : "🖼",
+    chatId: chatId,
+    userId: userId,
+    firstMsg: firstMsg,
+    lastmsgTime: doc.timestamp,
+  };
+  socket.emit("lastmessage", data);
+};
+
+export const onFileMessage = async (
+  payload,
+  chatId,
+  socket,
+  userId,
+  firstMsg,
+  file
+) => {
+  const date = new Date();
+  const doc = { ...payload };
+  doc.timestamp = date.toISOString();
+  const docId = date.getTime().toString();
+  const docRef = cloudStorage.ref();
+  const fileRef = docRef.child(
+    doc.type === 2 ? `${docId}.acc` : `${docId}.mp4`
+  );
+  if (doc.type === 1) {
+    doc.filename = `${docId}.mp4`;
+  } else if (doc.type === 2) {
+    doc.filename = `${docId}.acc`;
+  }
+  const ref = db
+    .collection("messages")
+    .doc(chatId)
+    .collection(chatId)
+    .doc(docId);
+  ref.set(doc);
+
+  await fileRef.put(file);
+  const dbURL = await fileRef.getDownloadURL();
+  ref.update({ content: dbURL });
+  let msg;
+  if (doc.type === 1) {
+    msg = "📹";
+  } else if (doc.type === 2) {
+    msg = "🎤";
+  }
+  const data = {
+    msg: msg,
+    chatId: chatId,
+    userId: userId,
+    firstMsg: firstMsg,
+    lastmsgTime: doc.timestamp,
+  };
+  socket.emit("lastmessage", data);
+};

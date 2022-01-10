@@ -108,11 +108,9 @@ export const Filter = ({
     >
       <AccordionSummary
         classes={{ root: classes.summary }}
+        onClick={() => setExpanded(!expanded)}
         expandIcon={
-          <IconButton
-            onClick={() => setExpanded(!expanded)}
-            className={classes.filterIconContainer}
-          >
+          <IconButton className={classes.filterIconContainer}>
             <FilterList className={classes.filterIcon} />
           </IconButton>
         }

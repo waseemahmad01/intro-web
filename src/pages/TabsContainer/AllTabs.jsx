@@ -205,13 +205,12 @@ export const AllTabs = () => {
     const url = window.location.pathname;
     (async () => {
       const { data } = await allChats();
-      console.log(data.data);
       setChats(data.data);
     })();
     socket.on(`chatUpdate_${currentUser._id}`, () => {
       (async () => {
         const { data } = await allChats();
-        console.log(data.data);
+        // console.log(data.data);
         setChats(data.data);
       })();
     });

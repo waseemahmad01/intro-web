@@ -37,6 +37,8 @@ import { useSelector } from "react-redux";
 import { SocketContext } from "../../../http/socket";
 import GifImage from "../../../components/GifImage/GifImage";
 import VideoRecorder from "react-video-recorder";
+import DateScheduler from "../../../components/dateSchedular/DateScheduler";
+import { onMessage, onFileMessage } from "../../../utils/firestoreFunctions";
 
 export const Inbox = (props) => {
   const classes = useStyles();
@@ -103,6 +105,7 @@ export const Inbox = (props) => {
     children: { have_children: "", want_children: "", visible: false },
     prompt: [{ question: "", url: "" }],
   });
+  const [openDialog, setOpenDialog] = useState(false);
   const [recordedVideo, setRecordedVideo] = useState(null);
   const [activeChat, setActiveChat] = useState({
     chatId: "",
@@ -212,72 +215,43 @@ export const Inbox = (props) => {
 
   const handleVideoUpload = async () => {
     const { chatId, userId } = activeChat;
-    const docId = new Date(Date.now()).getTime().toString();
-    let timestamp = new Date(Date.now()).toISOString();
-    const docRef = cloudStorage.ref();
-    const fileRef = docRef.child(`${docId}.mp4`);
     const doc = {
       content: "pending",
-      filename: `${timestamp}.mp4`,
       idFrom: currentUser._id,
       idTo: userId,
       thumb: 0,
-      timestamp: timestamp,
       type: 1,
     };
     setOpenVideoDialog(false);
-    const ref = db
-      .collection("messages")
-      .doc(chatId)
-      .collection(chatId)
-      .doc(docId.toString());
-    ref.set(doc);
-    setShowRecorder(false);
-    await fileRef.put(recordedVideo);
-    setRecordedVideo(null);
-    const downloadURL = await fileRef.getDownloadURL();
-    ref.update({ content: downloadURL });
-    socket.emit("lastmessage", {
-      msg: "📹",
-      chatId: chatId,
-      userId: currentUser._id,
-      firstMsg: chat.length === 0 ? currentUser._id : userId,
-      lastmsgTime: timestamp,
-    });
+    onFileMessage(
+      doc,
+      chatId,
+      socket,
+      currentUser._id,
+      chat.length === 0 ? currentUser._id : userId,
+      recordedVideo
+    );
   };
 
   const handleAudioUpload = async (file) => {
     const { chatId, userId } = activeChat;
-    const docId = new Date(Date.now()).getTime().toString();
-    let timestamp = new Date(Date.now()).toISOString();
-    const docRef = cloudStorage.ref();
-    const fileRef = docRef.child(`${docId}.acc`);
+
     const doc = {
       content: "pending",
-      filename: `${timestamp}.acc`,
       idFrom: currentUser._id,
       idTo: userId,
       thumb: 0,
-      timestamp: timestamp,
       type: 2,
     };
-    const ref = db
-      .collection("messages")
-      .doc(chatId)
-      .collection(chatId)
-      .doc(docId.toString());
-    ref.set(doc);
     setShowRecorder(false);
-    await fileRef.put(file);
-    const downloadURL = await fileRef.getDownloadURL();
-    ref.update({ content: downloadURL });
-    socket.emit("lastmessage", {
-      msg: "🎤",
-      chatId: chatId,
-      userId: currentUser._id,
-      firstMsg: chat.length === 0 ? currentUser._id : userId,
-      lastmsgTime: timestamp,
-    });
+    onFileMessage(
+      doc,
+      chatId,
+      socket,
+      currentUser._id,
+      chat.length === 0 ? currentUser._id : userId,
+      file
+    );
   };
 
   const handleCountDown = (data) => {
@@ -300,59 +274,42 @@ export const Inbox = (props) => {
 
   const handleSendMessage = () => {
     const { chatId, userId } = activeChat;
-    // const date = new Date();
-    const docId = new Date(Date.now()).getTime().toString();
-    let timestamp = new Date(Date.now()).toISOString();
     const doc = {
       content: message,
       filename: "",
       idFrom: currentUser._id,
       idTo: userId,
       thumb: 0,
-      timestamp: timestamp,
       type: 0,
     };
-    db.collection("messages")
-      .doc(chatId)
-      .collection(chatId)
-      .doc(docId)
-      .set(doc);
+    onMessage(
+      doc,
+      chatId,
+      socket,
+      currentUser._id,
+      chat.length === 0 ? currentUser._id : userId
+    );
     setMessage("");
     setShowEmoji(false);
-    socket.emit("lastmessage", {
-      msg: message,
-      chatId: chatId,
-      userId: currentUser._id,
-      firstMsg: chat.length === 0 ? currentUser._id : userId,
-      lastmsgTime: timestamp,
-    });
   };
 
   const handleGif = (gif) => {
     const { chatId, userId } = activeChat;
-    const docId = new Date(Date.now()).getTime().toString();
-    let timestamp = new Date(Date.now()).toISOString();
     const doc = {
       content: gif.original.webp,
       filename: "",
       idFrom: currentUser._id,
       idTo: userId,
       thumb: 0,
-      timestamp: timestamp,
       type: 3,
     };
-    db.collection("messages")
-      .doc(chatId)
-      .collection(chatId)
-      .doc(docId.toString())
-      .set(doc);
-    socket.emit("lastmessage", {
-      msg: "🖼",
-      chatId: chatId,
-      userId: currentUser._id,
-      firstMsg: chat.length === 0 ? currentUser._id : userId,
-      lastmsgTime: timestamp,
-    });
+    onMessage(
+      doc,
+      chatId,
+      socket,
+      currentUser._id,
+      chat.length === 0 ? currentUser._id : userId
+    );
     setMessage("");
     setShowGif(false);
   };
@@ -539,7 +496,10 @@ export const Inbox = (props) => {
                 alignItems="center"
                 justifyContent="flex-end"
               >
-                <IconButton className={classes.callButton}>
+                <IconButton
+                  onClick={() => setOpenDialog(true)}
+                  className={classes.callButton}
+                >
                   <img
                     src={image.blackWatch}
                     className={classes.watchIcon}
@@ -923,13 +883,14 @@ export const Inbox = (props) => {
               </Grid>
             </Grid>
           </Grid>
+          <DateScheduler open={openDialog} setOpen={setOpenDialog} />
         </Grid>
         <Grid item className={classes.right}>
           <Grid container direction="column" className={classes.chats}>
             <Typography className={classes.chatsTitle}>Chats</Typography>
-            <List classes={{ root: classes.list }}>
-              {chats.map((chat, index) => {
-                if (index === 0) {
+            <div className={classes.scrollDiv}>
+              <List classes={{ root: classes.list }}>
+                {chats.map((chat, index) => {
                   return (
                     <ListItem
                       selected={active === index}
@@ -959,39 +920,9 @@ export const Inbox = (props) => {
                       </Typography>
                     </ListItem>
                   );
-                } else {
-                  return (
-                    <ListItem
-                      selected={active === index}
-                      key={chat.chatId}
-                      disableGutters
-                      dense
-                      alignItems="center"
-                      classes={{ root: classes.listItemRoot }}
-                      onClick={() =>
-                        handleChatClick(index, chat.chatId, chat.matched_ids.to)
-                      }
-                    >
-                      <ListItemAvatar className={classes.listItemAvatar}>
-                        <Avatar
-                          className={classes.listImage}
-                          src={chat.matched_images.to}
-                        />
-                      </ListItemAvatar>
-                      <ListItemText
-                        classes={{ root: classes.listItemTextRoot }}
-                        primary={chat.matched_username.to}
-                        secondary={chat.msg}
-                      />
-
-                      <Typography className={classes.lastSeen}>
-                        {chat.unreadCount}
-                      </Typography>
-                    </ListItem>
-                  );
-                }
-              })}
-            </List>
+                })}
+              </List>
+            </div>
           </Grid>
         </Grid>
       </Grid>

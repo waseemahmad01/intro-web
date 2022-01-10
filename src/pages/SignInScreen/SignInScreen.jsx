@@ -21,7 +21,6 @@ import { useDispatch } from "react-redux";
 import Joi from "joi-browser";
 import { SocketContext } from "../../http/socket";
 import { subscribeTokenToTopic, getToken } from "../../firebaseInit";
-// import io from "socket.io-client";
 const useStyles = makeStyles((theme) => ({
   container: {
     backgroundColor: "#fbfbfb",
@@ -350,6 +349,7 @@ export const SignInScreen = (props) => {
         subscribeTokenToTopic(token, `${data.data._id}_joinlive`);
         subscribeTokenToTopic(token, "delliveuser");
         const res = await getUser();
+        dispatch(submit(res.data));
         if (data.data.step === "/home") {
           props.history.push("home");
         } else {
@@ -357,7 +357,6 @@ export const SignInScreen = (props) => {
           await step({ step: "/dob" });
         }
         setOpenDialog(false);
-        dispatch(submit(res.data));
       } else {
         setError({ ...error, otp: "Invalid otp code." });
       }
