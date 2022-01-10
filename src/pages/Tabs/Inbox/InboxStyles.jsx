@@ -278,7 +278,6 @@ export const useStyles = makeStyles((theme) => ({
   // chats
   chats: {
     boxSizing: "border-box",
-    padding: "1rem 1.5rem",
     backgroundColor: "#fbfbfb",
     boxShadow: theme.shadows[3],
     borderRadius: "33px",
@@ -299,6 +298,7 @@ export const useStyles = makeStyles((theme) => ({
     height: "600px",
     width: "100%",
     overflowY: "auto",
+    padding: "1rem 1.5rem",
     "&::-webkit-scrollbar-track": {
       background: "transparent",
       maxHeight: "50%",
@@ -377,10 +377,10 @@ export const useStyles = makeStyles((theme) => ({
     backgroundColor: "#fff",
     border: `1px solid ${theme.palette.primary.main}`,
     width: "100%",
-    height: "41px",
+    minHeight: "41px",
     borderRadius: "9px",
     [theme.breakpoints.down("lg")]: {
-      height: "30px",
+      minHeight: "30px",
     },
   },
   inputBase: {
@@ -479,6 +479,7 @@ export const useStyles = makeStyles((theme) => ({
   containerDiv: {
     height: "570px",
     overflowY: "auto",
+    width: "100%",
     "&::-webkit-scrollbar-track": {
       background: "transparent",
       maxHeight: "50%",

@@ -113,6 +113,7 @@ export const TopBar = ({ live }) => {
                         color="primary"
                         badgeContent={4}
                         onClick={handleMenu}
+                        aria-haspopup={true}
                       >
                         <img
                           src={image.bell}
@@ -127,14 +128,14 @@ export const TopBar = ({ live }) => {
                         open={openMenu}
                         onClose={handleClose}
                         className={classes.menuContainer}
-                        anchorOrigin={{
-                          vertical: "bottom",
-                          horizontal: "right",
-                        }}
-                        transformOrigin={{
-                          vertical: "bottom",
-                          horizontal: "right",
-                        }}
+                        // anchorOrigin={{
+                        //   vertical: "bottom",
+                        //   horizontal: "right",
+                        // }}
+                        // transformOrigin={{
+                        //   vertical: "bottom",
+                        //   horizontal: "right",
+                        // }}
                       >
                         <List className={classes.list}>
                           <ListItem

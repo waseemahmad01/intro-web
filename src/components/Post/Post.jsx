@@ -1,21 +1,8 @@
 import React, { useState, useContext } from "react";
 import { useStyles } from "./postStyles";
-import {
-  Grid,
-  Avatar,
-  IconButton,
-  Dialog,
-  Typography,
-  Button,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction as Action,
-  ListItemAvatar,
-} from "@material-ui/core";
-import AvatarGroup from "@material-ui/lab/AvatarGroup";
+import { Grid, Avatar, IconButton } from "@material-ui/core";
 import image from "../../assets/index";
-import { Favorite, Close } from "@material-ui/icons";
+import { Favorite } from "@material-ui/icons";
 import { likeVideo, checkMatch, superLikeApi } from "../../http";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleMute } from "../../store/videoSound";
@@ -25,6 +12,8 @@ import { SocketContext } from "../../http/socket";
 import QuickMessageDialog from "../quickMessageDialog/QuickMessageDialog";
 import DateScheduler from "../dateSchedular/DateScheduler";
 import { onMessage } from "../../utils/firestoreFunctions";
+import MatchDialog from "../MatchDialog/MatchDialog";
+import InstantSpark from "../InstantSpark/InstantSpark";
 export const Post = React.forwardRef(
   (
     {
@@ -104,29 +93,33 @@ export const Post = React.forwardRef(
     };
 
     const handleSendQuickMessage = () => {
-      const doc = {
-        content: quickMessageValue,
-        filename: "",
-        idFrom: currentUser._id,
-        idTo: otherUser,
-        thumb: 0,
-        type: 0,
-      };
-      setQuickMessage(false);
-      let messages = [];
-      db.collection("messages")
-        .doc(chatId)
-        .collection(chatId)
-        .onSnapshot((snapshot) => {
-          snapshot.docs.forEach((doc) => messages.push(doc.data()));
-        });
-      onMessage(
-        doc,
-        chatId,
-        socket,
-        currentUser._id,
-        messages.length === 0 ? currentUser._id : otherUser
-      );
+      if (quickMessageValue === "") {
+        return;
+      } else {
+        const doc = {
+          content: quickMessageValue,
+          filename: "",
+          idFrom: currentUser._id,
+          idTo: otherUser,
+          thumb: 0,
+          type: 0,
+        };
+        setQuickMessage(false);
+        let messages = [];
+        db.collection("messages")
+          .doc(chatId)
+          .collection(chatId)
+          .onSnapshot((snapshot) => {
+            snapshot.docs.forEach((doc) => messages.push(doc.data()));
+          });
+        onMessage(
+          doc,
+          chatId,
+          socket,
+          currentUser._id,
+          messages.length === 0 ? currentUser._id : otherUser
+        );
+      }
     };
     return (
       <Grid
@@ -231,91 +224,14 @@ export const Post = React.forwardRef(
             </div>
           </Grid>
         </Grid>
-        <Dialog open={openDialog} className={classes.dialog}>
-          <Grid
-            container
-            className={classes.dialogContainer}
-            direction="column"
-            alignItems="center"
-          >
-            <Grid item>
-              <AvatarGroup className={classes.avatarGroup} spacing="small">
-                <Avatar
-                  className={classes.dialogImage}
-                  src={matchData.liked_by_profile_image}
-                />
-                <Avatar
-                  style={{ zIndex: 2 }}
-                  className={classes.dialogImage}
-                  src={matchData.liked_to_profile_image}
-                />
-              </AvatarGroup>
-            </Grid>
-            <Grid item>
-              <Typography className={classes.gradientText}>
-                It's a Match!
-              </Typography>
-            </Grid>
-            <Grid
-              item
-              container
-              justifyContent="space-between"
-              alignItems="flex-end"
-              className={classes.dialogAction}
-            >
-              <Grid item>
-                <Grid
-                  container
-                  style={{ cursor: "pointer" }}
-                  onClick={handleDate}
-                  direction="column"
-                  alignItems="center"
-                >
-                  <Grid item>
-                    <img
-                      src={image.date}
-                      className={classes.dialogIcon}
-                      alt=""
-                    />
-                  </Grid>
-                  <Grid item>
-                    <span className={classes.text}>Date scheduler</span>
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Grid item>
-                <Grid
-                  container
-                  style={{ cursor: "pointer" }}
-                  onClick={handleQuickMessage}
-                  direction="column"
-                  alignItems="center"
-                >
-                  <Grid item>
-                    <img
-                      src={image.quickMessage}
-                      className={classes.dialogIcon}
-                      alt=""
-                    />
-                  </Grid>
-                  <Grid item>
-                    <span className={classes.text}>Quick Message</span>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="outlined"
-                className={classes.outlinedButton}
-                color="primary"
-                onClick={() => setOpenDialog(false)}
-              >
-                Continue
-              </Button>
-            </Grid>
-          </Grid>
-        </Dialog>
+        <MatchDialog
+          handleDate={handleDate}
+          handleQuickMessage={handleQuickMessage}
+          fromImg={matchData.liked_by_profile_image}
+          toImg={matchData.liked_to_profile_image}
+          open={openDialog}
+          setOpen={setOpenDialog}
+        />
         <QuickMessageDialog
           open={quickMessage}
           setOpen={setQuickMessage}
@@ -324,7 +240,8 @@ export const Post = React.forwardRef(
           sendMessage={handleSendQuickMessage}
         />
         <DateScheduler open={date} setOpen={setDate} />
-        <Dialog
+        <InstantSpark open={openSuperDialog} setOpen={setOpenSuperDialog} />
+        {/* <Dialog
           className={classes.superDialog}
           open={openSuperDialog}
           onClose={() => setOpenSuperDialog(false)}
@@ -450,7 +367,7 @@ export const Post = React.forwardRef(
               </List>
             </Grid>
           </Grid>
-        </Dialog>
+        </Dialog> */}
       </Grid>
     );
   }

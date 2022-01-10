@@ -8,6 +8,7 @@ import {
   Button,
   useTheme,
   useMediaQuery,
+  Menu,
 } from "@material-ui/core";
 import image from "../../../assets/index";
 import { Video } from "../../../components/video/Video";
@@ -88,6 +89,14 @@ export const ProfileMatched = (props) => {
   const videosRef = useRef([]);
   videosRef.current = [];
   // eslint-disable-next-line
+  const [anchorEl, setAnchorEl] = useState(null);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const handleLike = async (id) => {
     // eslint-disable-next-line
@@ -259,7 +268,182 @@ export const ProfileMatched = (props) => {
             </Typography>
           </Grid>
           <Grid item>
-            <Typography className={classes.seeMore}>See more</Typography>
+            <Typography className={classes.seeMore} onClick={handleClick}>
+              See more
+            </Typography>
+            <Menu
+              id="simple-menu"
+              anchorEl={anchorEl}
+              keepMounted
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+              className={classes.rootMenu}
+            >
+              <Grid className={classes.menu}>
+                <Grid item className={classes.menuItem}>
+                  <Grid item container>
+                    <h1 className={classes.menuTitle}>Basics</h1>
+                  </Grid>
+                  <Grid
+                    item
+                    className={classes.row}
+                    container
+                    justifyContent="space-between"
+                  >
+                    <Grid item container alignItems="center" sm>
+                      <img
+                        src={image.gem}
+                        className={classes.menuIcon}
+                        alt=""
+                      />
+                      <span className={classes.menuItemText}>udergraduate</span>
+                    </Grid>
+                    <Grid item container alignItems="center" sm>
+                      <img
+                        src={image.gem}
+                        className={classes.menuIcon}
+                        alt=""
+                      />
+                      <span className={classes.menuItemText}>udergraduate</span>
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    item
+                    className={classes.row}
+                    container
+                    justifyContent="space-between"
+                  >
+                    <Grid item container alignItems="center" sm>
+                      <img
+                        src={image.gem}
+                        className={classes.menuIcon}
+                        alt=""
+                      />
+                      <span className={classes.menuItemText}>New York</span>
+                    </Grid>
+                    <Grid item container alignItems="center" sm>
+                      <img
+                        src={image.gem}
+                        className={classes.menuIcon}
+                        alt=""
+                      />
+                      <span className={classes.menuItemText}>New York</span>
+                    </Grid>
+                  </Grid>
+                </Grid>
+                <Grid item className={classes.menuItem}>
+                  <Grid item container>
+                    <h1 className={classes.menuTitle}>Life Style</h1>
+                  </Grid>
+                  <Grid
+                    item
+                    className={classes.row}
+                    container
+                    justifyContent="space-between"
+                  >
+                    <Grid item container alignItems="center" sm>
+                      <img
+                        src={image.gem}
+                        className={classes.menuIcon}
+                        alt=""
+                      />
+                      <span className={classes.menuItemText}>Do smoke</span>
+                    </Grid>
+                    <Grid item container alignItems="center" sm>
+                      <img
+                        src={image.gem}
+                        className={classes.menuIcon}
+                        alt=""
+                      />
+                      <span className={classes.menuItemText}>Sometimes</span>
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    item
+                    className={classes.row}
+                    container
+                    justifyContent="space-between"
+                  >
+                    <Grid item container alignItems="center" sm>
+                      <img
+                        src={image.gem}
+                        className={classes.menuIcon}
+                        alt=""
+                      />
+                      <span className={classes.menuItemText}>
+                        Prefer not to say
+                      </span>
+                    </Grid>
+                    <Grid item container alignItems="center" sm>
+                      <img
+                        src={image.gem}
+                        className={classes.menuIcon}
+                        alt=""
+                      />
+                      <span className={classes.menuItemText}>
+                        Prefer not to say
+                      </span>
+                    </Grid>
+                  </Grid>
+                </Grid>
+                <Grid item className={classes.menuItem}>
+                  <Grid item container>
+                    <h1 className={classes.menuTitle}>Bio</h1>
+                  </Grid>
+                  <Grid
+                    item
+                    className={classes.row}
+                    container
+                    justifyContent="space-between"
+                  >
+                    <Grid item container alignItems="center" sm>
+                      <img
+                        src={image.gem}
+                        className={classes.menuIcon}
+                        alt=""
+                      />
+                      <span className={classes.menuItemText}>172cm</span>
+                    </Grid>
+                    <Grid item container alignItems="center" sm>
+                      <img
+                        src={image.gem}
+                        className={classes.menuIcon}
+                        alt=""
+                      />
+                      <span className={classes.menuItemText}>other</span>
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    item
+                    className={classes.row}
+                    container
+                    justifyContent="space-between"
+                  >
+                    <Grid item container alignItems="center" sm>
+                      <img
+                        src={image.gem}
+                        className={classes.menuIcon}
+                        alt=""
+                      />
+                      <span className={classes.menuItemText}>random</span>
+                    </Grid>
+                    <Grid item container alignItems="center" sm>
+                      <img
+                        src={image.gem}
+                        className={classes.menuIcon}
+                        alt=""
+                      />
+                      <span className={classes.menuItemText}>random</span>
+                    </Grid>
+                  </Grid>
+                </Grid>
+                <Grid item container justifyContent="center">
+                  <span className={classes.seeLess} onClick={handleClose}>
+                    see less
+                  </span>
+                </Grid>
+              </Grid>
+            </Menu>
           </Grid>
         </Grid>
       </Grid>
@@ -664,6 +848,62 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("lg")]: {
       padding: "1rem",
       height: "580px",
+    },
+  },
+
+  rootMenu: {
+    "& .MuiMenu-paper": {
+      borderRadius: "25px",
+      marginLeft: "-2rem",
+    },
+  },
+  menu: {
+    width: "420px",
+    padding: "1rem 2rem",
+    [theme.breakpoints.down("lg")]: {
+      width: "265px",
+      padding: "0.5rem 1rem",
+    },
+  },
+  menuItem: {},
+  menuTitle: {
+    fontSize: "25px",
+    marginBottom: "2rem",
+    marginTop: "1rem",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "18px",
+      marginBottom: "1rem",
+      marginTop: "0.5rem",
+    },
+  },
+  menuIcon: {
+    width: "1.7rem",
+    [theme.breakpoints.down("lg")]: {
+      width: "1rem",
+    },
+  },
+  menuItemText: {
+    fontSize: "16px",
+    marginLeft: "0.8rem",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "13px",
+      marginLeft: "0.35rem",
+    },
+  },
+  row: {
+    marginBottom: "1rem",
+    [theme.breakpoints.down("lg")]: {
+      marginBottom: "0.5rem",
+    },
+  },
+  seeLess: {
+    fontSize: "22px",
+    textDecoration: "underline",
+    cursor: "pointer",
+    marginTop: "0.75rem",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "18px",
+      marginTop: "0.35rem",
     },
   },
 }));

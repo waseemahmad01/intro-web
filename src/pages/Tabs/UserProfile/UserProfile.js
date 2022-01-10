@@ -199,7 +199,7 @@ export const UserProfile = (props) => {
             <Grid item className={classes.avatarContainer}>
               <Avatar className={classes.avatar} src={user.profile_image} />
               <Typography className={classes.anchor}>
-                {user.username}
+                {`@${user.username}`}
               </Typography>
             </Grid>
             <Grid item container direction="column" alignItems="flex-start">
@@ -771,7 +771,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   menu: {
-    width: "395px",
+    width: "420px",
     padding: "1rem 2rem",
     [theme.breakpoints.down("lg")]: {
       width: "265px",
@@ -796,7 +796,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   menuItemText: {
-    fontSize: "17px",
+    fontSize: "16px",
     marginLeft: "0.8rem",
     [theme.breakpoints.down("lg")]: {
       fontSize: "13px",

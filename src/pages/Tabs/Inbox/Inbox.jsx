@@ -566,7 +566,7 @@ export const Inbox = (props) => {
                       )}
 
                       <Typography
-                        style={{ maxWidth: "70%" }}
+                        style={{ maxWidth: "70%", wordWrap: "break-word" }}
                         className={
                           idFrom === activeChat.userId
                             ? classes.incomingMessage
@@ -760,6 +760,8 @@ export const Inbox = (props) => {
                     </IconButton>
                   </Grid>
                   <InputBase
+                    maxRows={4}
+                    multiline
                     value={message}
                     onKeyUp={handleKeyUp}
                     onChange={handleMessage}
@@ -913,6 +915,9 @@ export const Inbox = (props) => {
                         classes={{ root: classes.listItemTextRoot }}
                         primary={chat.matched_username.to}
                         secondary={chat.msg}
+                        secondaryTypographyProps={{
+                          noWrap: true,
+                        }}
                       />
 
                       <Typography className={classes.lastSeen}>

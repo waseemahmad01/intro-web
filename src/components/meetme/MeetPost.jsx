@@ -1,39 +1,53 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useStyles } from "./styles";
 import { useTransition, animated } from "react-spring";
 import {
   Grid,
   Avatar,
   IconButton,
-  Dialog,
-  Typography,
-  Button,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  ListItemSecondaryAction as Action,
   useTheme,
   useMediaQuery,
 } from "@material-ui/core";
 import image from "../../assets/index";
-import { Close } from "@material-ui/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleMute } from "../../store/videoSound";
 import { useHistory } from "react-router-dom";
-import { checkMatch, superLikeApi } from "../../http";
+import { checkMatch, superLikeApi, likeVideo } from "../../http";
+import InstantSpark from "../InstantSpark/InstantSpark";
+import MatchDialog from "../MatchDialog/MatchDialog";
+import QuickMessageDialog from "../quickMessageDialog/QuickMessageDialog";
+import DateScheduler from "../dateSchedular/DateScheduler";
+import { onMessage } from "../../utils/firestoreFunctions";
+import { SocketContext } from "../../http/socket";
+import { db } from "../../firebaseInit";
+
 export const MeetPost = ({ allVideos, page, setPage, totalPage }) => {
   const classes = useStyles();
   const history = useHistory();
   // eslint-disable-next-line
   const theme = useTheme();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
+  const socket = useContext(SocketContext);
   // eslint-disable-next-line
   const [openSuperDialog, setOpenSuperDialog] = useState(false);
   const isMuted = useSelector((state) => state.video.muted);
   const dispatch = useDispatch();
   // eslint-disable-next-line
   const [totalPages, setTotalPages] = useState(totalPage);
+  const [date, setDate] = useState(false);
+  const [openMatch, setOpenMatch] = useState(false);
+  const [quickMessage, setQuickMessage] = useState(false);
+  const [quickMessageValue, setQuickMessageValue] = useState("");
+  const [username, setUsername] = useState("");
+  const [chatId, setChatId] = useState("");
+  const [matchData, setMatchData] = useState({
+    liked_by: "",
+    liked_by_name: "",
+    liked_by_profile_image: "",
+    liked_to: "",
+    liked_to_name: "",
+    liked_to_profile_image: "",
+  });
   // eslint-disable-next-line
   const [videos, setVideos] = useState(allVideos);
   const [index, setIndex] = useState(0);
@@ -42,6 +56,14 @@ export const MeetPost = ({ allVideos, page, setPage, totalPage }) => {
     from: { x: 450, opacity: 0 },
     enter: { x: 0, opacity: 1 },
   });
+  const handleQuickMessage = () => {
+    setOpenMatch(false);
+    setQuickMessage(true);
+  };
+  const handleDate = () => {
+    setOpenMatch(false);
+    setDate(true);
+  };
   const handleCloseButton = () => {
     if (index === videos.length - 1 && page < totalPages) {
       setPage(page + 1);
@@ -63,20 +85,93 @@ export const MeetPost = ({ allVideos, page, setPage, totalPage }) => {
       history.push(`/home/unmatch/${id}`);
     }
   };
-
+  const handleContinue = () => {
+    if (index === videos.length - 1 && page < totalPages) {
+      setPage(page + 1);
+      setAnimate(!animate);
+      setIndex(0);
+    } else if (index === videos.length - 1 && page === totalPages) {
+      return;
+    } else {
+      setAnimate(!animate);
+      setIndex(index + 1);
+    }
+  };
+  const handleSendMessage = () => {
+    if (quickMessageValue === "") {
+      return;
+    } else {
+      const doc = {
+        content: quickMessageValue,
+        filename: "",
+        idFrom: matchData.liked_by,
+        idTo: matchData.liked_to,
+        thumb: 0,
+        type: 0,
+      };
+      setQuickMessage(false);
+      let messages = [];
+      db.collection("messages")
+        .doc(chatId)
+        .collection(chatId)
+        .onSnapshot((snapshot) => {
+          snapshot.docs.forEach((doc) => messages.push(doc.data()));
+        });
+      onMessage(
+        doc,
+        chatId,
+        socket,
+        matchData.liked_by,
+        messages.length === 0 ? matchData.liked_by : matchData.liked_to
+      );
+      handleContinue();
+    }
+  };
+  const handleLikeVideo = async (id) => {
+    try {
+      const { data } = await likeVideo({ video_id: id });
+      setMatchData(data.data);
+      console.log(data);
+      if (data.matched) {
+        setChatId(data.chatId);
+        setUsername(data.data.liked_to_name);
+        setOpenMatch(true);
+      } else {
+        if (index === videos.length - 1 && page < totalPages) {
+          setPage(page + 1);
+          setAnimate(!animate);
+          setIndex(0);
+        } else if (index === videos.length - 1 && page === totalPages) {
+          return;
+        } else {
+          setAnimate(!animate);
+          setIndex(index + 1);
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
   const handleSuperLike = async (id) => {
-    // eslint-disable-next-line
     try {
       const { data } = await superLikeApi({ video_id: id });
-      if (index === videos.length - 1 && page < totalPages) {
-        setPage(page + 1);
-        setAnimate(!animate);
-        setIndex(0);
-      } else if (index === videos.length - 1 && page === totalPages) {
-        return;
+      setMatchData(data.data);
+      console.log(data);
+      if (data.matched) {
+        setChatId(data.chatId);
+        setUsername(data.data.liked_to_name);
+        setOpenMatch(true);
       } else {
-        setAnimate(!animate);
-        setIndex(index + 1);
+        if (index === videos.length - 1 && page < totalPages) {
+          setPage(page + 1);
+          setAnimate(!animate);
+          setIndex(0);
+        } else if (index === videos.length - 1 && page === totalPages) {
+          return;
+        } else {
+          setAnimate(!animate);
+          setIndex(index + 1);
+        }
       }
     } catch (err) {
       console.log(err);
@@ -163,7 +258,6 @@ export const MeetPost = ({ allVideos, page, setPage, totalPage }) => {
                         overflow: "hidden",
                       }}
                     >
-                      {/* <img src={image.post} className={classes.postAsset} alt="" /> */}
                       <video
                         playsInline
                         autoPlay
@@ -228,7 +322,12 @@ export const MeetPost = ({ allVideos, page, setPage, totalPage }) => {
                               </IconButton>
                             </Grid>
                             <Grid item>
-                              <IconButton className={classes.superIcon}>
+                              <IconButton
+                                onClick={() =>
+                                  handleLikeVideo(videos[index]._id)
+                                }
+                                className={classes.superIcon}
+                              >
                                 <img src={image.dedicatedHeart} alt="" />
                               </IconButton>
                             </Grid>
@@ -238,140 +337,36 @@ export const MeetPost = ({ allVideos, page, setPage, totalPage }) => {
                     </div>
                   </Grid>
                 </Grid>
-                <Dialog
-                  className={classes.superDialog}
-                  open={openSuperDialog}
-                  onClose={() => setOpenSuperDialog(false)}
-                >
-                  <Grid
-                    container
-                    direction="column"
-                    alignItems="center"
-                    className={classes.superDialogContainer}
-                  >
-                    <Grid item container justifyContent="flex-end">
-                      <IconButton
-                        onClick={() => setOpenSuperDialog(false)}
-                        className={classes.closeButton}
-                      >
-                        <Close className={classes.closeIcon} />
-                      </IconButton>
-                    </Grid>
-                    <Grid item>
-                      <Typography className={classes.superDialogTitle}>
-                        Get Instant Spark
-                      </Typography>
-                    </Grid>
-                    <Grid item>
-                      <Typography className={classes.superDialogSubtitle}>
-                        Buy instant spark to get their attention
-                      </Typography>
-                    </Grid>
-                    <Grid item container>
-                      <List
-                        dense
-                        style={{ width: "90%", marginInline: "auto" }}
-                      >
-                        <ListItem divider className={classes.listItem}>
-                          <ListItemAvatar>
-                            <img
-                              className={classes.image}
-                              src={image.superLikePink}
-                              alt=""
-                            />
-                          </ListItemAvatar>
-                          <ListItemText
-                            className={classes.listItemText}
-                            primary="500"
-                            secondary="$4.99"
-                          />
-                          <Action className={classes.action}>
-                            <Button
-                              className={classes.button}
-                              variant="contained"
-                              color="primary"
-                            >
-                              Select
-                            </Button>
-                          </Action>
-                        </ListItem>
-                        <ListItem className={classes.listItem} divider>
-                          <ListItemAvatar>
-                            <img
-                              className={classes.image}
-                              src={image.superLikePink}
-                              alt=""
-                            />
-                          </ListItemAvatar>
-                          <ListItemText
-                            className={classes.listItemText}
-                            primary="500"
-                            secondary="$4.99"
-                          />
-                          <Action className={classes.action}>
-                            <Button
-                              className={classes.button}
-                              variant="contained"
-                              color="primary"
-                            >
-                              Select
-                            </Button>
-                          </Action>
-                        </ListItem>
-                        <ListItem className={classes.listItem} divider>
-                          <ListItemAvatar>
-                            <img
-                              className={classes.image}
-                              src={image.superLikePink}
-                              alt=""
-                            />
-                          </ListItemAvatar>
-                          <ListItemText
-                            className={classes.listItemText}
-                            primary="500"
-                            secondary="$4.99"
-                          />
-                          <Action className={classes.action}>
-                            <Button
-                              className={classes.button}
-                              variant="contained"
-                              color="primary"
-                            >
-                              Select
-                            </Button>
-                          </Action>
-                        </ListItem>
-                        <ListItem className={classes.listItem} divider>
-                          <ListItemAvatar>
-                            <img
-                              className={classes.image}
-                              src={image.superLikePink}
-                              alt=""
-                            />
-                          </ListItemAvatar>
-                          <ListItemText
-                            className={classes.listItemText}
-                            primary="500"
-                            secondary="$4.99"
-                          />
-                          <Action className={classes.action}>
-                            <Button
-                              className={classes.button}
-                              variant="contained"
-                              color="primary"
-                            >
-                              Select
-                            </Button>
-                          </Action>
-                        </ListItem>
-                      </List>
-                    </Grid>
-                  </Grid>
-                </Dialog>
               </Grid>
             </animated.div>
           )
       )}
+      <MatchDialog
+        open={openMatch}
+        setOpen={setOpenMatch}
+        handleDate={handleDate}
+        handleQuickMessage={handleQuickMessage}
+        fromImg={matchData.liked_by_profile_image}
+        toImg={matchData.liked_to_profile_image}
+        onContinue={handleContinue}
+      />
+      <QuickMessageDialog
+        open={quickMessage}
+        setOpen={setQuickMessage}
+        setQuickMessage={setQuickMessageValue}
+        username={username}
+        sendMessage={handleSendMessage}
+      />
+      <DateScheduler
+        open={date}
+        setOpen={setDate}
+        onContinue={handleContinue}
+      />
+      <InstantSpark
+        open={openSuperDialog}
+        setOpen={setOpenSuperDialog}
+        onContinue={handleContinue}
+      />
     </>
   );
 };

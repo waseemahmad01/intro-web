@@ -14,7 +14,7 @@ import { Close } from "@material-ui/icons";
 import DatePicker from "../datePicker/DatePicker";
 import image from "../../assets/index";
 
-const DateScheduler = ({ open, setOpen }) => {
+const DateScheduler = ({ open, setOpen, onContinue }) => {
   const classes = useStyles();
   const [tab, setTab] = useState(1);
   const [sliderValue, setSliderValue] = useState([11, 23]);
@@ -62,6 +62,9 @@ const DateScheduler = ({ open, setOpen }) => {
   };
   const handleDateContinue = () => {
     setOpen(false);
+    if (onContinue) {
+      onContinue();
+    }
     getTime();
   };
   useEffect(() => {
