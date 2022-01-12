@@ -25,7 +25,6 @@ export const LiveFilter = ({ liveUsers }) => {
   };
   // eslint-disable-next-line
   const getCityName = (lat, long) => {
-    // Geocode.setApiKey("AIzaSyB_BAN0LhB9Psr2Xi8q4je-4wz05TOZ8sM");
     Geocode.fromLatLng(lat, long).then(
       (response) => {
         const address = response.results[0].formatted_address;
