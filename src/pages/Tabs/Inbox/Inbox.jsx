@@ -117,7 +117,6 @@ export const Inbox = (props) => {
     chatId: "",
     userId: "",
   });
-  const [name, setName] = useState("hello world");
   const scroll = useRef();
   const [audioDetails, setAudioDetails] = useState({
     url: null,
@@ -158,6 +157,7 @@ export const Inbox = (props) => {
   };
   const handleChatClick = (index, chatId, uId) => {
     setActive(index);
+    localStorage.setItem("index", `${index}`);
     setActiveChat({
       chatId: chatId,
       userId: uId,
@@ -364,7 +364,9 @@ export const Inbox = (props) => {
       const chatId = chatState.chatId;
       const userId = chatState.userId;
       const index = chatState.activeIndex;
-      setActive(index);
+      console.log("here iam " + index);
+      localStorage.setItem("index", index);
+      setActive(index * 1);
       setActiveChat({
         chatId: chatId,
         userId: userId,
@@ -375,6 +377,7 @@ export const Inbox = (props) => {
         const { chatId, userId } = firstChat.current;
         if (chatId !== null && userId !== null) {
           setActive(0);
+          localStorage.setItem("index", 0);
           setActiveChat({
             chatId: chatId,
             userId,

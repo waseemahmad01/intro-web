@@ -29,7 +29,7 @@ import { ProfileMatched } from "../Tabs/ProfileMatched/ProfileMatched";
 import { UnMatch } from "../Tabs/UnMatch/UnMatch";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 import { SocketContext } from "../../http/socket";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 // import { getStories } from "../../http/index";
 import {
   HomeRounded,
@@ -40,11 +40,13 @@ import {
   PersonRounded,
 } from "@material-ui/icons";
 import { allVideos as getAllVideos, allChats } from "../../http/index";
+import { setChatState, setChatVisit } from "../../store/inbox";
 // import { ethnicityList } from "../../data";
 // import { setStories } from "../../store/stories";
 export const AllTabs = () => {
   const classes = useStyles();
   const theme = useTheme();
+  const dispatch = useDispatch();
   const socket = useContext(SocketContext);
   const currentUser = useSelector((state) => state.auth.user.data);
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
@@ -206,6 +208,17 @@ export const AllTabs = () => {
     (async () => {
       const { data } = await allChats();
       setChats(data.data);
+      const index = localStorage.getItem("index");
+      console.log(index);
+      if (index) {
+        dispatch(setChatVisit(1));
+        const payload = {
+          chatId: data.data[index].chatId,
+          userId: data.data[index].matched_ids.to,
+          activeIndex: index,
+        };
+        dispatch(setChatState(payload));
+      }
     })();
     socket.on(`chatUpdate_${currentUser._id}`, () => {
       (async () => {
