@@ -125,7 +125,7 @@ function App(props) {
         <ProtectedRoute path="/live" component={Live} />
         <ProtectedRoute path="/stream" component={Stream} />
         <ProtectedRoute path="/joinstream" component={JoinStream} />
-        <ProtectedRoute path="/videochat" component={VideoCall} />
+        <ProtectedRoute path="/videochat" exact component={VideoCall} />
         <ProtectedRoute path="/voicechat" component={AudioCall} />
       </Switch>
     </div>

@@ -21,7 +21,7 @@ import AgoraRTC from "agora-rtc-sdk-ng";
 
 const VideoCall = (props) => {
   const classes = useStyles();
-  const [started, setStarted] = useState(true);
+  const [started, setStarted] = useState(false);
   const user = useSelector((state) => state.auth.user.data);
   const [muteVideo, setMuteVideo] = useState(false);
   const [muteAudio, setMuteAudio] = useState(false);
@@ -33,7 +33,7 @@ const VideoCall = (props) => {
 
   const options = {
     appId: process.env.REACT_APP_AGORA_APPID,
-    channel: user.username,
+    channel: "test",
     uid: null,
     token: null,
   };
@@ -56,7 +56,7 @@ const VideoCall = (props) => {
     client.on("user-left", handleUserLeft);
     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-
+    // localTracks.videoTrack.play(local.current);
     await client.publish(Object.values(localTracks));
     console.log("Successfully Published");
   };
@@ -75,9 +75,12 @@ const VideoCall = (props) => {
   };
 
   const subscribe = async (user, mediaType) => {
+    alert("running");
     await client.subscribe(user, mediaType);
+    setStarted(true);
     console.log("Successfully Subscribes.");
     if (mediaType === "video") {
+      console.log(user.uid, options.uid);
       if (user.uid === options.uid) {
         user.videoTrack.play(local.current);
       } else {
@@ -116,17 +119,29 @@ const VideoCall = (props) => {
   };
 
   useEffect(() => {
-    console.log("running");
+    join();
+    return () => {
+      leave();
+    };
   }, []);
   return (
     <Grid container className={classes.container} direction="column">
-      <Grid className={classes.videoContainer}>
+      <Grid
+        ref={remote}
+        style={{ zIndex: "1" }}
+        className={classes.videoContainer}
+      ></Grid>
+      <Grid id="main" className={classes.videoContainer}>
         {started && (
           <Draggable defaultClassName={classes.dragable} bounds="parent">
-            <Grid item container className={classes.remoterUserVideo}></Grid>
+            <Grid
+              item
+              ref={local}
+              container
+              className={classes.remoterUserVideo}
+            ></Grid>
           </Draggable>
         )}
-
         <img
           src={
             "https://tipsforwomens.org/wp-content/uploads/2020/08/Can-Yaman-reveals-what-is-really-between-him-and-Demet-1024x584.jpeg"
@@ -324,6 +339,7 @@ const useStyles = makeStyles((theme) => ({
     width: "300px",
     background: "red",
     borderRadius: "20px",
+    overflow: "hidden",
     [theme.breakpoints.down("lg")]: {
       height: "200px",
       width: "185px",

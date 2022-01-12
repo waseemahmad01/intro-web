@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useRef,
-  useEffect,
-  useContext,
-  useCallback,
-} from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import { useStyles } from "./InboxStyles";
 import {
   Grid,
@@ -45,12 +39,11 @@ import GifImage from "../../../components/GifImage/GifImage";
 import VideoRecorder from "react-video-recorder";
 import DateScheduler from "../../../components/dateSchedular/DateScheduler";
 import { onMessage, onFileMessage } from "../../../utils/firestoreFunctions";
-import AudioCall from "../../audioCall/AudioCall";
-import VideoCall from "../../videoCall/VideoCall";
-import NewWindow from "react-new-window";
+import { useHistory } from "react-router-dom";
 
 export const Inbox = (props) => {
   const classes = useStyles();
+  const history = useHistory();
   const theme = useTheme();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const currentUser = useSelector((state) => state.auth.user.data);
@@ -120,6 +113,7 @@ export const Inbox = (props) => {
     chatId: "",
     userId: "",
   });
+  const [name, setName] = useState("hello world");
   const scroll = useRef();
   const [audioDetails, setAudioDetails] = useState({
     url: null,
@@ -131,21 +125,12 @@ export const Inbox = (props) => {
       s: 0,
     },
   });
-  const [openVideoPortal, setOpenVideoPortal] = useState(false);
-  const [openAudioPortal, setOpenAudioPortal] = useState(false);
-  const openVPortal = useCallback(() => setOpenVideoPortal(true));
-  const openAPortal = useCallback(() => setOpenAudioPortal(true));
-  const closeVPortal = useCallback(() => setOpenVideoPortal(false));
-  const closeAPortal = useCallback(() => setOpenAudioPortal(false));
   const refOne = useRef();
   const refTwo = useRef();
   const firstChat = useRef({
     chatId: null,
     userId: null,
   });
-  const handleClickEvent = () => {
-    window.open("http://localhost:3000/videochat", "", "");
-  };
   const handleOpenVideoDialog = () => {
     setOpenVideoDialog(true);
   };
@@ -541,39 +526,25 @@ export const Inbox = (props) => {
                     alt=""
                   />
                 </IconButton>
-                <IconButton
-                  onClick={openAPortal}
+                <Grid
+                  item
+                  component={Link}
+                  to="/videochat"
+                  target="_blank"
                   className={classes.callButton}
                 >
                   <img src={image.phone} className={classes.callIcon} alt="" />
-                </IconButton>
-                <IconButton
-                  onClick={openVPortal}
-                  className={classes.callButton}
-                >
+                </Grid>
+                <Grid item className={classes.callButton}>
                   <img
                     src={image.videoIcon}
                     className={classes.callIcon}
                     alt=""
                   />
-                </IconButton>
-                {openAudioPortal && (
-                  <NewWindow unmountOnExit onUnload={closeAPortal}>
-                    <AudioCall
-                      hello="hello"
-                      appId="djsavnlkdmalnavdnk"
-                      onClose={closeAPortal}
-                    />
-                  </NewWindow>
-                )}
-                {openVideoPortal && (
-                  <NewWindow unmountOnExit onUnload={closeVPortal}>
-                    <VideoCall />
-                  </NewWindow>
-                )}
+                </Grid>
               </Grid>
             </Grid>
-            <div className={classes.containerDiv}>
+            <div className={classes.containerDiv} id="main">
               {chat.map(({ content, idFrom, type, timestamp }, index) => {
                 let showProfile;
                 if (index > 0) {
