@@ -18,13 +18,25 @@ import image from "../../assets";
 import Draggable from "react-draggable";
 import { useSelector } from "react-redux";
 import AgoraRTC from "agora-rtc-sdk-ng";
+import useTimer from "../../hooks/useTimer";
+import { useHistory } from "react-router-dom";
 
 const VideoCall = (props) => {
+  console.log(props);
   const classes = useStyles();
+  const history = useHistory();
   const [started, setStarted] = useState(false);
+  const { start, stop, time } = useTimer();
   const user = useSelector((state) => state.auth.user.data);
   const [muteVideo, setMuteVideo] = useState(false);
   const [muteAudio, setMuteAudio] = useState(false);
+  // const [duration, setDuration] = useState(0);
+  const duration = useRef(0);
+  // const [localTracks, setLocalTracks] = useState();
+  const localTracks = useRef({
+    audioTrack: null,
+    videoTrack: null,
+  });
 
   const local = useRef();
   const remote = useRef();
@@ -38,10 +50,6 @@ const VideoCall = (props) => {
     token: null,
   };
 
-  const localTracks = {
-    audioTrack: null,
-    videoTrack: null,
-  };
   const remoteUsers = {};
   const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
   const join = async () => {
@@ -54,20 +62,21 @@ const VideoCall = (props) => {
     client.on("user-published", handleUserPublished);
     client.on("user-joined", handleUserJoined);
     client.on("user-left", handleUserLeft);
-    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-    // localTracks.videoTrack.play(local.current);
-    await client.publish(Object.values(localTracks));
+    let audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+    let videoTrack = await AgoraRTC.createCameraVideoTrack();
+    localTracks.current = { audioTrack: audioTrack, videoTrack: videoTrack };
+    localTracks.current.videoTrack.play(local.current);
+    await client.publish(Object.values(localTracks.current));
     console.log("Successfully Published");
   };
   const leave = async () => {
-    for (let trackName in localTracks) {
-      let track = localTracks[trackName];
+    for (let trackName in localTracks.current) {
+      let track = localTracks.current[trackName];
       console.log(track);
       if (track) {
         track.stop();
         track.close();
-        localTracks[trackName] = undefined;
+        localTracks.current[trackName] = undefined;
       }
     }
     await client.leave();
@@ -75,10 +84,9 @@ const VideoCall = (props) => {
   };
 
   const subscribe = async (user, mediaType) => {
-    alert("running");
     await client.subscribe(user, mediaType);
     setStarted(true);
-    console.log("Successfully Subscribes.");
+
     if (mediaType === "video") {
       console.log(user.uid, options.uid);
       if (user.uid === options.uid) {
@@ -90,6 +98,7 @@ const VideoCall = (props) => {
     if (mediaType === "audio") {
       user.audioTrack.play();
     }
+    start();
   };
   const handleUserPublished = (user, mediaType) => {
     const id = user.uid;
@@ -105,16 +114,21 @@ const VideoCall = (props) => {
   const handleUserLeft = (user) => {
     const id = user.uid;
     delete remoteUsers[id];
-    // removePlayer();
+    alert(user.uid);
+    history.goBack();
   };
 
-  const handleMuteAudio = () => {
-    localTracks.audioTrack.setMuted(!muteAudio);
+  const handleMuteAudio = async () => {
+    console.log(localTracks);
+    const audioTrack = localTracks.current.audioTrack;
+    audioTrack.setMuted(!muteAudio);
     setMuteAudio(!muteAudio);
   };
 
   const handleMuteVideo = () => {
-    localTracks.videoTrack.setMuted(!muteVideo);
+    console.log(localTracks);
+    const videoTrack = localTracks.current.videoTrack;
+    videoTrack.setMuted(!muteVideo);
     setMuteVideo(!muteVideo);
   };
 
@@ -122,6 +136,7 @@ const VideoCall = (props) => {
     join();
     return () => {
       leave();
+      stop();
     };
   }, []);
   return (
@@ -132,16 +147,19 @@ const VideoCall = (props) => {
         className={classes.videoContainer}
       ></Grid>
       <Grid id="main" className={classes.videoContainer}>
-        {started && (
-          <Draggable defaultClassName={classes.dragable} bounds="parent">
-            <Grid
-              item
-              ref={local}
-              container
-              className={classes.remoterUserVideo}
-            ></Grid>
-          </Draggable>
-        )}
+        <Draggable
+          defaultClassName={`${classes.dragable} ${
+            started ? "" : classes.hidden
+          }`}
+          bounds="parent"
+        >
+          <Grid
+            item
+            ref={local}
+            container
+            className={classes.remoterUserVideo}
+          ></Grid>
+        </Draggable>
         <img
           src={
             "https://tipsforwomens.org/wp-content/uploads/2020/08/Can-Yaman-reveals-what-is-really-between-him-and-Demet-1024x584.jpeg"
@@ -159,7 +177,17 @@ const VideoCall = (props) => {
         <IconButton className={classes.prevButton}>
           <ChevronLeft className={classes.icon} />
         </IconButton>
-        <Typography className={classes.title}>video calling</Typography>
+        <Typography className={classes.title}>
+          {started ? (
+            <>
+              <span>{Math.floor(time / 60)}</span>
+              <span>:</span>
+              <span>{("0" + (time % 60)).slice(-2)}</span>
+            </>
+          ) : (
+            "video calling"
+          )}
+        </Typography>
         <div />
       </Grid>
       <Grid item container className={classes.middle} justifyContent="center">
@@ -185,12 +213,18 @@ const VideoCall = (props) => {
           className={classes.actionButton}
         >
           {muteVideo ? (
-            <VideocamOff className={classes.actionButtonIcons} />
+            <VideocamOff
+              style={{ color: "red" }}
+              className={classes.actionButtonIcons}
+            />
           ) : (
             <Videocam className={classes.actionButtonIcons} />
           )}
         </IconButton>
-        <IconButton className={classes.callEndButton}>
+        <IconButton
+          onClick={() => history.goBack()}
+          className={classes.callEndButton}
+        >
           <CallEnd className={classes.callEndButtonIcon} />
         </IconButton>
         <IconButton
@@ -199,7 +233,10 @@ const VideoCall = (props) => {
           className={classes.actionButton}
         >
           {muteAudio ? (
-            <MicOff className={classes.actionButtonIcons} />
+            <MicOff
+              style={{ color: "red" }}
+              className={classes.actionButtonIcons}
+            />
           ) : (
             <Mic className={classes.actionButtonIcons} />
           )}
@@ -356,5 +393,8 @@ const useStyles = makeStyles((theme) => ({
       top: "50px",
       right: "50px",
     },
+  },
+  hidden: {
+    visibility: "hidden",
   },
 }));

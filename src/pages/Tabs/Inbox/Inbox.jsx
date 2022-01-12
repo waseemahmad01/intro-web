@@ -529,8 +529,11 @@ export const Inbox = (props) => {
                 <Grid
                   item
                   component={Link}
-                  to="/videochat"
-                  target="_blank"
+                  to={{
+                    pathname: "/videochat",
+                    state: { chatId: activeChat.chatId },
+                  }}
+                  // target="_blank"
                   className={classes.callButton}
                 >
                   <img src={image.phone} className={classes.callIcon} alt="" />

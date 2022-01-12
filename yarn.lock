@@ -10523,13 +10523,6 @@ react-multi-carousel@^2.6.3:
   resolved "https://registry.yarnpkg.com/react-multi-carousel/-/react-multi-carousel-2.6.3.tgz#9ec39110de17feb6075cb134d046ae2e02df6b98"
   integrity sha512-fCe+I1BlhTUyNHm/fh3bWavDo8UzoolTd/zrKao/wvb/XFf9dvesfNOawx7ukAzptiHOQhGCWZiNao+J76Byfw==
 
-react-new-window@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/react-new-window/-/react-new-window-0.2.1.tgz#510aa91ba0334f0d42ba499c617a37f46c4d84ba"
-  integrity sha512-3s6W8eipRbjoLGvWpFRPSt2/z5h9FTS01C+ZjaEZX7/cF6ejGc6JVuL4oEo0s73IluaqoLIDB49AK4fSMW8pJw==
-  dependencies:
-    prop-types "^15.7.2"
-
 react-otp-input@^2.4.0:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/react-otp-input/-/react-otp-input-2.4.0.tgz#0f0a3de1d8c8d564e2e4fbe5d6b7b56e29e3a6e6"
@@ -10666,6 +10659,11 @@ react-svg-inline@^2.1.0:
   dependencies:
     classnames "^2.2.1"
     prop-types "^15.5.8"
+
+react-timer-hook@^3.0.5:
+  version "3.0.5"
+  resolved "https://registry.yarnpkg.com/react-timer-hook/-/react-timer-hook-3.0.5.tgz#a8d930f99b180cd88da245965a26a17df3e7457b"
+  integrity sha512-n+98SdmYvui2ne3KyWb3Ldu4k0NYQa3g/VzW6VEIfZJ8GAk/jJsIY700M8Nd2vNSTj05c7wKyQfJBqZ0x7zfiA==
 
 react-transition-group@^4.0.0, react-transition-group@^4.4.0:
   version "4.4.2"
