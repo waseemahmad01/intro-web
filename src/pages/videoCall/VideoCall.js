@@ -14,7 +14,6 @@ import {
   MicOff,
   CallEnd,
 } from "@material-ui/icons";
-import image from "../../assets";
 import Draggable from "react-draggable";
 import { useSelector } from "react-redux";
 import AgoraRTC from "agora-rtc-sdk-ng";
@@ -22,17 +21,14 @@ import useTimer from "../../hooks/useTimer";
 import { useHistory } from "react-router-dom";
 
 const VideoCall = (props) => {
-  console.log(props);
   const classes = useStyles();
   const history = useHistory();
   const [started, setStarted] = useState(false);
   const { start, stop, time } = useTimer();
+  const { chatId, userImg, username } = history.location.state;
   const user = useSelector((state) => state.auth.user.data);
   const [muteVideo, setMuteVideo] = useState(false);
   const [muteAudio, setMuteAudio] = useState(false);
-  // const [duration, setDuration] = useState(0);
-  const duration = useRef(0);
-  // const [localTracks, setLocalTracks] = useState();
   const localTracks = useRef({
     audioTrack: null,
     videoTrack: null,
@@ -45,7 +41,7 @@ const VideoCall = (props) => {
 
   const options = {
     appId: process.env.REACT_APP_AGORA_APPID,
-    channel: "test",
+    channel: chatId,
     uid: null,
     token: null,
   };
@@ -194,8 +190,8 @@ const VideoCall = (props) => {
         {!started && (
           <Grid item className={classes.avatarContainer}>
             <Grid item container direction="column" alignItems="center">
-              <Avatar src={image.img} className={classes.userImage} alt="" />
-              <Typography className={classes.username}>Savannah</Typography>
+              <Avatar src={userImg} className={classes.userImage} alt="" />
+              <Typography className={classes.username}>{username}</Typography>
             </Grid>
           </Grid>
         )}
@@ -214,7 +210,7 @@ const VideoCall = (props) => {
         >
           {muteVideo ? (
             <VideocamOff
-              style={{ color: "red" }}
+              style={{ color: "#FE858C" }}
               className={classes.actionButtonIcons}
             />
           ) : (
@@ -234,7 +230,7 @@ const VideoCall = (props) => {
         >
           {muteAudio ? (
             <MicOff
-              style={{ color: "red" }}
+              style={{ color: "#FE858C" }}
               className={classes.actionButtonIcons}
             />
           ) : (

@@ -29,7 +29,7 @@ import Picker, { SKIN_TONE_MEDIUM_DARK } from "emoji-picker-react";
 import GifPicker from "react-giphy-picker";
 import Audio from "../../../components/audio/Audio";
 import Video from "../../../components/videoPlayer/Video";
-import { getUserById } from "../../../http";
+import { getUserById, allChats } from "../../../http";
 import { db } from "../../../firebaseInit";
 import { Recorder } from "react-voice-recorder";
 import "react-voice-recorder/dist/index.css";
@@ -45,9 +45,9 @@ export const Inbox = (props) => {
   const classes = useStyles();
   const history = useHistory();
   const theme = useTheme();
+  const { chats } = props;
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const currentUser = useSelector((state) => state.auth.user.data);
-  const { chats } = props;
   const socket = useContext(SocketContext);
   const [one, setOne] = useState(false);
   const [two, setTwo] = useState(false);
@@ -526,25 +526,39 @@ export const Inbox = (props) => {
                     alt=""
                   />
                 </IconButton>
-                <Grid
-                  item
+                <IconButton
                   component={Link}
                   to={{
-                    pathname: "/videochat",
-                    state: { chatId: activeChat.chatId },
+                    pathname: "/voicechat",
+                    state: {
+                      chatId: activeChat.chatId,
+                      userImg: user.profile_image,
+                      username: user.username,
+                    },
                   }}
                   // target="_blank"
                   className={classes.callButton}
                 >
                   <img src={image.phone} className={classes.callIcon} alt="" />
-                </Grid>
-                <Grid item className={classes.callButton}>
+                </IconButton>
+                <IconButton
+                  component={Link}
+                  to={{
+                    pathname: "/videochat",
+                    state: {
+                      chatId: activeChat.chatId,
+                      userImg: user.profile_image,
+                      username: user.username,
+                    },
+                  }}
+                  className={classes.callButton}
+                >
                   <img
                     src={image.videoIcon}
                     className={classes.callIcon}
                     alt=""
                   />
-                </Grid>
+                </IconButton>
               </Grid>
             </Grid>
             <div className={classes.containerDiv} id="main">
