@@ -110,7 +110,6 @@ const VideoCall = (props) => {
   const handleUserLeft = (user) => {
     const id = user.uid;
     delete remoteUsers[id];
-    alert(user.uid);
     history.goBack();
   };
 
@@ -142,7 +141,11 @@ const VideoCall = (props) => {
         style={{ zIndex: "1" }}
         className={classes.videoContainer}
       ></Grid>
-      <Grid id="main" className={classes.videoContainer}>
+      <Grid
+        id="main"
+        className={classes.videoContainer}
+        style={{ background: "#000000" }}
+      >
         <Draggable
           defaultClassName={`${classes.dragable} ${
             started ? "" : classes.hidden
@@ -156,12 +159,6 @@ const VideoCall = (props) => {
             className={classes.remoterUserVideo}
           ></Grid>
         </Draggable>
-        <img
-          src={
-            "https://tipsforwomens.org/wp-content/uploads/2020/08/Can-Yaman-reveals-what-is-really-between-him-and-Demet-1024x584.jpeg"
-          }
-          alt=""
-        />
       </Grid>
       <Grid
         item
@@ -370,7 +367,7 @@ const useStyles = makeStyles((theme) => ({
   remoterUserVideo: {
     height: "350px",
     width: "300px",
-    background: "red",
+    background: "#000000",
     borderRadius: "20px",
     overflow: "hidden",
     [theme.breakpoints.down("lg")]: {

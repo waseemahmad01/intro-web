@@ -5,6 +5,7 @@ import matches from "./matches";
 import utils from "./utils";
 import stories from "./stories";
 import stream from "./stream";
+import inbox from "./inbox";
 
 const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ const store = configureStore({
     utils,
     stories,
     stream,
+    inbox,
   },
 });
 

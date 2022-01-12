@@ -33,21 +33,24 @@ import { getUserById, allChats } from "../../../http";
 import { db } from "../../../firebaseInit";
 import { Recorder } from "react-voice-recorder";
 import "react-voice-recorder/dist/index.css";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { SocketContext } from "../../../http/socket";
 import GifImage from "../../../components/GifImage/GifImage";
 import VideoRecorder from "react-video-recorder";
 import DateScheduler from "../../../components/dateSchedular/DateScheduler";
 import { onMessage, onFileMessage } from "../../../utils/firestoreFunctions";
 import { useHistory } from "react-router-dom";
+import { setChatState, setChatVisit } from "../../../store/inbox";
 
 export const Inbox = (props) => {
   const classes = useStyles();
   const history = useHistory();
   const theme = useTheme();
   const { chats } = props;
+  const dispatch = useDispatch();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const currentUser = useSelector((state) => state.auth.user.data);
+  const chatState = useSelector((state) => state.inbox);
   const socket = useContext(SocketContext);
   const [one, setOne] = useState(false);
   const [two, setTwo] = useState(false);
@@ -107,6 +110,7 @@ export const Inbox = (props) => {
     children: { have_children: "", want_children: "", visible: false },
     prompt: [{ question: "", url: "" }],
   });
+
   const [openDialog, setOpenDialog] = useState(false);
   const [recordedVideo, setRecordedVideo] = useState(null);
   const [activeChat, setActiveChat] = useState({
@@ -208,6 +212,12 @@ export const Inbox = (props) => {
       children: { have_children: "", want_children: "", visible: false },
       prompt: [{ question: "", url: "" }],
     });
+    const data = {
+      chatId: chatId,
+      userId: uId,
+      activeIndex: index,
+    };
+    dispatch(setChatState(data));
   };
 
   const handleKeyUp = (e) => {
@@ -349,16 +359,29 @@ export const Inbox = (props) => {
   }, [activeChat]);
 
   useEffect(() => {
-    setTimeout(() => {
-      const { chatId, userId } = firstChat.current;
-      if (chatId !== null && userId !== null) {
-        setActive(0);
-        setActiveChat({
-          chatId: chatId,
-          userId,
-        });
-      }
-    }, 100);
+    if (chatState.chatVisit > 0) {
+      dispatch(setChatVisit(chatState.chatVisit + 1));
+      const chatId = chatState.chatId;
+      const userId = chatState.userId;
+      const index = chatState.activeIndex;
+      setActive(index);
+      setActiveChat({
+        chatId: chatId,
+        userId: userId,
+      });
+    } else {
+      dispatch(setChatVisit(chatState.chatVisit + 1));
+      setTimeout(() => {
+        const { chatId, userId } = firstChat.current;
+        if (chatId !== null && userId !== null) {
+          setActive(0);
+          setActiveChat({
+            chatId: chatId,
+            userId,
+          });
+        }
+      }, 100);
+    }
   }, []);
   return (
     <Grid container direction="column" className={classes.container}>

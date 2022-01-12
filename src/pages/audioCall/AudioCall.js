@@ -63,7 +63,7 @@ const AudioCall = ({ hello, closeAPortal, appId }) => {
     // let videoTrack = await AgoraRTC.createCameraVideoTrack();
     localTracks.current = { audioTrack: audioTrack, videoTrack: null };
     // localTracks.current.videoTrack.play(local.current);
-    await client.publish(Object.values(localTracks.current));
+    await client.publish(localTracks.current.audioTrack);
     console.log("Successfully Published");
   };
   const leave = async () => {
@@ -111,7 +111,6 @@ const AudioCall = ({ hello, closeAPortal, appId }) => {
   const handleUserLeft = (user) => {
     const id = user.uid;
     delete remoteUsers[id];
-    alert(user.uid);
     history.goBack();
   };
 
@@ -136,7 +135,7 @@ const AudioCall = ({ hello, closeAPortal, appId }) => {
         </IconButton>
         <Grid item>
           <Grid item container direction="column">
-            <Typography className={classes.title}>Savannah</Typography>
+            <Typography className={classes.title}>{username}</Typography>
             <Typography className={classes.subtitle}>
               {started ? (
                 <>
@@ -145,7 +144,7 @@ const AudioCall = ({ hello, closeAPortal, appId }) => {
                   <span>{("0" + (time % 60)).slice(-2)}</span>
                 </>
               ) : (
-                "video calling"
+                "calling"
               )}
             </Typography>
           </Grid>
@@ -154,10 +153,7 @@ const AudioCall = ({ hello, closeAPortal, appId }) => {
       </Grid>
       <Grid item container direction="column" className={classes.bottom}>
         <Grid item className={classes.imageContainer}>
-          <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSK6mQv8iE9O1qNGUGC7Wqq0gYljPX0sai-qA&usqp=CAU"
-            alt=""
-          />
+          <img src={userImg} alt="" />
         </Grid>
         <Grid item container className={classes.middle}></Grid>
         <Grid
