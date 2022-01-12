@@ -26,6 +26,7 @@ export const useStyles = makeStyles((theme) => ({
   },
   liveUserImage: {
     width: "100%",
+    height: "100%",
     objectFit: "cover",
   },
   userOverly: {

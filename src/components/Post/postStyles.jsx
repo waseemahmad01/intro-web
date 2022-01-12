@@ -130,4 +130,18 @@ export const useStyles = makeStyles((theme) => ({
       },
     },
   },
+  superLikeIcon: {
+    height: "45px",
+    [theme.breakpoints.down("lg")]: {
+      height: "30px",
+    },
+  },
+  superLikeActiveIcon: {
+    marginBottom: "-19px",
+    height: "70px",
+    [theme.breakpoints.down("lg")]: {
+      height: "45px",
+      marginBottom: "-12px",
+    },
+  },
 }));

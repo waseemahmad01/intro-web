@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, useContext } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useContext,
+  useCallback,
+} from "react";
 import { useStyles } from "./InboxStyles";
 import {
   Grid,
@@ -30,7 +36,7 @@ import GifPicker from "react-giphy-picker";
 import Audio from "../../../components/audio/Audio";
 import Video from "../../../components/videoPlayer/Video";
 import { getUserById } from "../../../http";
-import { db, cloudStorage } from "../../../firebaseInit";
+import { db } from "../../../firebaseInit";
 import { Recorder } from "react-voice-recorder";
 import "react-voice-recorder/dist/index.css";
 import { useSelector } from "react-redux";
@@ -39,6 +45,9 @@ import GifImage from "../../../components/GifImage/GifImage";
 import VideoRecorder from "react-video-recorder";
 import DateScheduler from "../../../components/dateSchedular/DateScheduler";
 import { onMessage, onFileMessage } from "../../../utils/firestoreFunctions";
+import AudioCall from "../../audioCall/AudioCall";
+import VideoCall from "../../videoCall/VideoCall";
+import NewWindow from "react-new-window";
 
 export const Inbox = (props) => {
   const classes = useStyles();
@@ -122,8 +131,21 @@ export const Inbox = (props) => {
       s: 0,
     },
   });
+  const [openVideoPortal, setOpenVideoPortal] = useState(false);
+  const [openAudioPortal, setOpenAudioPortal] = useState(false);
+  const openVPortal = useCallback(() => setOpenVideoPortal(true));
+  const openAPortal = useCallback(() => setOpenAudioPortal(true));
+  const closeVPortal = useCallback(() => setOpenVideoPortal(false));
+  const closeAPortal = useCallback(() => setOpenAudioPortal(false));
   const refOne = useRef();
   const refTwo = useRef();
+  const firstChat = useRef({
+    chatId: null,
+    userId: null,
+  });
+  const handleClickEvent = () => {
+    window.open("http://localhost:3000/videochat", "", "");
+  };
   const handleOpenVideoDialog = () => {
     setOpenVideoDialog(true);
   };
@@ -340,6 +362,19 @@ export const Inbox = (props) => {
       })();
     }
   }, [activeChat]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      const { chatId, userId } = firstChat.current;
+      if (chatId !== null && userId !== null) {
+        setActive(0);
+        setActiveChat({
+          chatId: chatId,
+          userId,
+        });
+      }
+    }, 100);
+  }, []);
   return (
     <Grid container direction="column" className={classes.container}>
       <Grid item>
@@ -506,16 +541,36 @@ export const Inbox = (props) => {
                     alt=""
                   />
                 </IconButton>
-                <IconButton className={classes.callButton}>
+                <IconButton
+                  onClick={openAPortal}
+                  className={classes.callButton}
+                >
                   <img src={image.phone} className={classes.callIcon} alt="" />
                 </IconButton>
-                <IconButton className={classes.callButton}>
+                <IconButton
+                  onClick={openVPortal}
+                  className={classes.callButton}
+                >
                   <img
                     src={image.videoIcon}
                     className={classes.callIcon}
                     alt=""
                   />
                 </IconButton>
+                {openAudioPortal && (
+                  <NewWindow unmountOnExit onUnload={closeAPortal}>
+                    <AudioCall
+                      hello="hello"
+                      appId="djsavnlkdmalnavdnk"
+                      onClose={closeAPortal}
+                    />
+                  </NewWindow>
+                )}
+                {openVideoPortal && (
+                  <NewWindow unmountOnExit onUnload={closeVPortal}>
+                    <VideoCall />
+                  </NewWindow>
+                )}
               </Grid>
             </Grid>
             <div className={classes.containerDiv}>
@@ -893,6 +948,10 @@ export const Inbox = (props) => {
             <div className={classes.scrollDiv}>
               <List classes={{ root: classes.list }}>
                 {chats.map((chat, index) => {
+                  if (index === 0) {
+                    firstChat.current.chatId = chat.chatId;
+                    firstChat.current.userId = chat.matched_ids.to;
+                  }
                   return (
                     <ListItem
                       selected={active === index}

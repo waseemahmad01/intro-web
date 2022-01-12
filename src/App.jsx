@@ -16,6 +16,8 @@ import { Live } from "./pages/Live/Live";
 import { Stream } from "./pages/LiveStream/Stream";
 import JoinStream from "./pages/LiveStream/JoinStream";
 // import { Battle } from "./pages/Battle/Battle";
+import VideoCall from "./pages/videoCall/VideoCall";
+import AudioCall from "./pages/audioCall/AudioCall";
 import { useDispatch } from "react-redux";
 import { getUser } from "./http/index";
 import { submit } from "./store/user";
@@ -123,6 +125,8 @@ function App(props) {
         <ProtectedRoute path="/live" component={Live} />
         <ProtectedRoute path="/stream" component={Stream} />
         <ProtectedRoute path="/joinstream" component={JoinStream} />
+        <ProtectedRoute path="/videochat" component={VideoCall} />
+        <ProtectedRoute path="/voicechat" component={AudioCall} />
       </Switch>
     </div>
   );
