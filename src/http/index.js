@@ -62,6 +62,11 @@ export const getMatchById = (id) => api.get(`/api/getmatchbyid/${id}`);
 // matches
 
 export const getMatchedUsers = () => api.get("/api/match");
+export const unMatchUser = (id) => api.get(`/api/unmatch/${id}`);
+export const blockAndReport = (data) => api.post("/api/block", data);
+export const unblockUser = (id) => api.get(`api/unblock/${id}`);
+
+// user_id, report_title, report_message
 
 // profile visited
 

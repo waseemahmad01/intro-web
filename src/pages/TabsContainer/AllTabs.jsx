@@ -78,6 +78,7 @@ export const AllTabs = () => {
   const [meetMePageNumber, setMeetMePageNumber] = useState(1);
   const [chats, setChats] = useState([]);
   // filters end
+  const [userUnMatched, setUserUnMatched] = useState(false);
   const observer = useRef();
   const lastElementRef = useCallback((node) => {
     if (observer.current) observer.current.disconnect();
@@ -209,7 +210,7 @@ export const AllTabs = () => {
       const { data } = await allChats();
       setChats(data.data);
       const index = localStorage.getItem("index");
-      console.log(index);
+      // console.log(index);
       if (index) {
         dispatch(setChatVisit(1));
         const payload = {
@@ -227,7 +228,7 @@ export const AllTabs = () => {
         setChats(data.data);
       })();
     });
-  }, [url]);
+  }, [url, userUnMatched]);
 
   const tabItems = [
     {
@@ -379,6 +380,8 @@ export const AllTabs = () => {
               path="/home/inbox"
               chats={chats}
               component={Inbox}
+              userUnMatched={userUnMatched}
+              setUserUnMatched={setUserUnMatched}
             />
             <ProtectedRoute exact path="/home/mylikes" component={MyLikes} />
             <ProtectedRoute exact path="/home/online" component={Online} />

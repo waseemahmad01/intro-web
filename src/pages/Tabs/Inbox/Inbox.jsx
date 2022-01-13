@@ -29,7 +29,7 @@ import Picker, { SKIN_TONE_MEDIUM_DARK } from "emoji-picker-react";
 import GifPicker from "react-giphy-picker";
 import Audio from "../../../components/audio/Audio";
 import Video from "../../../components/videoPlayer/Video";
-import { getUserById, allChats } from "../../../http";
+import { getUserById } from "../../../http";
 import { db } from "../../../firebaseInit";
 import { Recorder } from "react-voice-recorder";
 import "react-voice-recorder/dist/index.css";
@@ -39,14 +39,14 @@ import GifImage from "../../../components/GifImage/GifImage";
 import VideoRecorder from "react-video-recorder";
 import DateScheduler from "../../../components/dateSchedular/DateScheduler";
 import { onMessage, onFileMessage } from "../../../utils/firestoreFunctions";
-import { useHistory } from "react-router-dom";
 import { setChatState, setChatVisit } from "../../../store/inbox";
+import BlockAndReport from "../../../components/blockandreport/BlockAndReport";
+import Unblock from "../../../components/unblockDialog/Unblock";
 
 export const Inbox = (props) => {
   const classes = useStyles();
-  const history = useHistory();
   const theme = useTheme();
-  const { chats } = props;
+  const { chats, userUnMatched, setUserUnMatched } = props;
   const dispatch = useDispatch();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const currentUser = useSelector((state) => state.auth.user.data);
@@ -55,6 +55,7 @@ export const Inbox = (props) => {
   const [one, setOne] = useState(false);
   const [two, setTwo] = useState(false);
   const [active, setActive] = useState(-1);
+  const [blocked, setBlocked] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
   const [showGif, setShowGif] = useState(false);
   const [message, setMessage] = useState("");
@@ -110,6 +111,8 @@ export const Inbox = (props) => {
     children: { have_children: "", want_children: "", visible: false },
     prompt: [{ question: "", url: "" }],
   });
+  const [unMatch, setUnMatch] = useState(false);
+  const [openReportDialog, setOpenReportDialog] = useState(false);
 
   const [openDialog, setOpenDialog] = useState(false);
   const [recordedVideo, setRecordedVideo] = useState(null);
@@ -232,43 +235,52 @@ export const Inbox = (props) => {
 
   const handleVideoUpload = async () => {
     const { chatId, userId } = activeChat;
-    const doc = {
-      content: "pending",
-      idFrom: currentUser._id,
-      idTo: userId,
-      thumb: 0,
-      type: 1,
-    };
-    setOpenVideoDialog(false);
-    onFileMessage(
-      doc,
-      chatId,
-      socket,
-      currentUser._id,
-      chat.length === 0 ? currentUser._id : userId,
-      recordedVideo
-    );
+    if (currentUser.block.indexOf(userId) === -1) {
+      const doc = {
+        content: "pending",
+        idFrom: currentUser._id,
+        idTo: userId,
+        thumb: 0,
+        type: 1,
+      };
+      setOpenVideoDialog(false);
+      onFileMessage(
+        doc,
+        chatId,
+        socket,
+        currentUser._id,
+        chat.length === 0 ? currentUser._id : userId,
+        recordedVideo
+      );
+    } else {
+      setBlocked(true);
+      console.log("this user is blocked");
+    }
   };
 
   const handleAudioUpload = async (file) => {
     const { chatId, userId } = activeChat;
-
-    const doc = {
-      content: "pending",
-      idFrom: currentUser._id,
-      idTo: userId,
-      thumb: 0,
-      type: 2,
-    };
-    setShowRecorder(false);
-    onFileMessage(
-      doc,
-      chatId,
-      socket,
-      currentUser._id,
-      chat.length === 0 ? currentUser._id : userId,
-      file
-    );
+    if (currentUser.block.indexOf(userId) === -1) {
+      const doc = {
+        content: "pending",
+        idFrom: currentUser._id,
+        idTo: userId,
+        thumb: 0,
+        type: 2,
+      };
+      setShowRecorder(false);
+      onFileMessage(
+        doc,
+        chatId,
+        socket,
+        currentUser._id,
+        chat.length === 0 ? currentUser._id : userId,
+        file
+      );
+    } else {
+      setBlocked(true);
+      console.log("this user is blocked");
+    }
   };
 
   const handleCountDown = (data) => {
@@ -291,45 +303,66 @@ export const Inbox = (props) => {
 
   const handleSendMessage = () => {
     const { chatId, userId } = activeChat;
-    const doc = {
-      content: message,
-      filename: "",
-      idFrom: currentUser._id,
-      idTo: userId,
-      thumb: 0,
-      type: 0,
-    };
-    onMessage(
-      doc,
-      chatId,
-      socket,
-      currentUser._id,
-      chat.length === 0 ? currentUser._id : userId
-    );
-    setMessage("");
-    setShowEmoji(false);
+    if (currentUser.block.indexOf(userId) === -1) {
+      const doc = {
+        content: message,
+        filename: "",
+        idFrom: currentUser._id,
+        idTo: userId,
+        thumb: 0,
+        type: 0,
+      };
+      onMessage(
+        doc,
+        chatId,
+        socket,
+        currentUser._id,
+        chat.length === 0 ? currentUser._id : userId
+      );
+      setMessage("");
+      setShowEmoji(false);
+    } else {
+      setBlocked(true);
+      console.log("this user is blocked");
+      setMessage("");
+      setShowEmoji(false);
+    }
   };
 
   const handleGif = (gif) => {
     const { chatId, userId } = activeChat;
-    const doc = {
-      content: gif.original.webp,
-      filename: "",
-      idFrom: currentUser._id,
-      idTo: userId,
-      thumb: 0,
-      type: 3,
-    };
-    onMessage(
-      doc,
-      chatId,
-      socket,
-      currentUser._id,
-      chat.length === 0 ? currentUser._id : userId
-    );
-    setMessage("");
-    setShowGif(false);
+    if (currentUser.block.indexOf(userId) === -1) {
+      const doc = {
+        content: gif.original.webp,
+        filename: "",
+        idFrom: currentUser._id,
+        idTo: userId,
+        thumb: 0,
+        type: 3,
+      };
+      onMessage(
+        doc,
+        chatId,
+        socket,
+        currentUser._id,
+        chat.length === 0 ? currentUser._id : userId
+      );
+      setMessage("");
+      setShowGif(false);
+    } else {
+      setBlocked(true);
+      console.log("this user is blocked");
+    }
   };
+
+  const handleUnmatchUser = () => {
+    setUnMatch(true);
+  };
+
+  const handleBlockAndReport = () => {
+    setOpenReportDialog(true);
+  };
+  const handleDeleteChat = () => {};
 
   useEffect(() => {
     const { chatId, userId } = activeChat;
@@ -364,7 +397,7 @@ export const Inbox = (props) => {
       const chatId = chatState.chatId;
       const userId = chatState.userId;
       const index = chatState.activeIndex;
-      console.log("here iam " + index);
+      // console.log("here iam " + index);
       localStorage.setItem("index", index);
       setActive(index * 1);
       setActiveChat({
@@ -391,6 +424,11 @@ export const Inbox = (props) => {
       <Grid item>
         <Typography className={classes.title}>Inbox</Typography>
       </Grid>
+      <Unblock
+        open={blocked}
+        setOpen={setBlocked}
+        user_id={activeChat.userId}
+      />
       <Grid
         item
         container
@@ -438,6 +476,20 @@ export const Inbox = (props) => {
                 </Button>
               </Grid>
             </Grid>
+            <BlockAndReport
+              userId={activeChat.userId}
+              chatId={activeChat.chatId}
+              open={unMatch}
+              setOpen={setUnMatch}
+              unMatch={true}
+              userUnMatched={userUnMatched}
+              setUserUnMatched={setUserUnMatched}
+            />
+            <BlockAndReport
+              userId={activeChat.userId}
+              open={openReportDialog}
+              setOpen={setOpenReportDialog}
+            />
             <Grid item container className={classes.collapseContainer}>
               <Grid
                 onClick={handleOne}
@@ -448,10 +500,7 @@ export const Inbox = (props) => {
                 <Typography className={classes.childAccordionHeading}>
                   Shared Media
                 </Typography>
-                <IconButton
-                  className={classes.collapseButton}
-                  // onClick={handleOne}
-                >
+                <IconButton className={classes.collapseButton}>
                   <ExpandMore
                     ref={refOne}
                     className={classes.childAccordionIcon}
@@ -464,16 +513,30 @@ export const Inbox = (props) => {
                   className={classes.collapseInner}
                   direction="column"
                 >
-                  <Typography className={classes.accordionDetailsLink}>
+                  <Typography
+                    onClick={handleUnmatchUser}
+                    className={classes.accordionDetailsLink}
+                  >
                     Unmatch
                   </Typography>
-                  <Typography className={classes.accordionDetailsLink}>
+                  <Typography
+                    onClick={handleBlockAndReport}
+                    className={classes.accordionDetailsLink}
+                  >
                     Block & Report
                   </Typography>
-                  <Typography className={classes.accordionDetailsLink}>
+                  <Typography
+                    onClick={handleDeleteChat}
+                    className={classes.accordionDetailsLink}
+                  >
                     Delete Chat
                   </Typography>
-                  <Typography className={classes.accordionDetailsLink}>
+                  <Typography
+                    component={Link}
+                    to="/helpcenter"
+                    style={{ textDecoration: "none" }}
+                    className={classes.accordionDetailsLink}
+                  >
                     Help Center
                   </Typography>
                 </Grid>
@@ -489,10 +552,7 @@ export const Inbox = (props) => {
                 <Typography className={classes.childAccordionHeading}>
                   Support
                 </Typography>
-                <IconButton
-                  className={classes.collapseButton}
-                  // onClick={handleTwo}
-                >
+                <IconButton className={classes.collapseButton}>
                   <ExpandMore
                     ref={refTwo}
                     className={classes.childAccordionIcon}
@@ -505,16 +565,30 @@ export const Inbox = (props) => {
                   className={classes.collapseInner}
                   direction="column"
                 >
-                  <Typography className={classes.accordionDetailsLink}>
+                  <Typography
+                    onClick={handleUnmatchUser}
+                    className={classes.accordionDetailsLink}
+                  >
                     Unmatch
                   </Typography>
-                  <Typography className={classes.accordionDetailsLink}>
+                  <Typography
+                    onClick={handleBlockAndReport}
+                    className={classes.accordionDetailsLink}
+                  >
                     Block & Report
                   </Typography>
-                  <Typography className={classes.accordionDetailsLink}>
+                  <Typography
+                    onClick={handleDeleteChat}
+                    className={classes.accordionDetailsLink}
+                  >
                     Delete Chat
                   </Typography>
-                  <Typography className={classes.accordionDetailsLink}>
+                  <Typography
+                    component={Link}
+                    to="/helpcenter"
+                    style={{ textDecoration: "none" }}
+                    className={classes.accordionDetailsLink}
+                  >
                     Help Center
                   </Typography>
                 </Grid>

@@ -156,6 +156,7 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: "14px",
     margin: 0,
     textAlign: "left",
+    cursor: "pointer",
     [theme.breakpoints.down("lg")]: {
       fontSize: "10px",
     },
