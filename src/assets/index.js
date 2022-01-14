@@ -93,5 +93,6 @@ const image = {
   checkIcon: require("./checkIcon.png").default,
   sparkActive: require("./sparkActive.png").default,
   vsWhite: require("./vsWhite.png").default,
+  // callAnimation: require("./animations/callAnimation.json").default,
 };
 export default image;

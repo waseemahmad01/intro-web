@@ -52,7 +52,7 @@ export const RegisterOne = ({ onNext }) => {
   };
 
   const validate = () => {
-    console.log(location);
+    // console.log(location);
     const data = {
       email: user.email[0],
       firstname: user.firstname[0],

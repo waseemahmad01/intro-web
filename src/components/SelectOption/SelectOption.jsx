@@ -188,7 +188,7 @@ export const SelectOption = ({
             <MenuItem dense className={classes.menuItem} value={"0"}>
               <span className={classes.none}>{placeholder}</span>
             </MenuItem>
-            {options.map((option, index) => (
+            {options.map((option) => (
               <MenuItem
                 key={option}
                 className={classes.menuItem}

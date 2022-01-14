@@ -28,6 +28,7 @@
     "react-draggable": "^4.4.4",
     "react-geocode": "^0.2.3",
     "react-giphy-picker": "^1.1.1",
+    "react-lottie": "^1.2.3",
     "react-mobile-picker-scroll": "^0.2.14",
     "react-multi-carousel": "^2.6.3",
     "react-otp-input": "^2.4.0",

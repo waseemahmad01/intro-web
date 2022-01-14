@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import "./App.css";
 import { Switch, Route } from "react-router-dom";
 import { Login } from "./pages/Login/Login";
@@ -16,6 +16,7 @@ import { Live } from "./pages/Live/Live";
 import { Stream } from "./pages/LiveStream/Stream";
 import JoinStream from "./pages/LiveStream/JoinStream";
 // import { Battle } from "./pages/Battle/Battle";
+import Call from "./components/callDialog/Call";
 import VideoCall from "./pages/videoCall/VideoCall";
 import AudioCall from "./pages/audioCall/AudioCall";
 import { useDispatch } from "react-redux";
@@ -32,6 +33,7 @@ import ProtectedRoute from "./pages/ProtectedRoute/ProtectedRoute";
 function App(props) {
   const dispatch = useDispatch();
   const socket = useContext(SocketContext);
+  const [call, setCall] = useState(false);
   const handleResize = () => {
     if (window.innerWidth <= 1200) {
       props.history.push("/getapp");
@@ -128,6 +130,7 @@ function App(props) {
         <ProtectedRoute path="/videochat" exact component={VideoCall} />
         <ProtectedRoute path="/voicechat" component={AudioCall} />
       </Switch>
+      <Call open={call} setOpen={setCall} />
     </div>
   );
 }

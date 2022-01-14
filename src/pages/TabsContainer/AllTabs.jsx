@@ -30,7 +30,6 @@ import { UnMatch } from "../Tabs/UnMatch/UnMatch";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 import { SocketContext } from "../../http/socket";
 import { useSelector, useDispatch } from "react-redux";
-// import { getStories } from "../../http/index";
 import {
   HomeRounded,
   PublicRounded,
@@ -41,8 +40,6 @@ import {
 } from "@material-ui/icons";
 import { allVideos as getAllVideos, allChats } from "../../http/index";
 import { setChatState, setChatVisit } from "../../store/inbox";
-// import { ethnicityList } from "../../data";
-// import { setStories } from "../../store/stories";
 export const AllTabs = () => {
   const classes = useStyles();
   const theme = useTheme();
@@ -110,16 +107,23 @@ export const AllTabs = () => {
     };
     // eslint-disable-next-line
     allVideos.current.map((item) => {
+      let isPlaying = false;
       const video = item.lastChild.lastChild.lastChild.firstChild;
       const top = item.getBoundingClientRect().top;
       const bottom = item.getBoundingClientRect().bottom;
+      video.onPlaying = () => {
+        isPlaying = true;
+      };
+      video.onPause = () => {
+        isPlaying = false;
+      };
       if (
         top > boundry.top.upper &&
         top < boundry.top.lower &&
         bottom > boundry.bottom.upper &&
         bottom < boundry.bottom.lower
       ) {
-        if (video.readyState >= 2) {
+        if (video.readyState >= 3) {
           video.play();
         }
       } else {

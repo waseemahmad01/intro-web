@@ -128,14 +128,15 @@ export const TopBar = ({ live }) => {
                         open={openMenu}
                         onClose={handleClose}
                         className={classes.menuContainer}
-                        // anchorOrigin={{
-                        //   vertical: "bottom",
-                        //   horizontal: "right",
-                        // }}
-                        // transformOrigin={{
-                        //   vertical: "bottom",
-                        //   horizontal: "right",
-                        // }}
+                        getContentAnchorEl={null}
+                        anchorOrigin={{
+                          vertical: "bottom",
+                          horizontal: "right",
+                        }}
+                        transformOrigin={{
+                          vertical: "top",
+                          horizontal: "right",
+                        }}
                       >
                         <List className={classes.list}>
                           <ListItem
