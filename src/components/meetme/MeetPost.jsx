@@ -358,6 +358,8 @@ export const MeetPost = ({ allVideos, page, setPage, totalPage }) => {
         sendMessage={handleSendMessage}
       />
       <DateScheduler
+        username={matchData.liked_to_name}
+        userId={matchData.liked_to}
         open={date}
         setOpen={setDate}
         onContinue={handleContinue}

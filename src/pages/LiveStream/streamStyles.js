@@ -216,6 +216,7 @@ export const useStyles = makeStyles((theme) => ({
     },
   },
   closeButton: {
+    zIndex: 1,
     position: "absolute",
     top: "5px",
     right: "5px",
@@ -528,5 +529,13 @@ export const useStyles = makeStyles((theme) => ({
       width: "320px",
       padding: "1.5rem 0rem",
     },
+  },
+  loopVideoContainer: {
+    position: "absolute",
+    top: "0",
+    left: "0",
+    width: "100%",
+    height: "100%",
+    borderRadius: "12px",
   },
 }));

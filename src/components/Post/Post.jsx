@@ -239,7 +239,12 @@ export const Post = React.forwardRef(
           setQuickMessage={setQuickMessageValue}
           sendMessage={handleSendQuickMessage}
         />
-        <DateScheduler open={date} setOpen={setDate} />
+        <DateScheduler
+          userId={user_id}
+          username={username}
+          open={date}
+          setOpen={setDate}
+        />
         <InstantSpark open={openSuperDialog} setOpen={setOpenSuperDialog} />
         {/* <Dialog
           className={classes.superDialog}

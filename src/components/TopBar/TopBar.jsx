@@ -34,6 +34,7 @@ export const TopBar = ({ live }) => {
     setAnchorEl(null);
     setOpenMenu(false);
   };
+
   return (
     <Grid
       container

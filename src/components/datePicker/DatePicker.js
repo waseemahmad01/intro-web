@@ -93,7 +93,7 @@ const DatePicker = ({ setDate }) => {
   const getYears = () => {
     let years = [];
     let currentYear = date.getFullYear();
-    for (let i = 0; i <= 50; i++) {
+    for (let i = 0; i <= 30; i++) {
       years.push(currentYear);
       currentYear++;
     }

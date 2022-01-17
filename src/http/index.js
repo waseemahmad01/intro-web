@@ -65,6 +65,7 @@ export const getMatchedUsers = () => api.get("/api/match");
 export const unMatchUser = (id) => api.get(`/api/unmatch/${id}`);
 export const blockAndReport = (data) => api.post("/api/block", data);
 export const unblockUser = (id) => api.get(`api/unblock/${id}`);
+export const addScheduler = (data) => api.post("api/scheduler", data);
 
 // user_id, report_title, report_message
 

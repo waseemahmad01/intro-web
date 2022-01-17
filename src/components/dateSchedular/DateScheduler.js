@@ -5,22 +5,22 @@ import {
   IconButton,
   Slider,
   Button,
-  Tabs,
-  Tab,
   Dialog,
   Typography,
 } from "@material-ui/core";
 import { Close } from "@material-ui/icons";
 import DatePicker from "../datePicker/DatePicker";
 import image from "../../assets/index";
+import { addScheduler } from "../../http";
 
-const DateScheduler = ({ open, setOpen, onContinue }) => {
+const DateScheduler = ({ open, setOpen, onContinue, userId, username }) => {
   const classes = useStyles();
-  const [tab, setTab] = useState(1);
   const [sliderValue, setSliderValue] = useState([11, 23]);
-  const handleTab = (e, tab) => {
-    setTab(tab);
-  };
+  const [selected, setSelected] = useState({
+    call: false,
+    "video call": true,
+    message: false,
+  });
   const [date, setDate] = useState({
     month: null,
     day: null,
@@ -58,14 +58,52 @@ const DateScheduler = ({ open, setOpen, onContinue }) => {
       0,
       0
     ).toISOString();
-    console.log(fromDate, toDate);
+    return {
+      startTime: fromDate,
+      endTime: toDate,
+    };
   };
-  const handleDateContinue = () => {
-    setOpen(false);
-    if (onContinue) {
-      onContinue();
+  const handleDateContinue = async () => {
+    const { startTime, endTime } = getTime();
+    let values = Object.keys(selected);
+    values = values.filter((e) => e !== "");
+    const selectedItems = [];
+    for (let i in values) {
+      if (selected[values[i]]) {
+        selectedItems.push(values[i]);
+      }
     }
-    getTime();
+    if (selectedItems.length > 0) {
+      try {
+        let str = "";
+        if (selectedItems.length === 1) {
+          str = selectedItems[0];
+        } else if (selectedItems.length === 2) {
+          str = `${selectedItems[0]} and ${selectedItems[1]}`;
+        } else {
+          str = `${selectedItems[0]}, ${selectedItems[1]} and ${selectedItems[2]}`;
+        }
+        str = `You have scheduled ${str} with ${username} at ${startTime}`;
+        const apiData = {
+          userId: userId,
+          message: str,
+          title: "Date Scheduler",
+          startTime: startTime,
+          endTime: endTime,
+        };
+        await addScheduler(apiData);
+        setOpen(false);
+      } catch (err) {
+        console.log(err.message);
+        alert("Something went wrong");
+      }
+    } else {
+      alert("Please select any action");
+    }
+  };
+  const handleSelect = (e) => {
+    const { name } = e.target;
+    setSelected({ ...selected, [name]: !selected[name] });
   };
   useEffect(() => {
     const currentDate = new Date(Date.now());
@@ -145,41 +183,36 @@ const DateScheduler = ({ open, setOpen, onContinue }) => {
             justifyContent="space-between"
             className={classes.dialogIconContainer}
           >
-            <Tabs onChange={handleTab} value={tab} className={classes.tabs}>
-              <Tab
-                disableRipple
-                className={classes.tab}
-                icon={
-                  <img
-                    src={image.phoneBlue}
-                    className={classes.iconImage1}
-                    alt=""
-                  />
-                }
+            <IconButton onClick={handleSelect}>
+              <img
+                name="call"
+                src={image.phoneBlue}
+                className={`${classes.iconImage1} ${
+                  selected.call && classes.animate
+                }`}
+                alt=""
               />
-              <Tab
-                disableRipple
-                className={classes.tab}
-                icon={
-                  <img
-                    src={image.videoBlue}
-                    className={classes.iconImage1}
-                    alt=""
-                  />
-                }
+            </IconButton>
+            <IconButton onClick={handleSelect}>
+              <img
+                name="video call"
+                src={image.videoBlue}
+                className={`${classes.iconImage1} ${
+                  selected["video call"] && classes.animate
+                }`}
+                alt=""
               />
-              <Tab
-                disableRipple
-                className={classes.tab}
-                icon={
-                  <img
-                    src={image.message}
-                    className={classes.iconImage1}
-                    alt=""
-                  />
-                }
+            </IconButton>
+            <IconButton onClick={handleSelect}>
+              <img
+                name="message"
+                src={image.message}
+                className={`${classes.iconImage1} ${
+                  selected.message && classes.animate
+                }`}
+                alt=""
               />
-            </Tabs>
+            </IconButton>
           </Grid>
           <Grid item>
             <Button
@@ -336,6 +369,7 @@ const useStyles = makeStyles((theme) => ({
   },
   iconImage1: {
     transition: "0.6s ease",
+    opacity: "0.5",
     [theme.breakpoints.down("lg")]: {
       width: "2.5rem",
     },
@@ -346,23 +380,8 @@ const useStyles = makeStyles((theme) => ({
       marginBlock: "15px",
     },
   },
-  tabs: {
-    width: "90%",
-    marginInline: "auto",
-    "& .MuiTabs-flexContainer": {
-      justifyContent: "space-between",
-    },
-    "& .MuiTabs-indicator": {
-      backgroundColor: "transparent",
-    },
-  },
-  tab: {
-    minWidth: "0",
-    opacity: "0.5",
-    "&.Mui-selected": {
-      "& img": {
-        transform: "scale(1.15)",
-      },
-    },
+  animate: {
+    opacity: 1,
+    transform: "scale(1.2)",
   },
 }));

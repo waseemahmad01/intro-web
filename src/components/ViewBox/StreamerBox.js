@@ -253,9 +253,10 @@ export const StreamerBox = ({
   joinLiveLoop,
   roleChange,
   setCoHostUserId,
+  liveloop,
 }) => {
   const classes = useStyles();
-  const [tab, setTab] = useState(0);
+  const [tab, setTab] = useState(liveloop ? 2 : 0);
   const [liveLoop, setLiveLoop] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
 
@@ -265,7 +266,7 @@ export const StreamerBox = ({
   const theme = useTheme();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const [sheetVisible, setSheetVisible] = useState(false);
-  const [isSecondSheet, setIsSecondSheet] = useState(false);
+  const [isSecondSheet, setIsSecondSheet] = useState(liveloop ? true : false);
   const [secondSheetTab, setSecondSheetTab] = useState(0);
   const transition = useTransition(sheetVisible, {
     from: { height: "0%", opacity: 0 },
@@ -291,7 +292,7 @@ export const StreamerBox = ({
     setSheetVisible(false);
     setIsSecondSheet(true);
     setSecondSheetTab(0);
-    setOpenDialog(true);
+    setOpenDialog(liveloop ? false : true);
   };
   const handleNotNow = () => {
     setOpenDialog(false);
@@ -457,42 +458,44 @@ export const StreamerBox = ({
         className={classes.bottomNavContainer}
       >
         {liveLoop ? (
-          <Grid
-            container
-            spacing={2}
-            justifyContent="center"
-            alignItems="center"
-          >
-            <Grid item>
-              <Button
-                variant="contained"
-                className={classes.skipButton}
-                onClick={() => setLiveLoop(false)}
-              >
-                Skip
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="contained"
-                className={classes.extendButton}
-                startIcon={
-                  <img
-                    src={image.stopwatch}
-                    className={classes.stopwatchIcon}
-                    alt=""
-                  />
-                }
-              >
-                Extend
-              </Button>
-            </Grid>
-          </Grid>
+          <></>
         ) : (
+          // <Grid
+          //   container
+          //   spacing={2}
+          //   justifyContent="center"
+          //   alignItems="center"
+          // >
+          //   <Grid item>
+          //     <Button
+          //       variant="contained"
+          //       className={classes.skipButton}
+          //       onClick={() => setLiveLoop(false)}
+          //     >
+          //       Skip
+          //     </Button>
+          //   </Grid>
+          //   <Grid item>
+          //     <Button
+          //       variant="contained"
+          //       className={classes.extendButton}
+          //       startIcon={
+          //         <img
+          //           src={image.stopwatch}
+          //           className={classes.stopwatchIcon}
+          //           alt=""
+          //         />
+          //       }
+          //     >
+          //       Extend
+          //     </Button>
+          //   </Grid>
+          // </Grid>
           <Tabs
             value={tab}
             onChange={handleTab}
             variant="fullWidth"
+            style={{ display: liveloop ? "none" : "" }}
             classes={{ root: classes.tabs }}
           >
             <Tab

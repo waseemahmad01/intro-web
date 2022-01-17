@@ -206,11 +206,11 @@ export const LiveLoop = ({
         age: user.date_of_birth.age,
       };
       // eslint-disable-next-line
-      const { data } = await createLiveloop(apiData);
+      // const { data } = await createLiveloop(apiData);
       setLiveLoop(true);
       handleSheetClose();
-      setTab(1);
-      setSheetVisible(true);
+      setTab(0);
+      setSheetVisible(false);
       joinLiveLoop();
     } catch (err) {
       console.log(err.message);

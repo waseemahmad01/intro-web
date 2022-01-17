@@ -259,6 +259,7 @@ export const Inbox = (props) => {
   };
 
   const handleAudioUpload = async (file) => {
+    console.log(file);
     const { chatId, userId } = activeChat;
     if (currentUser.block.indexOf(userId) === -1) {
       const doc = {
@@ -896,6 +897,7 @@ export const Inbox = (props) => {
                       onClick={() => {
                         setShowEmoji(!showEmoji);
                         setShowGif(false);
+                        setShowRecorder(false);
                       }}
                       className={classes.iconButton}
                     >
@@ -914,6 +916,7 @@ export const Inbox = (props) => {
                     onFocus={() => {
                       setShowEmoji(false);
                       setShowGif(false);
+                      setShowRecorder(false);
                     }}
                   />
 
@@ -922,6 +925,7 @@ export const Inbox = (props) => {
                       onClick={() => {
                         setShowGif(!showGif);
                         setShowEmoji(false);
+                        setShowRecorder(false);
                       }}
                       className={classes.iconButton}
                     >
@@ -1028,7 +1032,12 @@ export const Inbox = (props) => {
               </Grid>
             </Grid>
           </Grid>
-          <DateScheduler open={openDialog} setOpen={setOpenDialog} />
+          <DateScheduler
+            userId={activeChat.userId}
+            username={user.username}
+            open={openDialog}
+            setOpen={setOpenDialog}
+          />
         </Grid>
         <Grid item className={classes.right}>
           <Grid container direction="column" className={classes.chats}>

@@ -348,6 +348,7 @@ export const SignInScreen = (props) => {
         subscribeTokenToTopic(token, `${data.data._id}_liveloop`);
         subscribeTokenToTopic(token, `${data.data._id}_joinlive`);
         subscribeTokenToTopic(token, "delliveuser");
+        subscribeTokenToTopic(token, `${data.data._id}_schedule`);
         const res = await getUser();
         dispatch(submit(res.data));
         if (data.data.step === "/home") {

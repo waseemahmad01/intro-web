@@ -41,6 +41,7 @@ export const ProfileMatched = (props) => {
     first_name: "",
     last_name: "",
     username: "",
+    _id: "",
     identify: { gender: "", visible: false },
     date_preference: { interested_gender: "", interested_audience: "" },
     height: { height: 0.0, visible: false },
@@ -529,7 +530,12 @@ export const ProfileMatched = (props) => {
           username={user.username}
           setQuickMessage={setQuickMessageValue}
         />
-        <DateScheduler open={openDialog} setOpen={setOpenDialog} />
+        <DateScheduler
+          userId={user._id}
+          username={user.username}
+          open={openDialog}
+          setOpen={setOpenDialog}
+        />
         <Grid item>
           <Button
             onClick={() => setOpenDialog(true)}

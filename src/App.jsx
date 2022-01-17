@@ -29,6 +29,7 @@ import {
   getToken,
 } from "./firebaseInit";
 import ProtectedRoute from "./pages/ProtectedRoute/ProtectedRoute";
+import LiveLoop from "./pages/LiveStream/LiveLoop";
 
 function App(props) {
   const dispatch = useDispatch();
@@ -55,6 +56,7 @@ function App(props) {
         subscribeTokenToTopic(token, `${data.data._id}_liveloop`);
         subscribeTokenToTopic(token, `${data.data._id}_joinlive`);
         subscribeTokenToTopic(token, "delliveuser");
+        subscribeTokenToTopic(token, `${data.data._id}_schedule`);
         const res = await getUser();
         dispatch(submit(res.data));
         switch (step) {
@@ -129,6 +131,7 @@ function App(props) {
         <ProtectedRoute path="/joinstream" component={JoinStream} />
         <ProtectedRoute path="/videochat" exact component={VideoCall} />
         <ProtectedRoute path="/voicechat" component={AudioCall} />
+        <ProtectedRoute path="/liveloop" component={LiveLoop} />
       </Switch>
       <Call open={call} setOpen={setCall} />
     </div>
