@@ -538,4 +538,21 @@ export const useStyles = makeStyles((theme) => ({
     height: "100%",
     borderRadius: "12px",
   },
+  dragableBlueWindow: {
+    zIndex: 10,
+    borderRadius: "12px",
+    overflow: "hidden",
+  },
+  timer: {
+    fontSize: "20px",
+    color: "white",
+    position: "absolute",
+    top: "11px",
+    left: "13px",
+    background: "rgb(0,0,0,0.25)",
+    padding: "5px 20px",
+    borderRadius: "25px",
+    border: "2px solid white",
+    zIndex: 3,
+  },
 }));

@@ -77,7 +77,7 @@ function App(props) {
   useEffect(() => {
     fetchUser();
     (async () => {
-      onMessageListener();
+      onMessageListener().then((data) => console.log(data));
     })();
 
     return () => {

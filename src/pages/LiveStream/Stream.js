@@ -143,12 +143,16 @@ export const Stream = (props) => {
     await client.leave();
     await client.unpublish();
     console.log("Client successfuly left the channel");
-    // eslint-disable-next-line
-    const res = await api.delete("/api/deleteliveuser", {
-      data: {
-        username: username,
-      },
-    });
+    try {
+      // eslint-disable-next-line
+      const res = await api.delete("/api/deleteliveuser", {
+        data: {
+          username: username,
+        },
+      });
+    } catch (err) {
+      console.log(err.msg);
+    }
   };
 
   const loopJoin = async () => {
@@ -345,6 +349,7 @@ export const Stream = (props) => {
   };
   const handleEndStream = () => {
     leave();
+    props.history.replace("/liveloop");
   };
   // eslint-disable-next-line
   const startLiveLoop = async () => {};

@@ -254,6 +254,7 @@ export const StreamerBox = ({
   roleChange,
   setCoHostUserId,
   liveloop,
+  setIsWaiting,
 }) => {
   const classes = useStyles();
   const [tab, setTab] = useState(liveloop ? 2 : 0);
@@ -441,6 +442,7 @@ export const StreamerBox = ({
                     setSheetVisible={setSheetVisible}
                     channelId={channelId}
                     joinLiveLoop={joinLiveLoop}
+                    setIsWaiting={setIsWaiting}
                   />
                 </Grid>
               </Grid>

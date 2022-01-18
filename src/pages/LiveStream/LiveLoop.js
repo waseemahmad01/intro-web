@@ -2,29 +2,25 @@ import React, { useState, useRef, useEffect, useContext } from "react";
 import {
   Grid,
   Typography,
-  TextField,
   Button,
   useTheme,
   useMediaQuery,
   IconButton,
   Dialog,
 } from "@material-ui/core";
-import {
-  Block,
-  ReportProblemOutlined as WarningIcon,
-} from "@material-ui/icons";
+import { Block } from "@material-ui/icons";
 import { useStyles } from "./streamStyles";
 import AgoraRTC from "agora-rtc-sdk-ng";
-import AgoraRTM from "agora-rtm-sdk";
 import image from "../../assets/index";
 import { StreamerBox } from "../../components/ViewBox/StreamerBox";
 import { Close } from "@material-ui/icons";
 import { useSelector } from "react-redux";
-import { goLive, removeCoHost } from "../../http";
-import api from "../../http";
 import { SocketContext } from "../../http/socket";
 import { onMessageListener } from "../../firebaseInit";
 import Draggable from "react-draggable";
+import { wait } from "../../utils/waitFunction";
+import Countdown from "react-countdown";
+import { queryLiveLoop } from "../../http";
 
 const LiveLoop = (props) => {
   const classes = useStyles();
@@ -32,7 +28,8 @@ const LiveLoop = (props) => {
   const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const lgScreen = useMediaQuery(theme.breakpoints.down(1680));
   const { audience } = props;
-  const channelName = audience ? props.history.location.state.username : null;
+  const filters = useSelector((state) => state.utils.liveloop.filters);
+  // const channelName = audience ? props.history.location.state.username : null;
   const streamId = audience ? props.history.location.state.id : null;
   const hostUid = audience ? props.history.location.state.hostUid : null;
   const user = useSelector((state) => state.auth.user.data);
@@ -44,11 +41,11 @@ const LiveLoop = (props) => {
   const socket = useContext(SocketContext);
   const [guestWindow, setGuestWindow] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const [started, setStarted] = useState(false);
   const [isWaiting, setIsWaiting] = useState(false);
   const [removeGuest, setRemoveGuest] = useState(false);
   const [exit, setExit] = useState(false);
-  const [blueWindow, setBlueWindow] = useState(true);
-  const [isStarted, setIsStarted] = useState(false);
+  const [blueWindow, setBlueWindow] = useState(false);
   const [members, setMembers] = useState(0);
   const [coHostUserId, setCoHostUserId] = useState("");
   const [userUid, setUserUid] = useState(null);
@@ -57,6 +54,7 @@ const LiveLoop = (props) => {
     lat: "",
   });
   const [closeStream, setCloseStream] = useState(false);
+  const channelName = useRef("");
   const localTracks = useRef({
     audioTrack: null,
     videoTrack: null,
@@ -77,7 +75,8 @@ const LiveLoop = (props) => {
   // eslint-disable-next-line
 
   let remoteUsers = {};
-  const remoteUser = useRef();
+  // eslint-disable-next-line
+  // const remoteUser = useRef();
   // Agora client options
 
   const options = {
@@ -92,7 +91,7 @@ const LiveLoop = (props) => {
   const join = async () => {
     options.uid = await client.join(
       options.appId,
-      options.channel,
+      channelName.current,
       options.token || null,
       options.uid || null
     );
@@ -104,8 +103,10 @@ const LiveLoop = (props) => {
     localTracks.current.audioTrack =
       await AgoraRTC.createMicrophoneAudioTrack();
     localTracks.current.videoTrack = await AgoraRTC.createCameraVideoTrack();
-
+    localTracks.current.videoTrack.play(liveRef.current);
     await client.publish(Object.values(localTracks.current));
+    setStarted(true);
+    setIsWaiting(false);
     console.log("Successfully Published");
   };
 
@@ -115,14 +116,13 @@ const LiveLoop = (props) => {
 
   const leave = async () => {
     console.log("user leaving");
-    console.log(localTracks);
-    for (let trackName in localTracks) {
-      let track = localTracks[trackName];
+    for (let trackName in localTracks.current) {
+      let track = localTracks.current[trackName];
       console.log(track);
       if (track) {
         track.stop();
         track.close();
-        localTracks[trackName] = undefined;
+        localTracks.current[trackName] = undefined;
       }
     }
     remoteUsers = {};
@@ -140,8 +140,7 @@ const LiveLoop = (props) => {
         if (uid === hostUid) {
           user.videoTrack.play(liveRef.current);
         } else {
-          setBlueWindow(true);
-          console.log("guest user added");
+          console.log("Date user added");
           user.videoTrack.play(guest.current);
           localStorage.setItem("uid", uid);
         }
@@ -163,6 +162,7 @@ const LiveLoop = (props) => {
 
   const handleUserJoined = (user, mediaType) => {
     const id = user.uid;
+    setBlueWindow(true);
     remoteUsers[id] = user;
     subscribe(user, mediaType);
   };
@@ -176,7 +176,15 @@ const LiveLoop = (props) => {
     delete remoteUsers[id];
     // removePlayer();
   };
-
+  const handleComplete = async () => {
+    leave();
+    setIsWaiting(true);
+    setBlueWindow(false);
+    const str = `age=${filters.age[0]}&age=${filters.age[1]}&long=${filters.location.coordinates[0]}&lat=${filters.location.coordinates[1]}&distance=${filters.distance}&gender_identifier=${filters.gender_identifier}`;
+    console.log(str);
+    const { data } = await queryLiveLoop(str);
+    console.log(data);
+  };
   // eslint-disable-next-line
   const startLiveLoop = async () => {};
   useEffect(() => {
@@ -187,24 +195,39 @@ const LiveLoop = (props) => {
     //     setLocation({ lon: pos.coords.longitude, lat: pos.coords.latitude });
     //   });
     // }
-    // return () => {
-    //   (async () => {
-    //     options.role = "audience";
-    //     await leave();
-    //     RTMLeave();
-    //   })();
-    // };
-    // eslint-disable-next-line
+    return () => {
+      (async () => {
+        if (started) {
+          await leave();
+        }
+        // options.role = "audience";
+        // RTMLeave();
+      })();
+    };
+    // eslint - disable - next - line;
   }, []);
   useEffect(() => {
-    // onMessageListener().then((data) => {
-    //   if (data.topic === `${user._id}_joinlive`) {
-    //     console.log(data);
-    //     // roleChange(data);
-    //   } else if (data.topic === "delliveuser") {
-    //     props.history.goBack();
-    //   }
-    // });
+    onMessageListener().then((data) => {
+      if (data.topic === `${user._id}_liveloop`) {
+        console.log(data);
+        channelName.current = data.channelname;
+        let status = data.status;
+        const doc = JSON.parse(data.data);
+        console.log(doc);
+        let str = channelName.current.split("_");
+        if (str[0] === user.username) {
+          (async () => {
+            await wait(1000);
+            join();
+          })();
+        } else {
+          (async () => {
+            await wait(1500);
+            join();
+          })();
+        }
+      }
+    });
   });
   return (
     <Grid
@@ -247,7 +270,13 @@ const LiveLoop = (props) => {
         <Grid item>
           <div className={classes.streamContainer} ref={liveRef}>
             <IconButton
-              onClick={() => setCloseStream(true)}
+              onClick={() => {
+                if (started) {
+                  setCloseStream(true);
+                } else {
+                  props.history.replace("/live");
+                }
+              }}
               className={classes.endStreamButton}
             >
               <Close className={classes.endStreamIcon} />
@@ -282,7 +311,12 @@ const LiveLoop = (props) => {
                     color="primary"
                     className={classes.endStreamButtons}
                     style={{ marginBottom: "1rem" }}
-                    onClick={() => props.history.goBack()}
+                    onClick={() => {
+                      if (started) {
+                        props.history.replace("/live");
+                        leave();
+                      }
+                    }}
                   >
                     End Stream
                   </Button>
@@ -340,7 +374,7 @@ const LiveLoop = (props) => {
             {/* waiting overlay */}
             {isWaiting ? (
               <Grid
-                containaer
+                container
                 justifyContent="center"
                 alignItems="center"
                 direction="column"
@@ -355,7 +389,10 @@ const LiveLoop = (props) => {
               </Grid>
             ) : undefined}
             {blueWindow ? (
-              <Draggable bounds="parent" className={classes.dragableBlueWindow}>
+              <Draggable
+                bounds="parent"
+                defaultClassName={classes.dragableBlueWindow}
+              >
                 <Grid
                   container
                   alignItems="center"
@@ -368,7 +405,28 @@ const LiveLoop = (props) => {
                   <Typography className={classes.blueWindowText}>
                     Ask your viewers to play!
                   </Typography>
-                  <Grid className={classes.loopVideoContainer}></Grid>
+                  <Countdown
+                    onComplete={handleComplete}
+                    date={Date.now() + 180000}
+                    renderer={({ hours, minutes, seconds, completed }) => {
+                      if (completed) {
+                        // Render a completed state
+                        // return <Completionist />;
+                        return "";
+                      } else {
+                        // Render a countdown
+                        return (
+                          <span className={classes.timer}>
+                            {minutes}:{seconds}
+                          </span>
+                        );
+                      }
+                    }}
+                  />
+                  <Grid
+                    className={classes.loopVideoContainer}
+                    ref={guest}
+                  ></Grid>
                 </Grid>
               </Draggable>
             ) : undefined}
@@ -445,12 +503,13 @@ const LiveLoop = (props) => {
         className={classes.utilityContainer}
       >
         <StreamerBox
-          //   joinLiveLoop={loopJoin}
+          // joinLiveLoop={loopJoin}
           //   endStream={handleEndStream}
-          channelId={userUid}
+          // channelId={userUid}
           //   roleChange={roleChange}
-          streamId={streamId}
-          setCoHostUserId={setCoHostUserId}
+          // streamId={streamId}
+          // setCoHostUserId={setCoHostUserId}
+          setIsWaiting={setIsWaiting}
           liveloop={true}
         />
       </Grid>
