@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Grid,
   makeStyles,
@@ -255,6 +255,9 @@ export const StreamerBox = ({
   setCoHostUserId,
   liveloop,
   setIsWaiting,
+  dateStarted,
+  setDateStarted,
+  // setRemainingTime,
 }) => {
   const classes = useStyles();
   const [tab, setTab] = useState(liveloop ? 2 : 0);
@@ -313,6 +316,7 @@ export const StreamerBox = ({
   };
   const TabComponent = tabs[tab];
   const SheetTab = secondSheetTabs[secondSheetTab];
+
   return (
     <Grid container direction="column" className={classes.container}>
       <div style={{ flexGrow: 1, position: "relative" }}>
@@ -426,6 +430,7 @@ export const StreamerBox = ({
               <Grid container className={classes.secondSheetContent}>
                 <Grid item container justifyContent="center">
                   <IconButton
+                    disabled={liveloop}
                     onClick={handleSheetClose}
                     className={classes.downButton}
                   >
@@ -443,6 +448,7 @@ export const StreamerBox = ({
                     channelId={channelId}
                     joinLiveLoop={joinLiveLoop}
                     setIsWaiting={setIsWaiting}
+                    // setRemainingTime={setRemainingTime}
                   />
                 </Grid>
               </Grid>
@@ -460,39 +466,43 @@ export const StreamerBox = ({
         className={classes.bottomNavContainer}
       >
         {liveLoop ? (
-          <></>
+          dateStarted && (
+            <>
+              {" "}
+              <Grid
+                container
+                spacing={2}
+                justifyContent="center"
+                alignItems="center"
+              >
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    className={classes.skipButton}
+                    onClick={() => setLiveLoop(false)}
+                  >
+                    Skip
+                  </Button>
+                </Grid>
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    className={classes.extendButton}
+                    startIcon={
+                      <img
+                        src={image.stopwatch}
+                        className={classes.stopwatchIcon}
+                        alt=""
+                      />
+                    }
+                  >
+                    Extend
+                  </Button>
+                </Grid>
+              </Grid>
+            </>
+          )
         ) : (
-          // <Grid
-          //   container
-          //   spacing={2}
-          //   justifyContent="center"
-          //   alignItems="center"
-          // >
-          //   <Grid item>
-          //     <Button
-          //       variant="contained"
-          //       className={classes.skipButton}
-          //       onClick={() => setLiveLoop(false)}
-          //     >
-          //       Skip
-          //     </Button>
-          //   </Grid>
-          //   <Grid item>
-          //     <Button
-          //       variant="contained"
-          //       className={classes.extendButton}
-          //       startIcon={
-          //         <img
-          //           src={image.stopwatch}
-          //           className={classes.stopwatchIcon}
-          //           alt=""
-          //         />
-          //       }
-          //     >
-          //       Extend
-          //     </Button>
-          //   </Grid>
-          // </Grid>
           <Tabs
             value={tab}
             onChange={handleTab}

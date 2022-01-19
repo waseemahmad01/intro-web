@@ -555,4 +555,36 @@ export const useStyles = makeStyles((theme) => ({
     border: "2px solid white",
     zIndex: 3,
   },
+  timeoutDialog: {
+    "& .MuiDialog-paper": {
+      borderRadius: "10px",
+      backgroundColor: theme.palette.common.lightPink,
+    },
+  },
+  dialogtContainer: {
+    padding: "1rem 2rem",
+  },
+  dialogtTitle: {
+    background: "-webkit-linear-gradient(#654AAB, #E77783)",
+    "-webkit-background-clip": "text",
+    "-webkit-text-fill-color": "transparent",
+    fontSize: "35px",
+    fontWeight: "700",
+    margin: 0,
+  },
+  dialogtSubtitle: {
+    fontSize: "25px",
+    color: "#000",
+    margin: 0,
+    marginBlock: "0.5rem",
+  },
+  continueButton: {
+    height: "50px",
+    width: "180px",
+    marginInline: "auto",
+    borderRadius: "25px",
+    textTransform: "none",
+    fontSize: "20px",
+    marginTop: "2rem",
+  },
 }));

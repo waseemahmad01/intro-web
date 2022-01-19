@@ -119,6 +119,8 @@ export const deleteLiveUser = (data) => api.delete("/api/deleteliveuser", data);
 // liveloop
 export const createLiveloop = (data) => api.post("/api/liveloop", data);
 export const queryLiveLoop = (query) => api.get(`/api/liveloop?${query}`);
+export const liveLoopStatus = (id, data) =>
+  api.patch(`/api/liveloop/${id}`, data);
 
 // chat apis
 export const allChats = () => api.get("/api/match");

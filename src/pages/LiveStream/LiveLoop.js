@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, useContext } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useContext,
+  useCallback,
+} from "react";
 import {
   Grid,
   Typography,
@@ -20,7 +26,9 @@ import { onMessageListener } from "../../firebaseInit";
 import Draggable from "react-draggable";
 import { wait } from "../../utils/waitFunction";
 import Countdown from "react-countdown";
-import { queryLiveLoop } from "../../http";
+import { queryLiveLoop, liveLoopStatus } from "../../http";
+import { useHistory } from "react-router-dom";
+import { getRemainingTime } from "../../utils/liveloop";
 
 const LiveLoop = (props) => {
   const classes = useStyles();
@@ -28,6 +36,7 @@ const LiveLoop = (props) => {
   const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const lgScreen = useMediaQuery(theme.breakpoints.down(1680));
   const { audience } = props;
+  const history = useHistory();
   const filters = useSelector((state) => state.utils.liveloop.filters);
   // const channelName = audience ? props.history.location.state.username : null;
   const streamId = audience ? props.history.location.state.id : null;
@@ -49,11 +58,24 @@ const LiveLoop = (props) => {
   const [members, setMembers] = useState(0);
   const [coHostUserId, setCoHostUserId] = useState("");
   const [userUid, setUserUid] = useState(null);
+  const [timeoutDialog, setTimeoutDialog] = useState(false);
+  const [dateStarted, setDateStarted] = useState(false);
   const [location, setLocation] = useState({
     lon: "",
     lat: "",
   });
+  // const [remainingTime, setRemainingTime] = useState(0);
+
   const [closeStream, setCloseStream] = useState(false);
+  const getTime = useCallback(() => {
+    let time = Number(localStorage.getItem("liveLoopTime"));
+    if (time >= 180) {
+      return 180;
+    } else if (time < 180) {
+      return time;
+    }
+  }, []);
+  const remainingTime = useRef(getTime());
   const channelName = useRef("");
   const localTracks = useRef({
     audioTrack: null,
@@ -71,9 +93,7 @@ const LiveLoop = (props) => {
   };
   // Agora setUp
   let client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-
   // eslint-disable-next-line
-
   let remoteUsers = {};
   // eslint-disable-next-line
   // const remoteUser = useRef();
@@ -100,6 +120,7 @@ const LiveLoop = (props) => {
     client.on("user-joined", handleUserJoined);
     client.on("user-left", handleUserLeft);
     client.on("user-unpublished", handleUserUnpublish);
+
     localTracks.current.audioTrack =
       await AgoraRTC.createMicrophoneAudioTrack();
     localTracks.current.videoTrack = await AgoraRTC.createCameraVideoTrack();
@@ -163,27 +184,63 @@ const LiveLoop = (props) => {
   const handleUserJoined = (user, mediaType) => {
     const id = user.uid;
     setBlueWindow(true);
+    setDateStarted(true);
     remoteUsers[id] = user;
     subscribe(user, mediaType);
   };
-
+  const queryNext = async () => {
+    let time = Number(localStorage.getItem("liveLoopTime"));
+    if (time >= 180) {
+      await liveLoopStatus(user._id, { status: false });
+    } else if (time === 0) {
+      setTimeoutDialog(true);
+    } else {
+      await liveLoopStatus(user._id, { status: false });
+    }
+  };
+  const handleSkip = () => {
+    try {
+      leave();
+      setIsWaiting(true);
+      setBlueWindow(false);
+      queryNext();
+    } catch (err) {
+      console.log(err.message);
+      alert("something went wrong");
+    }
+  };
   const handleUserLeft = (user) => {
+    const stats = client.getRTCStats();
+    const liveloopTime = Number(localStorage.getItem("liveLoopTime"));
+    localStorage.setItem("liveLoopTime", liveloopTime - stats.Duration);
+    setBlueWindow(false);
     const id = user.uid;
     const uid = localStorage.getItem("uid");
+    leave();
+    setIsWaiting(true);
+    setDateStarted(false);
+    queryNext();
     if (user.uid == uid) {
       setGuestWindow(false);
     }
     delete remoteUsers[id];
     // removePlayer();
   };
+
   const handleComplete = async () => {
-    leave();
-    setIsWaiting(true);
-    setBlueWindow(false);
-    const str = `age=${filters.age[0]}&age=${filters.age[1]}&long=${filters.location.coordinates[0]}&lat=${filters.location.coordinates[1]}&distance=${filters.distance}&gender_identifier=${filters.gender_identifier}`;
-    console.log(str);
-    const { data } = await queryLiveLoop(str);
-    console.log(data);
+    try {
+      leave();
+      setIsWaiting(true);
+      setBlueWindow(false);
+      queryNext();
+    } catch (err) {
+      console.log(err.message);
+      alert("something went wrong");
+    }
+    // const str = `age=${filters.age[0]}&age=${filters.age[1]}&long=${filters.location.coordinates[0]}&lat=${filters.location.coordinates[1]}&distance=${filters.distance}&gender_identifier=${filters.gender_identifier}`;
+    // console.log(str);
+    // const { data } = await queryLiveLoop(str);
+    // console.log(data);
   };
   // eslint-disable-next-line
   const startLiveLoop = async () => {};
@@ -199,6 +256,9 @@ const LiveLoop = (props) => {
       (async () => {
         if (started) {
           await leave();
+          const stats = client.getRTCStats();
+          const liveloopTime = Number(localStorage.getItem("liveLoopTime"));
+          localStorage.setItem("liveLoopTime", liveloopTime - stats.Duration);
         }
         // options.role = "audience";
         // RTMLeave();
@@ -206,12 +266,15 @@ const LiveLoop = (props) => {
     };
     // eslint - disable - next - line;
   }, []);
+  // useEffect(() => {
+
+  // }, []);
   useEffect(() => {
     onMessageListener().then((data) => {
       if (data.topic === `${user._id}_liveloop`) {
         console.log(data);
         channelName.current = data.channelname;
-        let status = data.status;
+        // let status = data.status;
         const doc = JSON.parse(data.data);
         console.log(doc);
         let str = channelName.current.split("_");
@@ -407,7 +470,7 @@ const LiveLoop = (props) => {
                   </Typography>
                   <Countdown
                     onComplete={handleComplete}
-                    date={Date.now() + 180000}
+                    date={Date.now() + getRemainingTime() * 1000}
                     renderer={({ hours, minutes, seconds, completed }) => {
                       if (completed) {
                         // Render a completed state
@@ -509,10 +572,37 @@ const LiveLoop = (props) => {
           //   roleChange={roleChange}
           // streamId={streamId}
           // setCoHostUserId={setCoHostUserId}
+          // setRemainingTime={setRemainingTime}
+          dateStarted={dateStarted}
+          setDateStarted={setDateStarted}
           setIsWaiting={setIsWaiting}
           liveloop={true}
         />
       </Grid>
+      <Dialog open={timeoutDialog} className={classes.timeoutDialog}>
+        <Grid
+          container
+          direction="column"
+          alignItems="cetner"
+          className={classes.dialogtContainer}
+        >
+          <Typography className={classes.dialogtTitle}>Timeout</Typography>
+          <Typography className={classes.dialogtSubtitle}>
+            Your 30 minutes for today are over!
+          </Typography>
+          <Button
+            variant="contained"
+            className={classes.continueButton}
+            color="primary"
+            onClick={() => {
+              setTimeoutDialog(false);
+              history.replace("/live");
+            }}
+          >
+            Continue
+          </Button>
+        </Grid>
+      </Dialog>
     </Grid>
   );
 };

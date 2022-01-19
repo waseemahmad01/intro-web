@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   makeStyles,
   Grid,
   Typography,
   Slider,
   Button,
+  Dialog,
 } from "@material-ui/core";
 import ChipRadio from "../../chipRadioButton/ChipRadio";
 import { useSelector, useDispatch } from "react-redux";
 import { createLiveloop, queryLiveLoop } from "../../../http/index";
 import { setFilters } from "../../../store/utils";
+import { useHistory } from "react-router-dom";
 
 export const LiveLoop = ({
   setLiveLoop,
@@ -17,8 +19,10 @@ export const LiveLoop = ({
   setTab,
   setSheetVisible,
   setIsWaiting,
+  // setRemainingTime,
 }) => {
   const classes = useStyles();
+  const history = useHistory();
   const user = useSelector((state) => state.auth.user.data);
   const dispatch = useDispatch();
   const [location, setLocation] = useState({
@@ -28,7 +32,9 @@ export const LiveLoop = ({
   const [age, setAge] = useState([22, 32]);
   const [distance, setDistance] = useState(2);
   const [gender, setGender] = useState("");
-  const [time, setTime] = useState(0);
+  // const [time, setTime] = useState(0);
+  const time = useRef();
+  const [timeoutDialog, setTimeoutDialog] = useState(false);
   const handleAge = (event, age) => {
     setAge(age);
   };
@@ -73,18 +79,20 @@ export const LiveLoop = ({
     if (liveloopTime && timestamp) {
       timestamp = new Date(Number(timestamp));
       const currentDate = new Date();
+      console.log(timestamp.getDate());
       if (currentDate.getDate() > timestamp.getDate()) {
+        alert("true");
         localStorage.setItem("liveLoopTime", 1800);
         localStorage.setItem("timestamp", Date.now().toString());
-        setTime(1800);
+        time.current = 1800;
       } else {
-        setTime(liveloopTime);
+        time.current = liveloopTime;
       }
     } else {
       localStorage.setItem("timestamp", Date.now().toString());
       localStorage.setItem("liveLoopTime", 1800);
-      setTime(1800);
-      console.log(localStorage.getItem("liveLoopTime"));
+      time.current = 1800;
+      // console.log(localStorage.getItem("liveLoopTime"));
     }
   };
   const startLiveLoop = async () => {
@@ -113,15 +121,34 @@ export const LiveLoop = ({
       const str = `age=${age[0]}&age=${age[1]}&long=${location.lon}&lat=${
         location.lat
       }&distance=${distance}&gender_identifier=${getGenderIdentifier()}`;
-      // eslint-disable-next-line
       setLiveLoopTime();
-      await createLiveloop(apiData);
-      await queryLiveLoop(str);
-      setLiveLoop(true);
-      handleSheetClose();
-      setTab(0);
-      setSheetVisible(false);
-      setIsWaiting(true);
+      // alert("working");
+      console.log(typeof time.current);
+      if (time.current >= 180) {
+        // alert("greater");
+        console.log(apiData);
+        await createLiveloop(apiData);
+        await queryLiveLoop(str);
+        setLiveLoop(true);
+        handleSheetClose();
+        setTab(0);
+        setSheetVisible(false);
+        setIsWaiting(true);
+        // setRemainingTime(180);
+      } else if (Number(time.current) === 0) {
+        console.log("true");
+        // alert("less");
+        // setRemainingTime(time.current);
+        setTimeoutDialog(true);
+      } else {
+        await createLiveloop(apiData);
+        await queryLiveLoop(str);
+        setLiveLoop(true);
+        handleSheetClose();
+        setTab(0);
+        setSheetVisible(false);
+        setIsWaiting(true);
+      }
     } catch (err) {
       console.log(err.message);
     }
@@ -130,9 +157,10 @@ export const LiveLoop = ({
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition((pos) => {
         setLocation({ lon: pos.coords.longitude, lat: pos.coords.latitude });
+        console.log({ lon: pos.coords.longitude, lat: pos.coords.latitude });
       });
     }
-  });
+  }, []);
   return (
     <Grid
       container
@@ -229,6 +257,30 @@ export const LiveLoop = ({
           Start
         </Button>
       </Grid>
+      <Dialog open={timeoutDialog} className={classes.dialog}>
+        <Grid
+          container
+          direction="column"
+          alignItems="cetner"
+          className={classes.dialogContainer}
+        >
+          <Typography className={classes.dialogTitle}>Timeout</Typography>
+          <Typography className={classes.dialogSubtitle}>
+            Your 30 minutes for today are over!
+          </Typography>
+          <Button
+            variant="contained"
+            className={classes.continueButton}
+            color="primary"
+            onClick={() => {
+              setTimeoutDialog(false);
+              history.replace("/live");
+            }}
+          >
+            Continue
+          </Button>
+        </Grid>
+      </Dialog>
     </Grid>
   );
 };
@@ -348,5 +400,37 @@ const useStyles = makeStyles((theme) => ({
   },
   active: {
     border: "2px solid blue",
+  },
+  dialog: {
+    "& .MuiDialog-paper": {
+      borderRadius: "10px",
+      backgroundColor: theme.palette.common.lightPink,
+    },
+  },
+  dialogContainer: {
+    padding: "1rem 2rem",
+  },
+  dialogTitle: {
+    background: "-webkit-linear-gradient(#654AAB, #E77783)",
+    "-webkit-background-clip": "text",
+    "-webkit-text-fill-color": "transparent",
+    fontSize: "35px",
+    fontWeight: "700",
+    margin: 0,
+  },
+  dialogSubtitle: {
+    fontSize: "25px",
+    color: "#000",
+    margin: 0,
+    marginBlock: "0.5rem",
+  },
+  continueButton: {
+    height: "50px",
+    width: "180px",
+    marginInline: "auto",
+    borderRadius: "25px",
+    textTransform: "none",
+    fontSize: "20px",
+    marginTop: "2rem",
   },
 }));
