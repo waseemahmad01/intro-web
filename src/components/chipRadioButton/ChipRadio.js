@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-function ChipRadio({ name, handleShow, id, label, value, liveloop }) {
+function ChipRadio({ name, handleShow, id, label, value, liveloop, ...rest }) {
   const classes = useStyles();
   return (
     <Grid item>
@@ -59,6 +59,7 @@ function ChipRadio({ name, handleShow, id, label, value, liveloop }) {
       />
       <label
         htmlFor={label}
+        {...rest}
         className={liveloop ? classes.liveloopContainer : classes.container}
       >
         {label}

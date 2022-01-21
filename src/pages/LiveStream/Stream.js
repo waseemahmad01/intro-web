@@ -372,8 +372,9 @@ export const Stream = (props) => {
   }, []);
   useEffect(() => {
     onMessageListener().then((data) => {
+      console.log("running", data);
       if (data.topic === `${user._id}_joinlive`) {
-        console.log(data);
+        // console.log(data);
         roleChange(data);
       } else if (data.topic === "delliveuser") {
         props.history.goBack();

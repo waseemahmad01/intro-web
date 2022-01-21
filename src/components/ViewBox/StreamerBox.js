@@ -17,7 +17,7 @@ import { useTransition, animated } from "react-spring";
 import { Gems } from "../BottomSheetComponents/Gems/Gems";
 import { Guest } from "../BottomSheetComponents/Guest/Guest";
 import { Battle } from "../BottomSheetComponents/Battle/Battle";
-// import { InstantBattle } from "../BottomSheetComponents/InstantBattle/InstantBattle";
+import { InstantBattle } from "../BottomSheetComponents/InstantBattle/InstantBattle";
 // import { BatteryAlert } from "@material-ui/icons";
 import { LiveLoop } from "../BottomSheetComponents/LiveLoop/LiveLoop";
 
@@ -311,8 +311,8 @@ export const StreamerBox = ({
   };
   const secondSheetTabs = {
     0: LiveLoop,
-    // 0: InstantBattle,
     1: Battle,
+    2: InstantBattle,
   };
   const TabComponent = tabs[tab];
   const SheetTab = secondSheetTabs[secondSheetTab];
@@ -448,6 +448,7 @@ export const StreamerBox = ({
                     channelId={channelId}
                     joinLiveLoop={joinLiveLoop}
                     setIsWaiting={setIsWaiting}
+                    setSecondSheetTab={setSecondSheetTab}
                     // setRemainingTime={setRemainingTime}
                   />
                 </Grid>

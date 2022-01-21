@@ -58,9 +58,14 @@ export function subscribeTokenToTopic(token, topic) {
 }
 
 export const onMessageListener = () => {
-  return new Promise((resolve) => {
-    messaging.onMessage((payload) => {
-      resolve(payload.data);
+  try {
+    return new Promise((resolve) => {
+      messaging.onMessage((payload) => {
+        // console.log(payload.data);
+        resolve(payload.data);
+      });
     });
-  });
+  } catch (err) {
+    console.log(err);
+  }
 };

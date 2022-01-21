@@ -57,6 +57,7 @@ function App(props) {
         subscribeTokenToTopic(token, `${data.data._id}_joinlive`);
         subscribeTokenToTopic(token, "delliveuser");
         subscribeTokenToTopic(token, `${data.data._id}_schedule`);
+        subscribeTokenToTopic(token, `${data.data._id}_faceoff`);
         const res = await getUser();
         dispatch(submit(res.data));
         switch (step) {

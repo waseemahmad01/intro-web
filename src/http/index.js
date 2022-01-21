@@ -15,7 +15,6 @@ api.interceptors.request.use(
     if (token) {
       config.headers["Authorization"] = "Bearer " + token;
     }
-    // console.log(token)
     return config;
   },
   (error) => {
@@ -122,6 +121,8 @@ export const queryLiveLoop = (query) => api.get(`/api/liveloop?${query}`);
 export const liveLoopStatus = (id, data) =>
   api.patch(`/api/liveloop/${id}`, data);
 
+// face-off
+export const faceOff = (query) => api.get(`/api/faceoff?tag=${query}`);
 // chat apis
 export const allChats = () => api.get("/api/match");
 
