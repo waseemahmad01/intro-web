@@ -26,7 +26,7 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-const messaging = firebase.messaging();
+export const messaging = firebase.messaging();
 export const db = firebase.firestore();
 export const cloudStorage = firebase.storage();
 export var token = "";
@@ -61,7 +61,7 @@ export const onMessageListener = () => {
   try {
     return new Promise((resolve) => {
       messaging.onMessage((payload) => {
-        // console.log(payload.data);
+        // console.log("message", payload.data);
         resolve(payload.data);
       });
     });

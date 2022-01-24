@@ -27,7 +27,6 @@ export const useStyles = makeStyles((theme) => ({
     marginBottom: "30px",
     paddingLeft: "7px",
     "&::-webkit-calendar-picker-indicator": {
-      // background: `url(${img})`,
       backgroundColor: "red",
       color: "rgba(0,0,0,0)",
       display: "block",

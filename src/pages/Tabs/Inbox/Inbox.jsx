@@ -42,11 +42,13 @@ import { onMessage, onFileMessage } from "../../../utils/firestoreFunctions";
 import { setChatState, setChatVisit } from "../../../store/inbox";
 import BlockAndReport from "../../../components/blockandreport/BlockAndReport";
 import Unblock from "../../../components/unblockDialog/Unblock";
+import QuickMessageDialog from "../../../components/quickMessageDialog/QuickMessageDialog";
 
 export const Inbox = (props) => {
   const classes = useStyles();
   const theme = useTheme();
   const { chats, userUnMatched, setUserUnMatched } = props;
+  // console.log(chats);
   const dispatch = useDispatch();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const currentUser = useSelector((state) => state.auth.user.data);
@@ -113,13 +115,13 @@ export const Inbox = (props) => {
   });
   const [unMatch, setUnMatch] = useState(false);
   const [openReportDialog, setOpenReportDialog] = useState(false);
-
   const [openDialog, setOpenDialog] = useState(false);
   const [recordedVideo, setRecordedVideo] = useState(null);
   const [activeChat, setActiveChat] = useState({
     chatId: "",
     userId: "",
   });
+  const [allow, setAllow] = useState(false);
   const scroll = useRef();
   const [audioDetails, setAudioDetails] = useState({
     url: null,
@@ -131,6 +133,8 @@ export const Inbox = (props) => {
       s: 0,
     },
   });
+  const [quickMessageValue, setQuickMessageValue] = useState("");
+  const [quickMessage, setQuickMessage] = useState(false);
   const refOne = useRef();
   const refTwo = useRef();
   const firstChat = useRef({
@@ -330,6 +334,20 @@ export const Inbox = (props) => {
     }
   };
 
+  const allowChat = (first, second) => {
+    console.log(first, second);
+    if ((first === "male", second === "female")) {
+      for (let i = 0; i < chat.length; i++) {
+        console.log(chat[i].idFrom, activeChat.userId);
+        if (chat[i].idFrom === activeChat.userId) {
+          setAllow(true);
+          break;
+          // return true;
+        }
+      }
+    }
+  };
+
   const handleGif = (gif) => {
     const { chatId, userId } = activeChat;
     if (currentUser.block.indexOf(userId) === -1) {
@@ -364,7 +382,34 @@ export const Inbox = (props) => {
     setOpenReportDialog(true);
   };
   const handleDeleteChat = () => {};
-
+  const handleSendQuickMessage = () => {
+    const { chatId, userId } = activeChat;
+    if (currentUser.block.indexOf(userId) === -1) {
+      const doc = {
+        content: quickMessageValue,
+        filename: "",
+        idFrom: currentUser._id,
+        idTo: userId,
+        thumb: 0,
+        type: 0,
+      };
+      onMessage(
+        doc,
+        chatId,
+        socket,
+        currentUser._id,
+        chat.length === 0 ? currentUser._id : userId
+      );
+      setMessage("");
+      setShowEmoji(false);
+      setQuickMessage(false);
+    } else {
+      setBlocked(true);
+      console.log("this user is blocked");
+      setMessage("");
+      setShowEmoji(false);
+    }
+  };
   useEffect(() => {
     const { chatId, userId } = activeChat;
     if (chatId !== "" && userId !== "") {
@@ -378,6 +423,7 @@ export const Inbox = (props) => {
       (async () => {
         const { data } = await getUserById(userId);
         setUser(data.data);
+
         db.collection("messages")
           .doc(chatId)
           .collection(chatId)
@@ -388,6 +434,11 @@ export const Inbox = (props) => {
             if (scroll.current)
               scroll.current.scrollIntoView({ behavior: "smooth" });
           });
+
+        allowChat(
+          currentUser.identify.gender.toLowerCase(),
+          data.data.identify.gender.toLowerCase()
+        );
       })();
     }
   }, [activeChat]);
@@ -885,153 +936,190 @@ export const Inbox = (props) => {
               className={classes.messageInputBox}
               style={{ paddingInline: "1rem" }}
             >
-              <Grid item style={{ width: "90%", position: "relative" }}>
+              {activeChat.chatId && (
                 <Grid
                   container
                   alignItems="center"
                   justifyContent="space-between"
-                  className={classes.chatInput}
                 >
-                  <Grid item>
-                    <IconButton
-                      onClick={() => {
-                        setShowEmoji(!showEmoji);
-                        setShowGif(false);
-                        setShowRecorder(false);
-                      }}
-                      className={classes.iconButton}
-                    >
-                      <Emoji className={classes.emojiIcon} />
-                    </IconButton>
-                  </Grid>
-                  <InputBase
-                    maxRows={4}
-                    multiline
-                    value={message}
-                    onKeyUp={handleKeyUp}
-                    onChange={handleMessage}
-                    className={classes.inputBase}
-                    placeholder="Write a message..."
-                    inputProps={{ className: classes.inputProps }}
-                    onFocus={() => {
-                      setShowEmoji(false);
-                      setShowGif(false);
-                      setShowRecorder(false);
-                    }}
-                  />
-
-                  <Grid item>
-                    <IconButton
-                      onClick={() => {
-                        setShowGif(!showGif);
-                        setShowEmoji(false);
-                        setShowRecorder(false);
-                      }}
-                      className={classes.iconButton}
-                    >
-                      <GifSharp className={classes.gifIcon} />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => {
-                        setShowRecorder(!showRecorder);
-                        setShowEmoji(false);
-                        setShowGif(false);
-                      }}
-                      style={{
-                        marginRight: lgScreen ? "3px" : "10px",
-                        marginLeft: lgScreen ? "0px" : "5px",
-                      }}
-                      className={classes.iconButton}
-                    >
-                      <Mic className={classes.icons} />
-                    </IconButton>
-                    <IconButton
-                      onClick={handleOpenVideoDialog}
-                      style={{ marginRight: "15px" }}
-                      className={classes.iconButton}
-                    >
-                      <img
-                        src={image.recordDot}
-                        style={{ width: lgScreen ? "2rem" : undefined }}
-                        alt=""
-                      />
-                    </IconButton>
-                    <Dialog open={openVideoDialog} className={classes.dialog}>
-                      <Grid
-                        item
-                        container
-                        direction="column"
-                        className={classes.videoRecorderContainer}
-                      >
-                        <div className={classes.videoDiv}>
-                          <VideoRecorder
-                            onRecordingComplete={(videoBlob) => {
-                              setRecordedVideo(videoBlob);
-                              console.log("videoBlob", videoBlob);
+                  {!allow ? (
+                    <>
+                      <Grid item style={{ width: "90%", position: "relative" }}>
+                        <Grid
+                          container
+                          alignItems="center"
+                          justifyContent="space-between"
+                          className={classes.chatInput}
+                        >
+                          <Grid item>
+                            <IconButton
+                              onClick={() => {
+                                setShowEmoji(!showEmoji);
+                                setShowGif(false);
+                                setShowRecorder(false);
+                              }}
+                              className={classes.iconButton}
+                            >
+                              <Emoji className={classes.emojiIcon} />
+                            </IconButton>
+                          </Grid>
+                          <InputBase
+                            maxRows={4}
+                            multiline
+                            value={message}
+                            onKeyUp={handleKeyUp}
+                            onChange={handleMessage}
+                            className={classes.inputBase}
+                            placeholder="Write a message..."
+                            inputProps={{ className: classes.inputProps }}
+                            onFocus={() => {
+                              setShowEmoji(false);
+                              setShowGif(false);
+                              setShowRecorder(false);
                             }}
                           />
-                        </div>
-                        <Button
-                          disabled={recordedVideo === null ? true : false}
-                          variant="contained"
-                          color="primary"
-                          onClick={handleVideoUpload}
-                          className={classes.uploadButton}
-                        >
-                          Upload video
-                        </Button>
-                      </Grid>
-                    </Dialog>
-                  </Grid>
-                </Grid>
-                {showGif && (
-                  <div className={classes.gifPicker}>
-                    <GifPicker onSelected={handleGif} />
-                  </div>
-                )}
-                {showRecorder && (
-                  <div className={classes.recorder}>
-                    <Recorder
-                      record={true}
-                      title={"New recording"}
-                      audioURL={audioDetails.url}
-                      showUIAudio
-                      handleAudioStop={(data) => handleAudioStop(data)}
-                      handleAudioUpload={(data) => handleAudioUpload(data)}
-                      handleCountDown={(data) => handleCountDown(data)}
-                      handleReset={() => handleReset()}
-                      mimeTypeToUseWhenRecording={`audio/webm`}
-                    />
-                  </div>
-                )}
 
-                {showEmoji && (
-                  <div className={classes.emojiContainer}>
-                    <Picker
-                      pickerStyle={{ width: "100%", height: "250px" }}
-                      onEmojiClick={onEmojiClick}
-                      disableAutoFocus={true}
-                      skinTone={SKIN_TONE_MEDIUM_DARK}
-                      groupNames={{ smileys_people: "PEOPLE" }}
-                      native
-                    />
-                  </div>
-                )}
-              </Grid>
-              <Grid item>
-                <IconButton
-                  onClick={handleSendMessage}
-                  className={classes.sendButton}
-                >
-                  <img
-                    src={image.send}
-                    className={classes.sendButtonIcon}
-                    alt=""
-                  />
-                </IconButton>
-              </Grid>
+                          <Grid item>
+                            <IconButton
+                              onClick={() => {
+                                setShowGif(!showGif);
+                                setShowEmoji(false);
+                                setShowRecorder(false);
+                              }}
+                              className={classes.iconButton}
+                            >
+                              <GifSharp className={classes.gifIcon} />
+                            </IconButton>
+                            <IconButton
+                              onClick={() => {
+                                setShowRecorder(!showRecorder);
+                                setShowEmoji(false);
+                                setShowGif(false);
+                              }}
+                              style={{
+                                marginRight: lgScreen ? "3px" : "10px",
+                                marginLeft: lgScreen ? "0px" : "5px",
+                              }}
+                              className={classes.iconButton}
+                            >
+                              <Mic className={classes.icons} />
+                            </IconButton>
+                            <IconButton
+                              onClick={handleOpenVideoDialog}
+                              style={{ marginRight: "15px" }}
+                              className={classes.iconButton}
+                            >
+                              <img
+                                src={image.recordDot}
+                                style={{ width: lgScreen ? "2rem" : undefined }}
+                                alt=""
+                              />
+                            </IconButton>
+                            <Dialog
+                              open={openVideoDialog}
+                              className={classes.dialog}
+                            >
+                              <Grid
+                                item
+                                container
+                                direction="column"
+                                className={classes.videoRecorderContainer}
+                              >
+                                <div className={classes.videoDiv}>
+                                  <VideoRecorder
+                                    onRecordingComplete={(videoBlob) => {
+                                      setRecordedVideo(videoBlob);
+                                      console.log("videoBlob", videoBlob);
+                                    }}
+                                  />
+                                </div>
+                                <Button
+                                  disabled={
+                                    recordedVideo === null ? true : false
+                                  }
+                                  variant="contained"
+                                  color="primary"
+                                  onClick={handleVideoUpload}
+                                  className={classes.uploadButton}
+                                >
+                                  Upload video
+                                </Button>
+                              </Grid>
+                            </Dialog>
+                          </Grid>
+                        </Grid>
+                        {showGif && (
+                          <div className={classes.gifPicker}>
+                            <GifPicker onSelected={handleGif} />
+                          </div>
+                        )}
+                        {showRecorder && (
+                          <div className={classes.recorder}>
+                            <Recorder
+                              record={true}
+                              title={"New recording"}
+                              audioURL={audioDetails.url}
+                              showUIAudio
+                              handleAudioStop={(data) => handleAudioStop(data)}
+                              handleAudioUpload={(data) =>
+                                handleAudioUpload(data)
+                              }
+                              handleCountDown={(data) => handleCountDown(data)}
+                              handleReset={() => handleReset()}
+                              mimeTypeToUseWhenRecording={`audio/webm`}
+                            />
+                          </div>
+                        )}
+
+                        {showEmoji && (
+                          <div className={classes.emojiContainer}>
+                            <Picker
+                              pickerStyle={{ width: "100%", height: "250px" }}
+                              onEmojiClick={onEmojiClick}
+                              disableAutoFocus={true}
+                              skinTone={SKIN_TONE_MEDIUM_DARK}
+                              groupNames={{ smileys_people: "PEOPLE" }}
+                              native
+                            />
+                          </div>
+                        )}
+                      </Grid>
+                      <Grid item>
+                        <IconButton
+                          onClick={handleSendMessage}
+                          className={classes.sendButton}
+                        >
+                          <img
+                            src={image.send}
+                            className={classes.sendButtonIcon}
+                            alt=""
+                          />
+                        </IconButton>
+                      </Grid>
+                    </>
+                  ) : (
+                    <Grid container justifyContent="center">
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        className={classes.quickMessageButton}
+                        onClick={() => setQuickMessage(true)}
+                      >
+                        Send Quick Message
+                      </Button>
+                    </Grid>
+                  )}
+                </Grid>
+              )}
             </Grid>
           </Grid>
+          <QuickMessageDialog
+            open={quickMessage}
+            setOpen={setQuickMessage}
+            setQuickMessage={setQuickMessageValue}
+            username={user.username}
+            sendMessage={handleSendQuickMessage}
+          />
           <DateScheduler
             userId={activeChat.userId}
             username={user.username}

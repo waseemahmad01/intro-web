@@ -385,7 +385,7 @@ export const Live = () => {
     try {
       const { data } = await liveStreamUsers(query);
       setLiveUsers(data.data);
-      console.log(data.data);
+      // console.log(data.data);
     } catch (err) {
       console.log(err.message);
     }
@@ -403,7 +403,7 @@ export const Live = () => {
   }, [query]);
   useEffect(() => {
     onMessageListener().then((message) => {
-      console.log(message);
+      // console.log(message);
       fetchData(query);
       setFetchQuery(!fetchQuery);
     });

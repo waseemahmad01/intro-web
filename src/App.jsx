@@ -15,7 +15,7 @@ import { AllTabs } from "./pages/TabsContainer/AllTabs";
 import { Live } from "./pages/Live/Live";
 import { Stream } from "./pages/LiveStream/Stream";
 import JoinStream from "./pages/LiveStream/JoinStream";
-// import { Battle } from "./pages/Battle/Battle";
+import { Battle } from "./pages/Battle/Battle";
 import Call from "./components/callDialog/Call";
 import VideoCall from "./pages/videoCall/VideoCall";
 import AudioCall from "./pages/audioCall/AudioCall";
@@ -133,6 +133,7 @@ function App(props) {
         <ProtectedRoute path="/videochat" exact component={VideoCall} />
         <ProtectedRoute path="/voicechat" component={AudioCall} />
         <ProtectedRoute path="/liveloop" component={LiveLoop} />
+        <ProtectedRoute patyh="/faceoff" component={Battle} />
       </Switch>
       <Call open={call} setOpen={setCall} />
     </div>

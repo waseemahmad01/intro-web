@@ -65,13 +65,20 @@ export const InstantBattle = () => {
       >
         <Grid item>
           <Grid container spacing={2}>
-            <Grid item container justifyContent="center" spacing={2}>
+            <Grid
+              item
+              container
+              style={{ paddingInline: lgScreen ? "0rem" : "4rem" }}
+              justifyContent="center"
+              spacing={2}
+            >
               {tags.map((tag, index) => (
                 <ChipRadio
+                  key={index}
                   style={{
-                    height: lgScreen ? "36px" : "",
-                    width: lgScreen ? "110px" : "",
-                    fontSize: lgScreen ? "11px" : "",
+                    height: lgScreen ? "36px" : "46px",
+                    width: lgScreen ? "110px" : "112px",
+                    fontSize: lgScreen ? "11px" : "11px",
                   }}
                   handleShow={handleSelectTag}
                   label={tag}
@@ -100,7 +107,7 @@ export const InstantBattle = () => {
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    padding: "1rem 0rem",
+    padding: "0rem 0rem",
   },
   topText: {
     color: theme.palette.common.crimson,
@@ -141,7 +148,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: "38px",
     textTransform: "none",
     fontSize: "22px",
-    marginTop: "1rem",
+    marginBlock: "1.5rem 28px",
     [theme.breakpoints.down(1680)]: {
       fontSize: "13px",
       height: "35px",

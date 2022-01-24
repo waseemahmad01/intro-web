@@ -21,247 +21,6 @@ import { useDispatch } from "react-redux";
 import Joi from "joi-browser";
 import { SocketContext } from "../../http/socket";
 import { subscribeTokenToTopic, getToken } from "../../firebaseInit";
-const useStyles = makeStyles((theme) => ({
-  container: {
-    backgroundColor: "#fbfbfb",
-    height: "100vh",
-  },
-  logoContainer: {
-    marginBottom: "0",
-    "& img": {
-      height: "245px",
-      width: "306px",
-      [theme.breakpoints.down("lg")]: {
-        height: "12rem",
-      },
-    },
-  },
-  select: {
-    // "&.Mui-focused": {
-    // 	border: "1px solid transparent",
-    // },
-    width: "128px",
-    borderRadius: "34px",
-    // border: `2px solid ${theme.palette.primary.main}`,
-    backgroundColor: "#fff",
-    fontSize: "21px",
-    marginBottom: "10px",
-    height: "59px",
-    // color: "rgba(112,112,112,0.5)",
-    color: "#000000",
-    // boxShadow: theme.shadows[3],
-    "& .MuiSelect-selectMenu": {
-      backgroundColor: "transparent",
-    },
-    "& .MuiInputBase-root ": {
-      textAlign: "center",
-    },
-    "& .MuiSelect-icon": {
-      postion: "absolute",
-      left: "5px",
-      [theme.breakpoints.down("lg")]: {
-        left: "3px",
-      },
-    },
-    [theme.breakpoints.down("lg")]: {
-      width: "90px",
-      height: "40px",
-      fontSize: "15px",
-      // border: `1px solid ${theme.palette.primary.main}`,
-    },
-    "& .MuiOutlinedInput-notchedOutline": {
-      border: `2px solid ${theme.palette.primary.main}`,
-    },
-    "&:hover .MuiOutlinedInput-notchedOutline": {
-      border: `2px solid ${theme.palette.primary.main}`,
-    },
-    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-      border: `2px solid ${theme.palette.primary.main}`,
-    },
-    "& .MuiSelect-outlined": {
-      padding: 0,
-    },
-  },
-  inputContainer: {
-    marginTop: "1.7rem",
-  },
-  menuItem: {
-    color: "#000",
-    marginBottom: "5px",
-    fontSize: "22px",
-    "&:hover": {
-      backgroundColor: "#e7e7e7",
-    },
-    [theme.breakpoints.down("lg")]: {
-      fontSize: "15px",
-    },
-  },
-  input: {
-    fontSize: "21px",
-    backgroundColor: "#fff",
-    borderRadius: "34px",
-    height: "59px",
-    margin: "0",
-    // border: `2px solid ${theme.palette.primary.light}`,
-    paddingLeft: "7px",
-    marginLeft: "0.5rem",
-    width: "336px",
-    // boxShadow: theme.shadows[3],
-    [theme.breakpoints.down("lg")]: {
-      width: "250px",
-      height: "40px",
-      fontSize: "15px",
-      // border: `1px solid ${theme.palette.primary.light}`,
-    },
-  },
-  divider: {
-    width: "519.3px",
-    height: "26px",
-    textAlign: "center",
-    borderBottom: "2px solid #7e7e7e",
-    marginTop: "3.1rem",
-    marginBottom: "3.9rem",
-    "& p": {
-      lineHeight: "26px",
-      fontSize: "19px",
-      color: "#7e7e7e",
-      backgroundColor: "#fbfbfb",
-      marginTop: "10px",
-      display: "inline-block",
-      width: "40px",
-    },
-  },
-  dialogRoot: {
-    "& .MuiDialog-paper": {
-      borderRadius: "30px",
-    },
-  },
-  dialogContainer: {
-    backgroundColor: theme.palette.common.lightPink,
-    padding: "1rem 4rem",
-  },
-  dialogTitle: {
-    color: "#333333",
-    margin: 0,
-    fontSize: "21px",
-    marginTop: "0.75rem",
-  },
-  dialogSubtitle: {
-    color: "#333333",
-    margin: 0,
-    fontSize: "18px",
-  },
-  verifyContainer: {
-    margin: "2rem 0",
-  },
-  verifyButton: {
-    width: "274px",
-    height: "52px",
-    textTransform: "none",
-    fontSize: "17px",
-    borderRadius: "26px",
-    fontWeight: 700,
-  },
-  resendButton: {
-    width: "274px",
-    height: "52px",
-    textTransform: "none",
-    fontSize: "17px",
-    borderRadius: "26px",
-    marginTop: "1rem",
-    border: `2px solid ${theme.palette.primary.main}`,
-    fontWeight: 700,
-  },
-  facebookButton: {
-    backgroundColor: "#3B5998",
-    marginTop: "0.5rem",
-    width: "320px",
-    height: "50px",
-    textTransform: "none",
-    fontSize: "21px",
-    fontWeight: 300,
-    borderRadius: "33px",
-    color: "#fff",
-    boxSizing: "border-box",
-    [theme.breakpoints.down("lg")]: {
-      width: "270px",
-      height: "40px",
-      fontSize: "15px",
-      marginTop: "0.15rem",
-    },
-    "&:hover": {
-      backgroundColor: "#4262A5",
-    },
-    "&:first-child": {
-      display: "flex",
-      justifyContent: "space-between",
-      padding: "1rem",
-    },
-  },
-  fbIcon: {
-    [theme.breakpoints.down("lg")]: {
-      width: "1.5rem",
-    },
-  },
-  googleButton: {
-    backgroundColor: "#CE4317",
-    width: "320px",
-    height: "50px",
-    textTransform: "none",
-    fontSize: "23px",
-    fontWeight: 300,
-    borderRadius: "33px",
-    color: "#fff",
-    boxSizing: "border-box",
-    [theme.breakpoints.down("lg")]: {
-      width: "270px",
-      height: "40px",
-      fontSize: "15px",
-    },
-    "&:hover": {
-      backgroundColor: "#D14B21",
-    },
-    "&:first-child": {
-      display: "flex",
-      justifyContent: "space-between",
-      padding: "1rem",
-    },
-  },
-  googleIcon: {
-    [theme.breakpoints.down("lg")]: {
-      width: "1.5rem",
-    },
-  },
-  inputRoot: {
-    "& .MuiOutlinedInput-root": {
-      "& fieldset": {
-        border: `2px solid ${theme.palette.primary.main}`,
-      },
-      "&.Mui-focused fieldset": {
-        border: `2px solid ${theme.palette.primary.main}`,
-      },
-      "&:hover fieldset": {
-        border: `2px solid ${theme.palette.primary.main}`,
-      },
-    },
-  },
-  errorSpan: {
-    color: "red",
-    lineHeight: "2rem",
-    fontSize: "1.3rem",
-  },
-  error: {
-    fontSize: "1.3rem",
-    [theme.breakpoints.down("lg")]: {
-      fontSize: "14px",
-    },
-  },
-  menu: {
-    "& .MuiMenu-paper": {
-      maxHeight: "35vh",
-    },
-  },
-}));
 
 export const SignInScreen = (props) => {
   const classes = useStyles();
@@ -424,10 +183,11 @@ export const SignInScreen = (props) => {
           </Select>
           <TextField
             variant="outlined"
-            type="tel"
+            type="number"
             classes={{ root: classes.inputRoot }}
             placeholder="Phone Number"
             InputProps={{ className: classes.input }}
+            inputProps={{ className: classes.spin }}
             onChange={handlePhoneNumber}
             error={Boolean(error.phonenumber)}
             helperText={error.phonenumber}
@@ -570,3 +330,248 @@ export const SignInScreen = (props) => {
     </Grid>
   );
 };
+
+const useStyles = makeStyles((theme) => ({
+  container: {
+    backgroundColor: "#fbfbfb",
+    height: "100vh",
+  },
+  logoContainer: {
+    marginBottom: "0",
+    "& img": {
+      height: "245px",
+      width: "306px",
+      [theme.breakpoints.down("lg")]: {
+        height: "12rem",
+      },
+    },
+  },
+  select: {
+    // "&.Mui-focused": {
+    // 	border: "1px solid transparent",
+    // },
+    width: "128px",
+    borderRadius: "34px",
+    // border: `2px solid ${theme.palette.primary.main}`,
+    backgroundColor: "#fff",
+    fontSize: "21px",
+    marginBottom: "10px",
+    height: "59px",
+    // color: "rgba(112,112,112,0.5)",
+    color: "#000000",
+    // boxShadow: theme.shadows[3],
+    "& .MuiSelect-selectMenu": {
+      backgroundColor: "transparent",
+    },
+    "& .MuiInputBase-root ": {
+      textAlign: "center",
+    },
+    "& .MuiSelect-icon": {
+      postion: "absolute",
+      left: "5px",
+      [theme.breakpoints.down("lg")]: {
+        left: "3px",
+      },
+    },
+    [theme.breakpoints.down("lg")]: {
+      width: "90px",
+      height: "40px",
+      fontSize: "15px",
+      // border: `1px solid ${theme.palette.primary.main}`,
+    },
+    "& .MuiOutlinedInput-notchedOutline": {
+      border: `2px solid ${theme.palette.primary.main}`,
+    },
+    "&:hover .MuiOutlinedInput-notchedOutline": {
+      border: `2px solid ${theme.palette.primary.main}`,
+    },
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+      border: `2px solid ${theme.palette.primary.main}`,
+    },
+    "& .MuiSelect-outlined": {
+      padding: 0,
+    },
+  },
+  inputContainer: {
+    marginTop: "1.7rem",
+  },
+  menuItem: {
+    color: "#000",
+    marginBottom: "5px",
+    fontSize: "22px",
+    "&:hover": {
+      backgroundColor: "#e7e7e7",
+    },
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "15px",
+    },
+  },
+  input: {
+    fontSize: "21px",
+    backgroundColor: "#fff",
+    borderRadius: "34px",
+    height: "59px",
+    margin: "0",
+    paddingLeft: "7px",
+    marginLeft: "0.5rem",
+    width: "336px",
+    [theme.breakpoints.down("lg")]: {
+      width: "250px",
+      height: "40px",
+      fontSize: "15px",
+    },
+  },
+  divider: {
+    width: "519.3px",
+    height: "26px",
+    textAlign: "center",
+    borderBottom: "2px solid #7e7e7e",
+    marginTop: "3.1rem",
+    marginBottom: "3.9rem",
+    "& p": {
+      lineHeight: "26px",
+      fontSize: "19px",
+      color: "#7e7e7e",
+      backgroundColor: "#fbfbfb",
+      marginTop: "10px",
+      display: "inline-block",
+      width: "40px",
+    },
+  },
+  dialogRoot: {
+    "& .MuiDialog-paper": {
+      borderRadius: "30px",
+    },
+  },
+  dialogContainer: {
+    backgroundColor: theme.palette.common.lightPink,
+    padding: "1rem 4rem",
+  },
+  dialogTitle: {
+    color: "#333333",
+    margin: 0,
+    fontSize: "21px",
+    marginTop: "0.75rem",
+  },
+  dialogSubtitle: {
+    color: "#333333",
+    margin: 0,
+    fontSize: "18px",
+  },
+  verifyContainer: {
+    margin: "2rem 0",
+  },
+  verifyButton: {
+    width: "274px",
+    height: "52px",
+    textTransform: "none",
+    fontSize: "17px",
+    borderRadius: "26px",
+    fontWeight: 700,
+  },
+  resendButton: {
+    width: "274px",
+    height: "52px",
+    textTransform: "none",
+    fontSize: "17px",
+    borderRadius: "26px",
+    marginTop: "1rem",
+    border: `2px solid ${theme.palette.primary.main}`,
+    fontWeight: 700,
+  },
+  facebookButton: {
+    backgroundColor: "#3B5998",
+    marginTop: "0.5rem",
+    width: "320px",
+    height: "50px",
+    textTransform: "none",
+    fontSize: "21px",
+    fontWeight: 300,
+    borderRadius: "33px",
+    color: "#fff",
+    boxSizing: "border-box",
+    [theme.breakpoints.down("lg")]: {
+      width: "270px",
+      height: "40px",
+      fontSize: "15px",
+      marginTop: "0.15rem",
+    },
+    "&:hover": {
+      backgroundColor: "#4262A5",
+    },
+    "&:first-child": {
+      display: "flex",
+      justifyContent: "space-between",
+      padding: "1rem",
+    },
+  },
+  fbIcon: {
+    [theme.breakpoints.down("lg")]: {
+      width: "1.5rem",
+    },
+  },
+  googleButton: {
+    backgroundColor: "#CE4317",
+    width: "320px",
+    height: "50px",
+    textTransform: "none",
+    fontSize: "23px",
+    fontWeight: 300,
+    borderRadius: "33px",
+    color: "#fff",
+    boxSizing: "border-box",
+    [theme.breakpoints.down("lg")]: {
+      width: "270px",
+      height: "40px",
+      fontSize: "15px",
+    },
+    "&:hover": {
+      backgroundColor: "#D14B21",
+    },
+    "&:first-child": {
+      display: "flex",
+      justifyContent: "space-between",
+      padding: "1rem",
+    },
+  },
+  googleIcon: {
+    [theme.breakpoints.down("lg")]: {
+      width: "1.5rem",
+    },
+  },
+  inputRoot: {
+    "& .MuiOutlinedInput-root": {
+      "& fieldset": {
+        border: `2px solid ${theme.palette.primary.main}`,
+      },
+      "&.Mui-focused fieldset": {
+        border: `2px solid ${theme.palette.primary.main}`,
+      },
+      "&:hover fieldset": {
+        border: `2px solid ${theme.palette.primary.main}`,
+      },
+    },
+  },
+  errorSpan: {
+    color: "red",
+    lineHeight: "2rem",
+    fontSize: "1.3rem",
+  },
+  error: {
+    fontSize: "1.3rem",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "14px",
+    },
+  },
+  menu: {
+    "& .MuiMenu-paper": {
+      maxHeight: "35vh",
+    },
+  },
+  spin: {
+    "&::-webkit-outer-spin-button": {
+      margin: 0,
+      webkitApperance: "none",
+    },
+  },
+}));

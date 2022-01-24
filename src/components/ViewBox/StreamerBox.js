@@ -257,6 +257,7 @@ export const StreamerBox = ({
   setIsWaiting,
   dateStarted,
   setDateStarted,
+  tag,
   // setRemainingTime,
 }) => {
   const classes = useStyles();
@@ -323,7 +324,7 @@ export const StreamerBox = ({
         <Hidden smDown>
           <Grid item className={classes.headingContainer}>
             <Typography className={classes.heading} variant="h3">
-              Messages
+              {tag ? tag : "Messages"}
             </Typography>
           </Grid>
         </Hidden>

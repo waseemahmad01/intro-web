@@ -677,4 +677,12 @@ export const useStyles = makeStyles((theme) => ({
       marginBlock: "10px 5px",
     },
   },
+  quickMessageButton: {
+    width: "60%",
+    marginIniline: "auto !important",
+    height: "50px",
+    textTransform: "none",
+    borderRadius: "25px",
+    fontSize: "20px",
+  },
 }));

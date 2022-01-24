@@ -11,7 +11,7 @@ import {
 } from "@material-ui/core";
 import {
   Block,
-  ReportProblemOutlined as WarningIcon,
+  // ReportProblemOutlined as WarningIcon,
 } from "@material-ui/icons";
 import { useStyles } from "./streamStyles";
 import AgoraRTC from "agora-rtc-sdk-ng";
@@ -23,7 +23,8 @@ import { useSelector } from "react-redux";
 import { goLive, removeCoHost } from "../../http";
 import api from "../../http";
 import { SocketContext } from "../../http/socket";
-import { onMessageListener } from "../../firebaseInit";
+import { onMessageListener, messaging } from "../../firebaseInit";
+import { Battle } from "../Battle/Battle";
 
 export const Stream = (props) => {
   const classes = useStyles();
@@ -55,7 +56,17 @@ export const Stream = (props) => {
     lon: "",
     lat: "",
   });
+  const [faceOff, setFaceOff] = useState(false);
   const [closeStream, setCloseStream] = useState(false);
+  const faceoff = useRef(false);
+  const battle = useRef({
+    client: "",
+    clientUid: null,
+    host: "",
+    hostUid: null,
+    tag: "",
+  });
+  const [hostFirst, setHostFirst] = useState(false);
   const getGender = () => {
     const gender = user.identify.gender;
     if (gender.toLowerCase() === "male") {
@@ -68,8 +79,6 @@ export const Stream = (props) => {
   };
   // Agora setUp
   let client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
-  let loopClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-
   // eslint-disable-next-line
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   let localTracks = {
@@ -80,6 +89,13 @@ export const Stream = (props) => {
   let remoteUsers = {};
   const remoteUser = useRef();
   // Agora client options
+
+  const ref = {
+    ref1: useRef(),
+    ref2: useRef(),
+  };
+  const rtmChannel = useRef(null);
+  const faceoffChannel = useRef("");
 
   const options = {
     appId: process.env.REACT_APP_AGORA_APPID,
@@ -96,9 +112,10 @@ export const Stream = (props) => {
 
   const join = async () => {
     client.setClientRole(options.role);
+    alert(faceoffChannel.current);
     options.uid = await client.join(
       options.appId,
-      options.channel,
+      faceoff.current ? faceoffChannel.current : options.channel,
       options.token || null,
       options.uid || null
     );
@@ -111,9 +128,12 @@ export const Stream = (props) => {
     // client.on("client-role-changed", handleClientRoleChanged);
     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-    if (userUid === hostUid) {
+    if (faceoff.current) {
+      localTracks.videoTrack.play(ref.ref1.current);
+    } else if (userUid === hostUid) {
       localTracks.videoTrack.play(liveRef.current);
     }
+
     await client.publish(Object.values(localTracks));
     console.log("Successfully Published");
   };
@@ -143,32 +163,18 @@ export const Stream = (props) => {
     await client.leave();
     await client.unpublish();
     console.log("Client successfuly left the channel");
-    try {
-      // eslint-disable-next-line
-      const res = await api.delete("/api/deleteliveuser", {
-        data: {
-          username: username,
-        },
-      });
-    } catch (err) {
-      console.log(err.msg);
+    if (!faceoff.current) {
+      try {
+        // eslint-disable-next-line
+        const res = await api.delete("/api/deleteliveuser", {
+          data: {
+            username: username,
+          },
+        });
+      } catch (err) {
+        console.log(err.msg);
+      }
     }
-  };
-
-  const loopJoin = async () => {
-    options.uid = await loopClient.join(
-      options.appId,
-      options.channel,
-      options.token || null,
-      options.uid || null
-    );
-    client.on("user-published", handleUserPublished);
-    client.on("user-joined", handleLoopUserJoined);
-    client.on("user-left", handleUserLeft);
-    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-    localTracks.videoTrack.play(liveRef.current);
-    await client.publish(Object.values(localTracks));
   };
 
   const subscribe = async (user, mediaType) => {
@@ -177,35 +183,33 @@ export const Stream = (props) => {
       const uid = user.uid;
       await client.subscribe(user, mediaType);
       console.log("Successfully Subscribes.");
-
-      if (mediaType === "video") {
-        if (uid === hostUid) {
-          user.videoTrack.play(liveRef.current);
-        } else {
-          setGuestWindow(true);
-          console.log("guest user added");
-          user.videoTrack.play(guest.current);
-          localStorage.setItem("uid", uid);
+      if (faceoff.current) {
+        if (mediaType === "video") {
+          if (uid !== battle.hostUid) {
+            user.videoTrack.play(ref.ref2.current);
+          } else {
+            setHostFirst(true);
+            user.videoTrack.play(ref.ref1.current);
+          }
+        }
+      } else {
+        if (mediaType === "video") {
+          if (uid === hostUid) {
+            user.videoTrack.play(liveRef.current);
+          } else {
+            setGuestWindow(true);
+            console.log("guest user added");
+            user.videoTrack.play(guest.current);
+            localStorage.setItem("uid", uid);
+          }
         }
       }
+
       if (mediaType === "audio") {
         user.audioTrack.play();
       }
     } catch (err) {
       console.log(err);
-    }
-  };
-
-  const handleLoopUserJoined = async (user, mediaType) => {
-    const uid = user.uid;
-    remoteUsers[uid] = user;
-    await loopClient.subscribe(user, mediaType);
-    console.log("Successfully Subscribes.");
-    if (mediaType === "video") {
-      user.videoTrack.play(remoteUser.current);
-    }
-    if (mediaType === "audio") {
-      user.audioTrack.play();
     }
   };
 
@@ -236,7 +240,6 @@ export const Stream = (props) => {
   const clientRTM = AgoraRTM.createInstance(options.appId, {
     enableLogUpload: false,
   });
-  let channel;
   const RTMJoin = async () => {
     clientRTM
       .login({
@@ -247,37 +250,37 @@ export const Stream = (props) => {
         console.log("267 login");
         // RTM channel join
         let channelName = options.channel;
-        channel = clientRTM.createChannel(channelName);
-        channel
+        rtmChannel.current = clientRTM.createChannel(channelName);
+        rtmChannel.current
           .join()
           .then(() => {
             console.log("AgoraRTM client channel join success");
             setIsLoggedIn(true);
             // get all members in RTM channel
-            channel.getMembers().then((memberNames) => {
+            rtmChannel.current.getMembers().then((memberNames) => {
               setMembers(memberNames.length);
-              channel.on("AttributesUpdated", (attributes) => {
+              rtmChannel.current.on("AttributesUpdated", (attributes) => {
                 console.log("======= Logging attributes =====");
                 console.log(attributes);
               });
-              channel.on("MemberJoined", () => {
+              rtmChannel.current.on("MemberJoined", () => {
                 // get all members in RTM channel
                 const data = {
                   id: liveStreamId.current,
                   count: 1,
                 };
                 socket.emit("livestreamcount", data);
-                channel.getMembers().then((memberNames) => {
+                rtmChannel.current.getMembers().then((memberNames) => {
                   setMembers(memberNames.length);
                 });
               });
-              channel.on("MemberLeft", () => {
+              rtmChannel.current.on("MemberLeft", () => {
                 const data = {
                   id: liveStreamId.current,
                   count: -1,
                 };
                 socket.emit("livestreamcount", data);
-                channel.getMembers().then((memberNames) => {
+                rtmChannel.current.getMembers().then((memberNames) => {
                   setMembers(memberNames.length);
                 });
               });
@@ -287,6 +290,7 @@ export const Stream = (props) => {
       })
       .catch((err) => console.log(err.message));
   };
+
   const roleChange = async (data) => {
     if (data.type === "0") {
       leave();
@@ -381,346 +385,386 @@ export const Stream = (props) => {
       }
     });
   });
+  useEffect(() => {
+    messaging.onMessage((payload) => {
+      const { data } = payload;
+      if (data.topic === `${user._id}_faceoff`) {
+        const faceoffData = JSON.parse(data.data);
+        console.log("faceoff data", faceoffData);
+        faceoffChannel.current = faceoffData.channelId;
+        battle.current = {
+          client: faceoffData.client,
+          clientUid: faceoffData.clientUid,
+          clientUserId: faceoffData.clientUserId,
+          host: faceoffData.host,
+          hostUid: faceoffData.hostUid,
+          hostUserId: faceoffData.hostUserId,
+          tag: `#${faceoffData.tag}`,
+        };
+        faceoff.current = true;
+        setFaceOff(true);
+        leave();
+        join();
+        // props.history.push({
+        //   pathname: "/faceoff",
+        //   state: {
+        //     // rtm: clientRTM,
+        //     id: "12233",
+        //   },
+        // });
+      }
+    });
+  });
   return (
-    <Grid
-      container
-      className={classes.mainContainer}
-      justifyContent="space-between"
-    >
-      <Grid item container direction="column" className={classes.left}>
-        <Grid item>
-          <Typography className={classes.username} variant="h4">
-            {audience ? channelName : user.username}
-          </Typography>
-        </Grid>
-        <Grid item container>
-          <Grid item container>
+    <>
+      {faceOff ? (
+        <Battle ref={ref} battle={battle} hostFirst={hostFirst} />
+      ) : (
+        <Grid
+          container
+          className={classes.mainContainer}
+          justifyContent="space-between"
+        >
+          <Grid item container direction="column" className={classes.left}>
             <Grid item>
-              <div className={classes.statsContainer}>
-                <img
-                  src={image.gem}
-                  className={classes.gemIcon}
-                  alt="eye-icon"
-                />
-                <span className={classes.count}>3.4k</span>
-              </div>
+              <Typography className={classes.username} variant="h4">
+                {audience ? channelName : user.username}
+              </Typography>
+            </Grid>
+            <Grid item container>
+              <Grid item container>
+                <Grid item>
+                  <div className={classes.statsContainer}>
+                    <img
+                      src={image.gem}
+                      className={classes.gemIcon}
+                      alt="eye-icon"
+                    />
+                    <span className={classes.count}>3.4k</span>
+                  </div>
+                </Grid>
+                <Grid item>
+                  <div className={classes.statsContainer}>
+                    <img
+                      src={image.eyeBlue}
+                      className={classes.eyeIcon}
+                      alt="eye-icon"
+                    />
+                    <span className={classes.count}>
+                      {members === 0 ? 0 : members - 1}
+                    </span>
+                  </div>
+                </Grid>
+              </Grid>
             </Grid>
             <Grid item>
-              <div className={classes.statsContainer}>
-                <img
-                  src={image.eyeBlue}
-                  className={classes.eyeIcon}
-                  alt="eye-icon"
-                />
-                <span className={classes.count}>
-                  {members === 0 ? 0 : members - 1}
-                </span>
-              </div>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid item>
-          <div className={classes.streamContainer} ref={liveRef}>
-            <IconButton
-              onClick={() => setCloseStream(true)}
-              className={classes.endStreamButton}
-            >
-              <Close className={classes.endStreamIcon} />
-            </IconButton>
-            <Dialog
-              className={classes.endStreamDialog}
-              open={closeStream}
-              onClose={() => setCloseStream(false)}
-            >
-              <Grid
-                container
-                alignItems="center"
-                className={classes.endStreamContainer}
-                direction="column"
-                justifyContent="space-between"
-              >
-                <Grid item container direction="column">
-                  <Grid item>
-                    <Typography className={classes.endTitle}>
+              <div className={classes.streamContainer} ref={liveRef}>
+                <IconButton
+                  onClick={() => setCloseStream(true)}
+                  className={classes.endStreamButton}
+                >
+                  <Close className={classes.endStreamIcon} />
+                </IconButton>
+                <Dialog
+                  className={classes.endStreamDialog}
+                  open={closeStream}
+                  onClose={() => setCloseStream(false)}
+                >
+                  <Grid
+                    container
+                    alignItems="center"
+                    className={classes.endStreamContainer}
+                    direction="column"
+                    justifyContent="space-between"
+                  >
+                    <Grid item container direction="column">
+                      <Grid item>
+                        <Typography className={classes.endTitle}>
+                          Are you sure?
+                        </Typography>
+                      </Grid>
+                      <Grid item>
+                        <Typography className={classes.endSubtitle}>
+                          This will end your stream.
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                    <Grid item container alignItems="center" direction="column">
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        className={classes.endStreamButtons}
+                        style={{ marginBottom: "1rem" }}
+                        onClick={() => props.history.goBack()}
+                      >
+                        End Stream
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        className={classes.endStreamButtons}
+                        onClick={() => setCloseStream(false)}
+                      >
+                        Not Now
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Dialog>
+                {isStarted ? undefined : (
+                  <div style={{ zIndex: 1 }} className={classes.description}>
+                    <TextField
+                      classes={{ root: classes.fieldRoot }}
+                      variant="standard"
+                      className={classes.textField}
+                      placeholder="Add Description"
+                      inputProps={{ className: classes.input }}
+                    />
+                    <Button
+                      className={classes.startButton}
+                      variant="contained"
+                      color="primary"
+                      onClick={handleStreamStarted}
+                    >
+                      Start
+                    </Button>
+                  </div>
+                )}
+
+                {guestWindow ? (
+                  <div className={classes.guestBox} style={{ zIndex: 3 }}>
+                    <div
+                      style={{
+                        position: "relative",
+                        height: "100%",
+                        width: "100%",
+                        zIndex: 2,
+                      }}
+                    >
+                      <IconButton
+                        onClick={() => setRemoveGuest(true)}
+                        className={classes.closeButton}
+                      >
+                        <Close className={classes.closeIcon} />
+                      </IconButton>
+                      {/* <img src={image.actor} alt="" /> */}
+                    </div>
+                    <div className={classes.guestVideo} ref={guest}></div>
+                  </div>
+                ) : undefined}
+                <Dialog open={removeGuest} className={classes.guestUserDialog}>
+                  <Grid
+                    item
+                    container
+                    className={classes.guestDialogContainer}
+                    alignItems="center"
+                    direction="column"
+                    // justifyContent="space-between"
+                  >
+                    <Typography className={classes.guestTitle}>
                       Are you sure?
                     </Typography>
+                    <Typography className={classes.guestSubTitle}>
+                      You are removing current livestream guest
+                    </Typography>
+                    <Grid
+                      item
+                      container
+                      style={{ marginTop: "auto" }}
+                      alignItems="center"
+                      direction="column"
+                    >
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        className={classes.endStreamButtons}
+                        style={{ marginBottom: "0.75rem" }}
+                        onClick={handleRemoveCoHost}
+                      >
+                        Remove
+                      </Button>
+
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        className={classes.endStreamButtons}
+                        onClick={() => setRemoveGuest(false)}
+                      >
+                        Not Now
+                      </Button>
+                    </Grid>
                   </Grid>
-                  <Grid item>
-                    <Typography className={classes.endSubtitle}>
-                      This will end your stream.
+                </Dialog>
+                <Dialog open={openDialog} className={classes.dialog}>
+                  <Grid
+                    container
+                    direction="column"
+                    alignItems="center"
+                    className={classes.dialogContent}
+                  >
+                    <Grid item>
+                      <Typography className={classes.dialogTitle}>
+                        Report Stream
+                      </Typography>
+                    </Grid>
+                    <Grid item>
+                      <Typography className={classes.dialogSubtitle}>
+                        Are you sure you want to report this stream?
+                      </Typography>
+                    </Grid>
+                    <Grid item>
+                      <Button
+                        className={classes.reportButton}
+                        variant="contained"
+                        color="primary"
+                        onClick={() => setOpenDialog(false)}
+                      >
+                        Report
+                      </Button>
+                    </Grid>
+                    <Grid item>
+                      <Button
+                        className={classes.cancelButton}
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => setOpenDialog(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Dialog>
+                {/* waiting overlay */}
+                {isWaiting ? (
+                  <Grid
+                    containaer
+                    justifyContent="center"
+                    alignItems="center"
+                    direction="column"
+                    className={classes.waitingOverly}
+                  >
+                    <Typography className={classes.overlyTitle}>
+                      Wait Please
+                    </Typography>
+                    <Typography className={classes.overlySubtitle}>
+                      You will be able to see the user's video once it is your
+                      turn
                     </Typography>
                   </Grid>
-                </Grid>
-                <Grid item container alignItems="center" direction="column">
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    className={classes.endStreamButtons}
-                    style={{ marginBottom: "1rem" }}
-                    onClick={() => props.history.goBack()}
+                ) : undefined}
+                {blueWindow ? (
+                  <Grid
+                    container
+                    direction="column"
+                    alignItems="center"
+                    className={classes.blueWindow}
                   >
-                    End Stream
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    className={classes.endStreamButtons}
-                    onClick={() => setCloseStream(false)}
-                  >
-                    Not Now
-                  </Button>
-                </Grid>
-              </Grid>
-            </Dialog>
-            {isStarted ? undefined : (
-              <div style={{ zIndex: 1 }} className={classes.description}>
-                <TextField
-                  classes={{ root: classes.fieldRoot }}
-                  variant="standard"
-                  className={classes.textField}
-                  placeholder="Add Description"
-                  inputProps={{ className: classes.input }}
-                />
-                <Button
-                  className={classes.startButton}
-                  variant="contained"
-                  color="primary"
-                  onClick={handleStreamStarted}
-                >
-                  Start
-                </Button>
-              </div>
-            )}
-
-            {guestWindow ? (
-              <div className={classes.guestBox} style={{ zIndex: 3 }}>
-                <div
-                  style={{
-                    position: "relative",
-                    height: "100%",
-                    width: "100%",
-                    zIndex: 2,
-                  }}
-                >
-                  <IconButton
-                    onClick={() => setRemoveGuest(true)}
-                    className={classes.closeButton}
-                  >
-                    <Close className={classes.closeIcon} />
-                  </IconButton>
-                  {/* <img src={image.actor} alt="" /> */}
-                </div>
-                <div className={classes.guestVideo} ref={guest}></div>
-              </div>
-            ) : undefined}
-            <Dialog open={removeGuest} className={classes.guestUserDialog}>
-              <Grid
-                item
-                container
-                className={classes.guestDialogContainer}
-                alignItems="center"
-                direction="column"
-                // justifyContent="space-between"
-              >
-                <Typography className={classes.guestTitle}>
-                  Are you sure?
-                </Typography>
-                <Typography className={classes.guestSubTitle}>
-                  You are removing current livestream guest
-                </Typography>
-                <Grid
-                  item
-                  container
-                  style={{ marginTop: "auto" }}
-                  alignItems="center"
-                  direction="column"
-                >
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    className={classes.endStreamButtons}
-                    style={{ marginBottom: "0.75rem" }}
-                    onClick={handleRemoveCoHost}
-                  >
-                    Remove
-                  </Button>
-
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    className={classes.endStreamButtons}
-                    onClick={() => setRemoveGuest(false)}
-                  >
-                    Not Now
-                  </Button>
-                </Grid>
-              </Grid>
-            </Dialog>
-            <Dialog open={openDialog} className={classes.dialog}>
-              <Grid
-                container
-                direction="column"
-                alignItems="center"
-                className={classes.dialogContent}
-              >
-                <Grid item>
-                  <Typography className={classes.dialogTitle}>
-                    Report Stream
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Typography className={classes.dialogSubtitle}>
-                    Are you sure you want to report this stream?
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Button
-                    className={classes.reportButton}
-                    variant="contained"
-                    color="primary"
-                    onClick={() => setOpenDialog(false)}
-                  >
-                    Report
-                  </Button>
-                </Grid>
-                <Grid item>
-                  <Button
-                    className={classes.cancelButton}
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => setOpenDialog(false)}
-                  >
-                    Cancel
-                  </Button>
-                </Grid>
-              </Grid>
-            </Dialog>
-            {/* waiting overlay */}
-            {isWaiting ? (
-              <Grid
-                containaer
-                justifyContent="center"
-                alignItems="center"
-                direction="column"
-                className={classes.waitingOverly}
-              >
-                <Typography className={classes.overlyTitle}>
-                  Wait Please
-                </Typography>
-                <Typography className={classes.overlySubtitle}>
-                  You will be able to see the user's video once it is your turn
-                </Typography>
-              </Grid>
-            ) : undefined}
-            {blueWindow ? (
-              <Grid
-                container
-                direction="column"
-                alignItems="center"
-                className={classes.blueWindow}
-              >
-                <Grid item container>
-                  <IconButton
-                    onClick={() => setBlueWindow(false)}
-                    className={classes.closeButton}
-                  >
-                    <Close className={classes.closeIcon} />
-                  </IconButton>
-                </Grid>
-                <Grid
-                  item
-                  container
-                  justifyContent="center"
-                  alignItems="center"
-                  style={{ height: "100%" }}
-                >
-                  <Typography className={classes.blueWindowText}>
-                    Ask your viewers to play!
-                  </Typography>
-                </Grid>
-              </Grid>
-            ) : undefined}
-          </div>
-        </Grid>
-        <Grid
-          item
-          container
-          alignItems="center"
-          className={classes.warningContainer}
-        >
-          {isWaiting ? (
-            <Grid container justifyContent="space-between" alignItems="center">
-              <Typography className={classes.waitTitle}>
-                {exit ? "Are you sure?" : "Wait Please"}
-              </Typography>
-              <Typography className={classes.waitSubtitle}>
-                {exit
-                  ? "Do you really want to get out of line?"
-                  : "You are in line for the next|date with silkysilk_00. Wait for	your turn to have fun with the user."}
-              </Typography>
-              <Grid item>
-                {exit ? (
-                  <Grid container spacing={2}>
-                    <Grid item>
-                      <Button
-                        className={classes.exitSecondaryButton}
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => setIsWaiting(false)}
+                    <Grid item container>
+                      <IconButton
+                        onClick={() => setBlueWindow(false)}
+                        className={classes.closeButton}
                       >
-                        Leave the line
-                      </Button>
+                        <Close className={classes.closeIcon} />
+                      </IconButton>
                     </Grid>
-                    <Grid item>
-                      <Button
-                        className={classes.exitSecondaryButton}
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => setExit(false)}
-                      >
-                        Keep Waiting
-                      </Button>
+                    <Grid
+                      item
+                      container
+                      justifyContent="center"
+                      alignItems="center"
+                      style={{ height: "100%" }}
+                    >
+                      <Typography className={classes.blueWindowText}>
+                        Ask your viewers to play!
+                      </Typography>
                     </Grid>
                   </Grid>
-                ) : (
-                  <Button
-                    className={classes.exitButton}
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => setExit(true)}
-                  >
-                    EXIT
-                  </Button>
-                )}
-              </Grid>
+                ) : undefined}
+              </div>
             </Grid>
-          ) : (
-            <>
-              <Block className={classes.block} />
-              <Typography className={classes.warning} variant="h4">
-                Don’t stream nudity or obscene/violent behavior. ever stream
-                while driving or under unsafe conditions.
-              </Typography>
-            </>
-          )}
+            <Grid
+              item
+              container
+              alignItems="center"
+              className={classes.warningContainer}
+            >
+              {isWaiting ? (
+                <Grid
+                  container
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Typography className={classes.waitTitle}>
+                    {exit ? "Are you sure?" : "Wait Please"}
+                  </Typography>
+                  <Typography className={classes.waitSubtitle}>
+                    {exit
+                      ? "Do you really want to get out of line?"
+                      : "You are in line for the next|date with silkysilk_00. Wait for	your turn to have fun with the user."}
+                  </Typography>
+                  <Grid item>
+                    {exit ? (
+                      <Grid container spacing={2}>
+                        <Grid item>
+                          <Button
+                            className={classes.exitSecondaryButton}
+                            variant="outlined"
+                            color="primary"
+                            onClick={() => setIsWaiting(false)}
+                          >
+                            Leave the line
+                          </Button>
+                        </Grid>
+                        <Grid item>
+                          <Button
+                            className={classes.exitSecondaryButton}
+                            variant="outlined"
+                            color="primary"
+                            onClick={() => setExit(false)}
+                          >
+                            Keep Waiting
+                          </Button>
+                        </Grid>
+                      </Grid>
+                    ) : (
+                      <Button
+                        className={classes.exitButton}
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => setExit(true)}
+                      >
+                        EXIT
+                      </Button>
+                    )}
+                  </Grid>
+                </Grid>
+              ) : (
+                <>
+                  <Block className={classes.block} />
+                  <Typography className={classes.warning} variant="h4">
+                    Don’t stream nudity or obscene/violent behavior. ever stream
+                    while driving or under unsafe conditions.
+                  </Typography>
+                </>
+              )}
+            </Grid>
+          </Grid>
+          <Grid
+            item
+            container
+            alignItems={smScreen ? undefined : "flex-end"}
+            justifyContent={lgScreen ? "center" : "flex-start"}
+            className={classes.utilityContainer}
+          >
+            <StreamerBox
+              endStream={handleEndStream}
+              channelId={userUid}
+              roleChange={roleChange}
+              streamId={streamId}
+              setCoHostUserId={setCoHostUserId}
+            />
+          </Grid>
         </Grid>
-      </Grid>
-      <Grid
-        item
-        container
-        alignItems={smScreen ? undefined : "flex-end"}
-        justifyContent={lgScreen ? "center" : "flex-start"}
-        className={classes.utilityContainer}
-      >
-        <StreamerBox
-          joinLiveLoop={loopJoin}
-          endStream={handleEndStream}
-          channelId={userUid}
-          roleChange={roleChange}
-          streamId={streamId}
-          setCoHostUserId={setCoHostUserId}
-        />
-      </Grid>
-    </Grid>
+      )}
+    </>
   );
 };

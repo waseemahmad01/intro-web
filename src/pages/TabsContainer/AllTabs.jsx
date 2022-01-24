@@ -107,16 +107,9 @@ export const AllTabs = () => {
     };
     // eslint-disable-next-line
     allVideos.current.map((item) => {
-      let isPlaying = false;
       const video = item.lastChild.lastChild.lastChild.firstChild;
       const top = item.getBoundingClientRect().top;
       const bottom = item.getBoundingClientRect().bottom;
-      video.onPlaying = () => {
-        isPlaying = true;
-      };
-      video.onPause = () => {
-        isPlaying = false;
-      };
       if (
         top > boundry.top.upper &&
         top < boundry.top.lower &&
@@ -199,7 +192,7 @@ export const AllTabs = () => {
 
   useEffect(() => {
     (async () => {
-      const { data } = await getAllVideos(meetMePageNumber, 100, "");
+      const { data } = await getAllVideos(meetMePageNumber, 10, "");
       let videos = data.data.filter((e) => !e.like && !e.superLike);
       videos = shuffle(videos);
       setMeetMeVideos(videos);
