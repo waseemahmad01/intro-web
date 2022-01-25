@@ -64,6 +64,7 @@ const LiveLoop = (props) => {
     lon: "",
     lat: "",
   });
+  const [dateWith, setDateWith] = useState("");
   // const [remainingTime, setRemainingTime] = useState(0);
 
   const [closeStream, setCloseStream] = useState(false);
@@ -272,18 +273,20 @@ const LiveLoop = (props) => {
   useEffect(() => {
     onMessageListener().then((data) => {
       if (data.topic === `${user._id}_liveloop`) {
-        console.log(data);
+        // console.log(data);
         channelName.current = data.channelname;
         // let status = data.status;
         const doc = JSON.parse(data.data);
-        console.log(doc);
+        // console.log(doc);
         let str = channelName.current.split("_");
         if (str[0] === user.username) {
+          setDateWith(str[0]);
           (async () => {
             await wait(1000);
             join();
           })();
         } else {
+          setDateWith(str[1]);
           (async () => {
             await wait(1500);
             join();
@@ -509,7 +512,9 @@ const LiveLoop = (props) => {
               <Typography className={classes.waitSubtitle}>
                 {exit
                   ? "Do you really want to get out of line?"
-                  : "You are in line for the next|date with silkysilk_00. Wait for	your turn to have fun with the user."}
+                  : `You are in line for the next|date with ${
+                      dateWith ? dateWith : "?"
+                    }. Wait for	your turn to have fun with the user.`}
               </Typography>
               <Grid item>
                 {exit ? (
@@ -519,7 +524,10 @@ const LiveLoop = (props) => {
                         className={classes.exitSecondaryButton}
                         variant="outlined"
                         color="primary"
-                        onClick={() => setIsWaiting(false)}
+                        onClick={() => {
+                          setIsWaiting(false);
+                          history.replace("/live");
+                        }}
                       >
                         Leave the line
                       </Button>

@@ -113,7 +113,7 @@ export const Stream = (props) => {
 
   const join = async () => {
     client.setClientRole(options.role);
-    alert(faceoffChannel.current);
+    // alert(faceoffChannel.current);
     options.uid = await client.join(
       options.appId,
       faceoff.current ? faceoffChannel.current : options.channel,

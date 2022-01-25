@@ -335,7 +335,7 @@ export const Inbox = (props) => {
   };
 
   const allowChat = (first, second) => {
-    console.log(first, second);
+    // console.log(first, second);
     if ((first === "male", second === "female")) {
       for (let i = 0; i < chat.length; i++) {
         console.log(chat[i].idFrom, activeChat.userId);

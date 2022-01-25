@@ -13,18 +13,23 @@ import {
   ListItemAvatar,
   ListItemSecondaryAction as Action,
   ListItemText,
+  MenuItem,
 } from "@material-ui/core";
 import image from "../../assets/index";
 import { useStyles } from "./topBarStyle";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 
 export const TopBar = ({ live }) => {
   const classes = useStyles();
   const theme = useTheme();
+  const history = useHistory();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenu, setOpenMenu] = useState(false);
+  const [settingAnchor, setSettingAnchor] = useState(null);
+  const [openSettings, setOpenSettings] = useState(false);
   const userState = useSelector((state) => state.auth.user.data);
   const handleMenu = (event) => {
     setAnchorEl(event.target);
@@ -33,6 +38,23 @@ export const TopBar = ({ live }) => {
   const handleClose = () => {
     setAnchorEl(null);
     setOpenMenu(false);
+  };
+  const handleSettings = (event) => {
+    setSettingAnchor(event.target);
+    setOpenSettings(true);
+  };
+  const handleSettingsClose = () => {
+    setSettingAnchor(null);
+    setOpenSettings(false);
+  };
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("index");
+    localStorage.removeItem("timestamp");
+    localStorage.removeItem("uid");
+    localStorage.removeItem("liveLoopTime");
+    history.replace("/");
+    history.length = 1;
   };
 
   return (
@@ -195,9 +217,37 @@ export const TopBar = ({ live }) => {
                   >
                     <img src={image.mail} className={classes.icons} alt="" />
                   </Badge>
-                  <Badge color="primary">
+                  <Badge
+                    color="primary"
+                    onClick={handleSettings}
+                    aria-haspopup={true}
+                  >
                     <img src={image.setting} className={classes.icons} alt="" />
                   </Badge>
+                  <Menu
+                    id="simple-menu2"
+                    anchorEl={settingAnchor}
+                    keepMounted
+                    open={openSettings}
+                    onClose={handleSettingsClose}
+                    className={classes.menuContainer}
+                    getContentAnchorEl={null}
+                    anchorOrigin={{
+                      vertical: "bottom",
+                      horizontal: "right",
+                    }}
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                  >
+                    <MenuItem
+                      onClick={handleLogout}
+                      className={classes.menuItem}
+                    >
+                      Logout
+                    </MenuItem>
+                  </Menu>
                 </Grid>
                 <Grid item>
                   <Grid container alignItems="center">

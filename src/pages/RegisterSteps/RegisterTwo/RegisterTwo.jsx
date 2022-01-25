@@ -158,7 +158,7 @@ export const RegisterTwo = ({ onNext }) => {
                   name="height"
                   onSelect={handleSelect}
                   value={values.height}
-                  height={true}
+                  height="true"
                   error={Boolean(errors.height)}
                   errorText={errors.height}
                 />

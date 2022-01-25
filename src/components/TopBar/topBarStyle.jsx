@@ -134,7 +134,7 @@ export const useStyles = makeStyles((theme) => ({
       textAlign: "left",
       marginLeft: "10px",
     },
-    "&: hover": {
+    "&:hover": {
       backgroundColor: theme.palette.common.lightPink,
     },
   },
@@ -153,6 +153,15 @@ export const useStyles = makeStyles((theme) => ({
   badge: {
     "& .MuiBadge-badge": {
       border: "2px solid #ffffff",
+    },
+  },
+  menuItem: {
+    margin: 0,
+    color: "#000000",
+    fontSize: "15px",
+    padding: "10px 20px",
+    "&:hover": {
+      backgroundColor: theme.palette.common.lightPink,
     },
   },
 }));
