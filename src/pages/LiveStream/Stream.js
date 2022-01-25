@@ -82,10 +82,10 @@ export const Stream = (props) => {
   let client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
   // eslint-disable-next-line
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  let localTracks = {
+  let localTracks = useRef({
     videoTrack: null,
     audioTrack: null,
-  };
+  });
 
   let remoteUsers = {};
   const remoteUser = useRef();
@@ -127,15 +127,16 @@ export const Stream = (props) => {
     client.on("user-left", handleUserLeft);
     client.on("user-unpublished", handleUserUnpublish);
     // client.on("client-role-changed", handleClientRoleChanged);
-    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+    localTracks.current.audioTrack =
+      await AgoraRTC.createMicrophoneAudioTrack();
+    localTracks.current.videoTrack = await AgoraRTC.createCameraVideoTrack();
     if (faceoff.current) {
-      localTracks.videoTrack.play(ref.ref1.current);
+      localTracks.current.videoTrack.play(ref.ref1.current);
     } else if (userUid === hostUid) {
-      localTracks.videoTrack.play(liveRef.current);
+      localTracks.current.videoTrack.play(liveRef.current);
     }
 
-    await client.publish(Object.values(localTracks));
+    await client.publish(Object.values(localTracks.current));
     console.log("Successfully Published");
   };
 
@@ -149,20 +150,20 @@ export const Stream = (props) => {
 
   const leave = async () => {
     console.log("user leaving");
-    console.log(localTracks);
-    for (let trackName in localTracks) {
-      let track = localTracks[trackName];
+    console.log(localTracks.current);
+    for (let trackName in localTracks.current) {
+      let track = localTracks.current[trackName];
       console.log(track);
       if (track) {
         track.stop();
         track.close();
-        localTracks[trackName] = undefined;
+        localTracks.current[trackName] = undefined;
       }
     }
     remoteUsers = {};
     // await client.unpublish(Object.values(localTracks));
     await client.leave();
-    await client.unpublish();
+    // await client.unpublish();
     console.log("Client successfuly left the channel");
     if (!faceoff.current) {
       try {
@@ -345,9 +346,9 @@ export const Stream = (props) => {
       props.history.goBack();
     }
   };
-  const sendMessageToAudience = () => {
+  const sendMessageToAudience = (msg) => {
     rtmChannel
-      .sendMessage({ text: "hello" })
+      .sendMessage(msg)
       .then((data) => console.log(data))
       .catch((err) => console.log(err.message));
   };
@@ -400,7 +401,11 @@ export const Stream = (props) => {
         const faceoffData = JSON.parse(data.data);
         console.log("faceoff data", faceoffData);
         faceoffChannel.current = faceoffData.channelId;
-        sendMessageToAudience();
+        sendMessageToAudience({
+          type: "joinBattle",
+          newChannel: faceoffChannel.current,
+          battleData: battle.current,
+        });
         battle.current = {
           client: faceoffData.client,
           clientUid: faceoffData.clientUid,
@@ -410,17 +415,19 @@ export const Stream = (props) => {
           hostUserId: faceoffData.hostUserId,
           tag: `#${faceoffData.tag}`,
         };
-        faceoff.current = true;
-        setFaceOff(true);
-        leave();
-        join();
-        // props.history.push({
-        //   pathname: "/faceoff",
-        //   state: {
-        //     // rtm: clientRTM,
-        //     id: "12233",
-        //   },
-        // });
+
+        leave().then(() => {
+          faceoff.current = true;
+          setFaceOff(true);
+          join();
+          props.history.push({
+            pathname: "/faceoff",
+            state: {
+              // rtm: clientRTM,
+              id: "12233",
+            },
+          });
+        });
       }
     });
   });

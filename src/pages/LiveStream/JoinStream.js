@@ -89,7 +89,7 @@ const JoinStream = (props) => {
     client.on("connection-state-change", (currState, revState, reason) => {
       console.log("connection-state-change");
       console.log(currState, revState, reason);
-      // alert("connection-state-change");
+      alert("connection-state-change");
     });
   };
 
@@ -164,8 +164,9 @@ const JoinStream = (props) => {
                   setMembers(memberNames.length);
                 });
               });
-              clientRTM.on("MessageFromPeer", (msg, peerId) => {
-                console.log("message recieved", msg, peerId);
+              channel.on("ChannelMessage", (msg, id) => {
+                alert("channel message");
+                console.log("channel message", msg, id);
               });
             });
           })
@@ -222,7 +223,7 @@ const JoinStream = (props) => {
 
   const handleUserLeft = (user) => {
     // console.log("client role changed");
-    // alert("user-left");
+    alert("user-left");
     const id = user.uid;
     const uid = localStorage.getItem("uid");
     if (user.uid == uid) {
