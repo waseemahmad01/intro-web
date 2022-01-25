@@ -142,6 +142,7 @@ const JoinStream = (props) => {
                 console.log("======= Logging attributes =====");
                 console.log(attributes);
               });
+
               channel.on("MemberJoined", () => {
                 // get all members in RTM channel
                 const data = {
@@ -162,6 +163,9 @@ const JoinStream = (props) => {
                 channel.getMembers().then((memberNames) => {
                   setMembers(memberNames.length);
                 });
+              });
+              clientRTM.on("MessageFromPeer", (msg, peerId) => {
+                console.log("message recieved", msg, peerId);
               });
             });
           })

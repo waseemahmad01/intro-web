@@ -56,6 +56,7 @@ export const Stream = (props) => {
     lon: "",
     lat: "",
   });
+  const [rtmChannel, setRtmChannel] = useState(null);
   const [faceOff, setFaceOff] = useState(false);
   const [closeStream, setCloseStream] = useState(false);
   const faceoff = useRef(false);
@@ -94,7 +95,7 @@ export const Stream = (props) => {
     ref1: useRef(),
     ref2: useRef(),
   };
-  const rtmChannel = useRef(null);
+  // const rtmChannel = useRef(null);
   const faceoffChannel = useRef("");
 
   const options = {
@@ -250,37 +251,38 @@ export const Stream = (props) => {
         console.log("267 login");
         // RTM channel join
         let channelName = options.channel;
-        rtmChannel.current = clientRTM.createChannel(channelName);
-        rtmChannel.current
+        const channel = clientRTM.createChannel(channelName);
+        setRtmChannel(channel);
+        channel
           .join()
           .then(() => {
             console.log("AgoraRTM client channel join success");
             setIsLoggedIn(true);
             // get all members in RTM channel
-            rtmChannel.current.getMembers().then((memberNames) => {
+            channel.getMembers().then((memberNames) => {
               setMembers(memberNames.length);
-              rtmChannel.current.on("AttributesUpdated", (attributes) => {
+              channel.on("AttributesUpdated", (attributes) => {
                 console.log("======= Logging attributes =====");
                 console.log(attributes);
               });
-              rtmChannel.current.on("MemberJoined", () => {
+              channel.on("MemberJoined", () => {
                 // get all members in RTM channel
                 const data = {
                   id: liveStreamId.current,
                   count: 1,
                 };
                 socket.emit("livestreamcount", data);
-                rtmChannel.current.getMembers().then((memberNames) => {
+                channel.getMembers().then((memberNames) => {
                   setMembers(memberNames.length);
                 });
               });
-              rtmChannel.current.on("MemberLeft", () => {
+              channel.on("MemberLeft", () => {
                 const data = {
                   id: liveStreamId.current,
                   count: -1,
                 };
                 socket.emit("livestreamcount", data);
-                rtmChannel.current.getMembers().then((memberNames) => {
+                channel.getMembers().then((memberNames) => {
                   setMembers(memberNames.length);
                 });
               });
@@ -343,6 +345,12 @@ export const Stream = (props) => {
       props.history.goBack();
     }
   };
+  const sendMessageToAudience = () => {
+    rtmChannel
+      .sendMessage({ text: "hello" })
+      .then((data) => console.log(data))
+      .catch((err) => console.log(err.message));
+  };
   // eslint-disable-next-line
   const handleHostLeft = () => {
     props.history.goBack();
@@ -392,6 +400,7 @@ export const Stream = (props) => {
         const faceoffData = JSON.parse(data.data);
         console.log("faceoff data", faceoffData);
         faceoffChannel.current = faceoffData.channelId;
+        sendMessageToAudience();
         battle.current = {
           client: faceoffData.client,
           clientUid: faceoffData.clientUid,
