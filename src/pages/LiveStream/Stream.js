@@ -119,7 +119,7 @@ export const Stream = (props) => {
       options.appId,
       faceoff.current ? faceoffChannel.current : options.channel,
       options.token || null,
-      options.uid || null
+      userUid ? userUid : options.uid || null
     );
     setUserUid(options.uid);
     console.log("running ======> host");
@@ -187,8 +187,9 @@ export const Stream = (props) => {
       await client.subscribe(user, mediaType);
       console.log("Successfully Subscribes.");
       if (faceoff.current) {
+        // alert("face-off");
         if (mediaType === "video") {
-          if (uid !== battle.hostUid) {
+          if (uid !== battle.current.hostUid) {
             user.videoTrack.play(ref.ref2.current);
           } else {
             setHostFirst(true);
@@ -196,6 +197,7 @@ export const Stream = (props) => {
           }
         }
       } else {
+        // alert("live-stream");
         if (mediaType === "video") {
           if (uid === hostUid) {
             user.videoTrack.play(liveRef.current);
@@ -347,9 +349,9 @@ export const Stream = (props) => {
       props.history.goBack();
     }
   };
-  const sendMessageToAudience = () => {
+  const sendMessageToAudience = (msg) => {
     rtmChannel
-      .sendMessage({ text: "hello" })
+      .sendMessage(msg)
       .then((data) => console.log(data))
       .catch((err) => console.log(err.message));
   };
@@ -406,12 +408,11 @@ export const Stream = (props) => {
           text: `introStartBattle090078601introStartBattle`,
         });
         battle.current = {
-          client: faceoffData.client,
-          clientUid: faceoffData.clientUid,
-          clientUserId: faceoffData.clientUserId,
           host: faceoffData.host,
+          client: faceoffData.client,
           hostUid: faceoffData.hostUid,
-          hostUserId: faceoffData.hostUserId,
+          clientUid: faceoffData.clientUid,
+          channelId: faceoffData.channelId,
           tag: `#${faceoffData.tag}`,
         };
         faceoff.current = true;

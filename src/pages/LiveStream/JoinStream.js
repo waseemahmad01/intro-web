@@ -23,6 +23,7 @@ import { removeCoHost } from "../../http";
 import { SocketContext } from "../../http/socket";
 import { Gift } from "../../components/Gift/Gift";
 import { onMessageListener } from "../../firebaseInit";
+import { Battle } from "../Battle/Battle";
 
 const JoinStream = (props) => {
   const classes = useStyles();
@@ -45,10 +46,23 @@ const JoinStream = (props) => {
   const [coHostUserId, setCoHostUserId] = useState("");
   const [userUid, setUserUid] = useState(null);
   const [closeStream, setCloseStream] = useState(false);
+  const faceOffData = useRef({
+    host: "",
+    client: "",
+    hostUid: "",
+    clientUid: "",
+    channelId: "",
+    tag: "",
+  });
+  const [faceoff, setFaceoff] = useState(false);
+  const faceoffChannel = useRef("");
   // Agora setUp
   // eslint-disable-next-line
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+  const ref = {
+    ref1: useRef(),
+    ref2: useRef(),
+  };
   var localTracks = useRef({
     videoTrack: null,
     audioTrack: null,
@@ -71,7 +85,7 @@ const JoinStream = (props) => {
     client.setClientRole(options.role);
     options.uid = await client.join(
       options.appId,
-      options.channel,
+      faceoffChannel.current ? faceoffChannel.current : options.channel,
       options.token || null,
       options.uid || null
     );
@@ -89,7 +103,7 @@ const JoinStream = (props) => {
     client.on("connection-state-change", (currState, revState, reason) => {
       console.log("connection-state-change");
       console.log(currState, revState, reason);
-      alert("connection-state-change");
+      // alert("connection-state-change");
     });
   };
 
@@ -172,7 +186,17 @@ const JoinStream = (props) => {
                     "introStartBattleSwitch090078601introStartBattleSwitch_"
                   ) > -1
                 ) {
-                  console.log(msg.text);
+                  // console.log(msg.text.split("_")[1]);
+                  const [first, ...rest] = msg.text.split("_");
+                  const remainder = rest.join("_");
+                  console.log(remainder);
+                  const battleData = JSON.parse(remainder);
+                  faceOffData.current = battleData;
+                  faceoffChannel.current = battleData.channelId;
+                  leave().then(() => {
+                    setFaceoff(true);
+                    join();
+                  });
                 }
               });
             });
@@ -187,15 +211,27 @@ const JoinStream = (props) => {
       const uid = user.uid;
       await client.subscribe(user, mediaType);
       console.log("Successfully Subscribes.");
-
-      if (mediaType === "video") {
-        if (uid === hostUid) {
-          user.videoTrack.play(liveRef.current);
-        } else if (!coHostRef.current) {
-          setGuestWindow(true);
-          console.log("guest user added");
-          user.videoTrack.play(guest.current);
-          localStorage.setItem("uid", uid);
+      if (faceoffChannel.current) {
+        if (mediaType === "video") {
+          console.log("uid", uid, faceOffData.current.hostUid);
+          if (uid !== faceOffData.current.hostUid) {
+            console.log(ref.ref2);
+            user.videoTrack.play(ref.ref2.current);
+          } else {
+            console.log(ref.ref1);
+            user.videoTrack.play(ref.ref1.current);
+          }
+        }
+      } else {
+        if (mediaType === "video") {
+          if (uid === hostUid) {
+            user.videoTrack.play(liveRef.current);
+          } else if (!coHostRef.current) {
+            setGuestWindow(true);
+            console.log("guest user added");
+            user.videoTrack.play(guest.current);
+            localStorage.setItem("uid", uid);
+          }
         }
       }
       if (mediaType === "audio") {
@@ -216,7 +252,7 @@ const JoinStream = (props) => {
   const handleUserJoined = (user, mediaType) => {
     console.log("Id compare => ", options.uid, user.uid);
     if (options.uid == user.uid) {
-      console.log("alert");
+      // console.log("alert");
       clientRTM.addOrUpdateChannelAttributes(
         channelName,
         { channel: String(userUid) },
@@ -230,7 +266,7 @@ const JoinStream = (props) => {
 
   const handleUserLeft = (user) => {
     // console.log("client role changed");
-    alert("user-left");
+    // alert("user-left");
     const id = user.uid;
     const uid = localStorage.getItem("uid");
     if (user.uid == uid) {
@@ -316,243 +352,249 @@ const JoinStream = (props) => {
     });
   });
   return (
-    <Grid
-      container
-      className={classes.mainContainer}
-      justifyContent="space-between"
-    >
-      <Grid item container direction="column" className={classes.left}>
-        <Grid item>
-          <Typography className={classes.username} variant="h4">
-            {channelName}
-          </Typography>
-        </Grid>
-        <Grid item container>
-          <Grid item container>
+    <>
+      {faceoff ? (
+        <Battle ref={ref} battle={faceOffData} />
+      ) : (
+        <Grid
+          container
+          className={classes.mainContainer}
+          justifyContent="space-between"
+        >
+          <Grid item container direction="column" className={classes.left}>
             <Grid item>
-              <div className={classes.statsContainer}>
-                <img
-                  src={image.gem}
-                  className={classes.gemIcon}
-                  alt="eye-icon"
-                />
-                <span className={classes.count}>3.4k</span>
-              </div>
+              <Typography className={classes.username} variant="h4">
+                {channelName}
+              </Typography>
+            </Grid>
+            <Grid item container>
+              <Grid item container>
+                <Grid item>
+                  <div className={classes.statsContainer}>
+                    <img
+                      src={image.gem}
+                      className={classes.gemIcon}
+                      alt="eye-icon"
+                    />
+                    <span className={classes.count}>3.4k</span>
+                  </div>
+                </Grid>
+                <Grid item>
+                  <div className={classes.statsContainer}>
+                    <img
+                      src={image.eyeBlue}
+                      className={classes.eyeIcon}
+                      alt="eye-icon"
+                    />
+                    <span className={classes.count}>
+                      {members === 0 ? 0 : members - 1}
+                    </span>
+                  </div>
+                </Grid>
+              </Grid>
             </Grid>
             <Grid item>
-              <div className={classes.statsContainer}>
-                <img
-                  src={image.eyeBlue}
-                  className={classes.eyeIcon}
-                  alt="eye-icon"
-                />
-                <span className={classes.count}>
-                  {members === 0 ? 0 : members - 1}
-                </span>
-              </div>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid item>
-          <div className={classes.streamContainer} ref={liveRef}>
-            {/* {!audience && (
-              <IconButton
-                onClick={() => setCloseStream(true)}
-                className={classes.endStreamButton}
-              >
-                <Close className={classes.endStreamIcon} />
-              </IconButton>
-            )} */}
-            <Dialog
-              className={classes.endStreamDialog}
-              open={closeStream}
-              onClose={() => setCloseStream(false)}
+              <div className={classes.streamContainer} ref={liveRef}>
+                {/* {!audience && (
+            <IconButton
+              onClick={() => setCloseStream(true)}
+              className={classes.endStreamButton}
             >
-              <Grid
-                container
-                alignItems="center"
-                className={classes.endStreamContainer}
-                direction="column"
-                justifyContent="space-between"
-              >
-                <Grid item container direction="column">
-                  <Grid item>
-                    <Typography className={classes.endTitle}>
+              <Close className={classes.endStreamIcon} />
+            </IconButton>
+          )} */}
+                <Dialog
+                  className={classes.endStreamDialog}
+                  open={closeStream}
+                  onClose={() => setCloseStream(false)}
+                >
+                  <Grid
+                    container
+                    alignItems="center"
+                    className={classes.endStreamContainer}
+                    direction="column"
+                    justifyContent="space-between"
+                  >
+                    <Grid item container direction="column">
+                      <Grid item>
+                        <Typography className={classes.endTitle}>
+                          Are you sure?
+                        </Typography>
+                      </Grid>
+                      <Grid item>
+                        <Typography className={classes.endSubtitle}>
+                          This will end your stream.
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                    <Grid item container alignItems="center" direction="column">
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        className={classes.endStreamButtons}
+                        style={{ marginBottom: "1rem" }}
+                        onClick={() => props.history.goBack()}
+                      >
+                        End Stream
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        className={classes.endStreamButtons}
+                        onClick={() => setCloseStream(false)}
+                      >
+                        Not Now
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Dialog>
+                {guestWindow ? (
+                  <div className={classes.guestBox} style={{ zIndex: 3 }}>
+                    <div
+                      style={{
+                        position: "relative",
+                        height: "100%",
+                        width: "100%",
+                        zIndex: 2,
+                      }}
+                    >
+                      {options.uid === hostUid && (
+                        <IconButton
+                          onClick={() => setRemoveGuest(true)}
+                          className={classes.closeButton}
+                        >
+                          <Close className={classes.closeIcon} />
+                        </IconButton>
+                      )}
+
+                      {/* <img src={image.actor} alt="" /> */}
+                    </div>
+                    <div className={classes.guestVideo} ref={guest}></div>
+                  </div>
+                ) : undefined}
+                <Dialog open={removeGuest} className={classes.guestUserDialog}>
+                  <Grid
+                    item
+                    container
+                    className={classes.guestDialogContainer}
+                    alignItems="center"
+                    direction="column"
+                    // justifyContent="space-between"
+                  >
+                    <Typography className={classes.guestTitle}>
                       Are you sure?
                     </Typography>
-                  </Grid>
-                  <Grid item>
-                    <Typography className={classes.endSubtitle}>
-                      This will end your stream.
+                    <Typography className={classes.guestSubTitle}>
+                      You are removing current livestream guest
                     </Typography>
-                  </Grid>
-                </Grid>
-                <Grid item container alignItems="center" direction="column">
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    className={classes.endStreamButtons}
-                    style={{ marginBottom: "1rem" }}
-                    onClick={() => props.history.goBack()}
-                  >
-                    End Stream
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    className={classes.endStreamButtons}
-                    onClick={() => setCloseStream(false)}
-                  >
-                    Not Now
-                  </Button>
-                </Grid>
-              </Grid>
-            </Dialog>
-            {guestWindow ? (
-              <div className={classes.guestBox} style={{ zIndex: 3 }}>
-                <div
-                  style={{
-                    position: "relative",
-                    height: "100%",
-                    width: "100%",
-                    zIndex: 2,
-                  }}
-                >
-                  {options.uid === hostUid && (
-                    <IconButton
-                      onClick={() => setRemoveGuest(true)}
-                      className={classes.closeButton}
+                    <Grid
+                      item
+                      container
+                      style={{ marginTop: "auto" }}
+                      alignItems="center"
+                      direction="column"
                     >
-                      <Close className={classes.closeIcon} />
-                    </IconButton>
-                  )}
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        className={classes.endStreamButtons}
+                        style={{ marginBottom: "0.75rem" }}
+                        onClick={handleRemoveCoHost}
+                      >
+                        Remove
+                      </Button>
 
-                  {/* <img src={image.actor} alt="" /> */}
-                </div>
-                <div className={classes.guestVideo} ref={guest}></div>
-              </div>
-            ) : undefined}
-            <Dialog open={removeGuest} className={classes.guestUserDialog}>
-              <Grid
-                item
-                container
-                className={classes.guestDialogContainer}
-                alignItems="center"
-                direction="column"
-                // justifyContent="space-between"
-              >
-                <Typography className={classes.guestTitle}>
-                  Are you sure?
-                </Typography>
-                <Typography className={classes.guestSubTitle}>
-                  You are removing current livestream guest
-                </Typography>
-                <Grid
-                  item
-                  container
-                  style={{ marginTop: "auto" }}
-                  alignItems="center"
-                  direction="column"
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        className={classes.endStreamButtons}
+                        onClick={() => setRemoveGuest(false)}
+                      >
+                        Not Now
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Dialog>
+                <IconButton
+                  style={{ zIndex: 1 }}
+                  onClick={() => setOpenDialog(true)}
+                  className={classes.warningButton}
                 >
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    className={classes.endStreamButtons}
-                    style={{ marginBottom: "0.75rem" }}
-                    onClick={handleRemoveCoHost}
+                  <WarningIcon className={classes.warningIcon} />
+                </IconButton>
+                <Dialog open={openDialog} className={classes.dialog}>
+                  <Grid
+                    container
+                    direction="column"
+                    alignItems="center"
+                    className={classes.dialogContent}
                   >
-                    Remove
-                  </Button>
-
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    className={classes.endStreamButtons}
-                    onClick={() => setRemoveGuest(false)}
-                  >
-                    Not Now
-                  </Button>
-                </Grid>
-              </Grid>
-            </Dialog>
-            <IconButton
-              style={{ zIndex: 1 }}
-              onClick={() => setOpenDialog(true)}
-              className={classes.warningButton}
+                    <Grid item>
+                      <Typography className={classes.dialogTitle}>
+                        Report Stream
+                      </Typography>
+                    </Grid>
+                    <Grid item>
+                      <Typography className={classes.dialogSubtitle}>
+                        Are you sure you want to report this stream?
+                      </Typography>
+                    </Grid>
+                    <Grid item>
+                      <Button
+                        className={classes.reportButton}
+                        variant="contained"
+                        color="primary"
+                        onClick={() => setOpenDialog(false)}
+                      >
+                        Report
+                      </Button>
+                    </Grid>
+                    <Grid item>
+                      <Button
+                        className={classes.cancelButton}
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => setOpenDialog(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Dialog>
+              </div>
+            </Grid>
+            <Grid
+              item
+              container
+              alignItems="center"
+              className={classes.warningContainer}
             >
-              <WarningIcon className={classes.warningIcon} />
-            </IconButton>
-            <Dialog open={openDialog} className={classes.dialog}>
-              <Grid
-                container
-                direction="column"
-                alignItems="center"
-                className={classes.dialogContent}
-              >
-                <Grid item>
-                  <Typography className={classes.dialogTitle}>
-                    Report Stream
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Typography className={classes.dialogSubtitle}>
-                    Are you sure you want to report this stream?
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Button
-                    className={classes.reportButton}
-                    variant="contained"
-                    color="primary"
-                    onClick={() => setOpenDialog(false)}
-                  >
-                    Report
-                  </Button>
-                </Grid>
-                <Grid item>
-                  <Button
-                    className={classes.cancelButton}
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => setOpenDialog(false)}
-                  >
-                    Cancel
-                  </Button>
-                </Grid>
-              </Grid>
-            </Dialog>
-          </div>
+              <>
+                <Block className={classes.block} />
+                <Typography className={classes.warning} variant="h4">
+                  Don’t stream nudity or obscene/violent behavior. ever stream
+                  while driving or under unsafe conditions.
+                </Typography>
+              </>
+            </Grid>
+          </Grid>
+          <Grid
+            item
+            container
+            alignItems={smScreen ? undefined : "flex-end"}
+            justifyContent={"flex-start"}
+            className={classes.utilityContainer}
+          >
+            <Gift />
+            <ViewerBox
+              streamId={streamId}
+              coHostRef={coHostRef}
+              streamer={channelName}
+            />
+          </Grid>
         </Grid>
-        <Grid
-          item
-          container
-          alignItems="center"
-          className={classes.warningContainer}
-        >
-          <>
-            <Block className={classes.block} />
-            <Typography className={classes.warning} variant="h4">
-              Don’t stream nudity or obscene/violent behavior. ever stream while
-              driving or under unsafe conditions.
-            </Typography>
-          </>
-        </Grid>
-      </Grid>
-      <Grid
-        item
-        container
-        alignItems={smScreen ? undefined : "flex-end"}
-        justifyContent={"flex-start"}
-        className={classes.utilityContainer}
-      >
-        <Gift />
-        <ViewerBox
-          streamId={streamId}
-          coHostRef={coHostRef}
-          streamer={channelName}
-        />
-      </Grid>
-    </Grid>
+      )}
+    </>
   );
 };
 
