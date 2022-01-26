@@ -26,7 +26,7 @@ export const Battle = forwardRef(({ hostFirst, battle }, ref) => {
           <Grid item container direction="column" xs={6}>
             <Grid item>
               <Typography className={classes.username} variant="h4">
-                {battle.current.host}
+                {/* {battle.current.host} */}
               </Typography>
             </Grid>
             <Grid item container>
@@ -57,7 +57,7 @@ export const Battle = forwardRef(({ hostFirst, battle }, ref) => {
           <Grid item container direction="column" xs={6}>
             <Grid item>
               <Typography className={classes.username} variant="h4">
-                {battle.current.client}
+                {/* {battle.current.client} */}
               </Typography>
             </Grid>
             <Grid item container>

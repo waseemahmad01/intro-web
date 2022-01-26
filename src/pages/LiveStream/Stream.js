@@ -25,6 +25,7 @@ import api from "../../http";
 import { SocketContext } from "../../http/socket";
 import { onMessageListener, messaging } from "../../firebaseInit";
 import { Battle } from "../Battle/Battle";
+import { wait } from "../../utils/waitFunction";
 
 export const Stream = (props) => {
   const classes = useStyles();
@@ -346,9 +347,9 @@ export const Stream = (props) => {
       props.history.goBack();
     }
   };
-  const sendMessageToAudience = (msg) => {
+  const sendMessageToAudience = () => {
     rtmChannel
-      .sendMessage(msg)
+      .sendMessage({ text: "hello" })
       .then((data) => console.log(data))
       .catch((err) => console.log(err.message));
   };
@@ -402,9 +403,7 @@ export const Stream = (props) => {
         console.log("faceoff data", faceoffData);
         faceoffChannel.current = faceoffData.channelId;
         sendMessageToAudience({
-          type: "joinBattle",
-          newChannel: faceoffChannel.current,
-          battleData: battle.current,
+          text: `introStartBattle090078601introStartBattle`,
         });
         battle.current = {
           client: faceoffData.client,
@@ -415,19 +414,26 @@ export const Stream = (props) => {
           hostUserId: faceoffData.hostUserId,
           tag: `#${faceoffData.tag}`,
         };
-
+        faceoff.current = true;
+        setFaceOff(true);
         leave().then(() => {
-          faceoff.current = true;
-          setFaceOff(true);
           join();
-          props.history.push({
-            pathname: "/faceoff",
-            state: {
-              // rtm: clientRTM,
-              id: "12233",
-            },
+          wait(1500).then(() => {
+            sendMessageToAudience({
+              text: `introStartBattleSwitch090078601introStartBattleSwitch_${JSON.stringify(
+                battle.current
+              )}`,
+            });
           });
         });
+
+        // props.history.push({
+        //   pathname: "/faceoff",
+        //   state: {
+        //     // rtm: clientRTM,
+        //     id: "12233",
+        //   },
+        // });
       }
     });
   });

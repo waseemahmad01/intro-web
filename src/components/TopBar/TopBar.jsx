@@ -152,6 +152,9 @@ export const TopBar = ({ live }) => {
                         onClose={handleClose}
                         className={classes.menuContainer}
                         getContentAnchorEl={null}
+                        PaperProps={{
+                          className: classes.menuPaper,
+                        }}
                         anchorOrigin={{
                           vertical: "bottom",
                           horizontal: "right",
@@ -161,50 +164,56 @@ export const TopBar = ({ live }) => {
                           horizontal: "right",
                         }}
                       >
-                        <List className={classes.list}>
-                          <ListItem
-                            className={classes.listItem}
-                            dense
-                            disableGutters
-                            onClick={handleClose}
-                          >
-                            <ListItemAvatar>
-                              <Avatar
-                                src={image.img}
-                                className={classes.menuAvatar}
+                        <Grid
+                          container
+                          direction="column"
+                          className={classes.menuInner}
+                        >
+                          <List className={classes.list}>
+                            <ListItem
+                              className={classes.listItem}
+                              dense
+                              disableGutters
+                              onClick={handleClose}
+                            >
+                              <ListItemAvatar>
+                                <Avatar
+                                  src={image.img}
+                                  className={classes.menuAvatar}
+                                />
+                              </ListItemAvatar>
+                              <ListItemText
+                                classes={{ root: classes.listItemsText }}
+                                // className={classes.listItemsText}
+                                primary="Maria liked your reel"
                               />
-                            </ListItemAvatar>
-                            <ListItemText
-                              classes={{ root: classes.listItemsText }}
-                              // className={classes.listItemsText}
-                              primary="Maria liked your reel"
-                            />
-                            <Action className={classes.action}>
-                              <span>2m</span>
-                            </Action>
-                          </ListItem>
-                          <ListItem
-                            className={classes.listItem}
-                            dense
-                            disableGutters
-                            onClick={handleClose}
-                          >
-                            <ListItemAvatar>
-                              <Avatar
-                                src={image.img}
-                                className={classes.menuAvatar}
+                              <Action className={classes.action}>
+                                <span>2m</span>
+                              </Action>
+                            </ListItem>
+                            <ListItem
+                              className={classes.listItem}
+                              dense
+                              disableGutters
+                              onClick={handleClose}
+                            >
+                              <ListItemAvatar>
+                                <Avatar
+                                  src={image.img}
+                                  className={classes.menuAvatar}
+                                />
+                              </ListItemAvatar>
+                              <ListItemText
+                                classes={{ root: classes.listItemsText }}
+                                // className={classes.listItemsText}
+                                primary="Maria liked your reel"
                               />
-                            </ListItemAvatar>
-                            <ListItemText
-                              classes={{ root: classes.listItemsText }}
-                              // className={classes.listItemsText}
-                              primary="Maria liked your reel"
-                            />
-                            <Action className={classes.action}>
-                              <span>2m</span>
-                            </Action>
-                          </ListItem>
-                        </List>
+                              <Action className={classes.action}>
+                                <span>2m</span>
+                              </Action>
+                            </ListItem>
+                          </List>
+                        </Grid>
                       </Menu>
                     </>
                   )}
@@ -228,6 +237,9 @@ export const TopBar = ({ live }) => {
                     id="simple-menu2"
                     anchorEl={settingAnchor}
                     keepMounted
+                    PaperProps={{
+                      className: classes.menuPaper,
+                    }}
                     open={openSettings}
                     onClose={handleSettingsClose}
                     className={classes.menuContainer}
@@ -241,12 +253,15 @@ export const TopBar = ({ live }) => {
                       horizontal: "right",
                     }}
                   >
-                    <MenuItem
-                      onClick={handleLogout}
-                      className={classes.menuItem}
+                    <Grid
+                      container
+                      direction="column"
+                      className={classes.menuInner}
                     >
-                      Logout
-                    </MenuItem>
+                      <div onClick={handleLogout} className={classes.menuItem}>
+                        Logout
+                      </div>
+                    </Grid>
                   </Menu>
                 </Grid>
                 <Grid item>

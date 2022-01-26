@@ -160,8 +160,30 @@ export const useStyles = makeStyles((theme) => ({
     color: "#000000",
     fontSize: "15px",
     padding: "10px 20px",
+    display: "flex",
+    justifyContent: "center",
+    // background: "red",
     "&:hover": {
       backgroundColor: theme.palette.common.lightPink,
     },
+  },
+  menuPaper: {
+    overflow: "visible",
+    "&:before": {
+      content: "''",
+      display: "block",
+      position: "absolute",
+      top: 0,
+      right: 10,
+      width: 10,
+      height: 10,
+      background: "white",
+      transform: "translateY(-50%) rotate(45deg)",
+      // zIndex: 0,
+    },
+  },
+  menuInner: {
+    borderRadius: "3px",
+    overflow: "hidden",
   },
 }));

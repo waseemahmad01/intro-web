@@ -345,7 +345,7 @@ export const useStyles = makeStyles((theme) => ({
       background: "transparent",
     },
     "&::-webkit-scrollbar": {
-      height: "5px",
+      height: "3px",
     },
     "&::-webkit-scrollbar-thumb": {
       background: theme.palette.common.darkPink,
@@ -362,6 +362,18 @@ export const useStyles = makeStyles((theme) => ({
   likeList: {
     maxHeight: "480px",
     overflowY: "auto",
+    "&::-webkit-scrollbar-track": {
+      background: "transparent",
+      maxHeight: "50%",
+      height: "50%",
+    },
+    "&::-webkit-scrollbar": {
+      width: 3,
+    },
+    "&::-webkit-scrollbar-thumb": {
+      background: theme.palette.common.darkPink,
+      borderRadius: "20px",
+    },
     [theme.breakpoints.down("lg")]: {
       maxHeight: "320px",
     },

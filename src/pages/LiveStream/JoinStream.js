@@ -165,8 +165,15 @@ const JoinStream = (props) => {
                 });
               });
               channel.on("ChannelMessage", (msg, id) => {
-                alert("channel message");
-                console.log("channel message", msg, id);
+                console.log(msg.text);
+                if (msg.text === "introStartBattle090078601introStartBattle") {
+                } else if (
+                  msg.text.indexOf(
+                    "introStartBattleSwitch090078601introStartBattleSwitch_"
+                  ) > -1
+                ) {
+                  console.log(msg.text);
+                }
               });
             });
           })
