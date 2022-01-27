@@ -113,32 +113,37 @@ export const Stream = (props) => {
   };
 
   const join = async () => {
-    client.setClientRole(options.role);
-    // alert(faceoffChannel.current);
-    options.uid = await client.join(
-      options.appId,
-      faceoff.current ? faceoffChannel.current : options.channel,
-      options.token || null,
-      userUid ? userUid : options.uid || null
-    );
-    setUserUid(options.uid);
-    console.log("running ======> host");
-    client.on("user-published", handleUserPublished);
-    client.on("user-joined", handleUserJoined);
-    client.on("user-left", handleUserLeft);
-    client.on("user-unpublished", handleUserUnpublish);
-    // client.on("client-role-changed", handleClientRoleChanged);
-    localTracks.current.audioTrack =
-      await AgoraRTC.createMicrophoneAudioTrack();
-    localTracks.current.videoTrack = await AgoraRTC.createCameraVideoTrack();
-    if (faceoff.current) {
-      localTracks.current.videoTrack.play(ref.ref1.current);
-    } else if (userUid === hostUid) {
-      localTracks.current.videoTrack.play(liveRef.current);
-    }
+    try {
+      client.setClientRole(options.role);
+      // alert(faceoffChannel.current);
+      options.uid = await client.join(
+        options.appId,
+        faceoff.current ? faceoffChannel.current : options.channel,
+        options.token || null,
+        userUid ? userUid : options.uid || null
+      );
+      setUserUid(options.uid);
+      console.log("running ======> host");
+      client.on("user-published", handleUserPublished);
+      client.on("user-joined", handleUserJoined);
+      client.on("user-left", handleUserLeft);
+      client.on("user-unpublished", handleUserUnpublish);
 
-    await client.publish(Object.values(localTracks.current));
-    console.log("Successfully Published");
+      localTracks.current.audioTrack =
+        await AgoraRTC.createMicrophoneAudioTrack();
+      localTracks.current.videoTrack = await AgoraRTC.createCameraVideoTrack();
+      if (faceoff.current) {
+        localTracks.current.videoTrack.play(ref.ref1.current);
+      } else if (userUid === hostUid) {
+        localTracks.current.videoTrack.play(liveRef.current);
+      }
+
+      await client.publish(Object.values(localTracks.current));
+      console.log("Successfully Published");
+    } catch (err) {
+      alert("join Error");
+      console.log("join error", err);
+    }
   };
 
   const handleUserUnpublish = (user, mediaType) => {
@@ -150,8 +155,8 @@ export const Stream = (props) => {
   };
 
   const leave = async () => {
-    console.log("user leaving");
-    console.log(localTracks.current);
+    // console.log("user leaving");
+    // console.log(localTracks.current);
     for (let trackName in localTracks.current) {
       let track = localTracks.current[trackName];
       console.log(track);
@@ -163,8 +168,11 @@ export const Stream = (props) => {
     }
     remoteUsers = {};
     // await client.unpublish(Object.values(localTracks));
-    await client.leave();
-    // await client.unpublish();
+    client
+      .leave()
+      .then(() => alert("leave success"))
+      .catch((err) => alert("error in leave"));
+    await client.unpublish(Object.values(localTracks));
     console.log("Client successfuly left the channel");
     if (!faceoff.current) {
       try {
@@ -199,7 +207,7 @@ export const Stream = (props) => {
       } else {
         // alert("live-stream");
         if (mediaType === "video") {
-          if (uid === hostUid) {
+          if (uid === userUid) {
             user.videoTrack.play(liveRef.current);
           } else {
             setGuestWindow(true);
@@ -368,7 +376,27 @@ export const Stream = (props) => {
     props.history.replace("/liveloop");
   };
   // eslint-disable-next-line
-  const startLiveLoop = async () => {};
+  const goBackToMyStream = async () => {
+    await leave();
+    faceoff.current = false;
+    setFaceOff(false);
+    faceoffChannel.current = "";
+    await wait(1500);
+    join();
+  };
+  const quitStream = async () => {
+    try {
+      // eslint-disable-next-line
+      const res = await api.delete("/api/deleteliveuser", {
+        data: {
+          username: username,
+        },
+      });
+      props.history.goBack();
+    } catch (err) {
+      console.log(err.msg);
+    }
+  };
   useEffect(() => {
     join();
     rtmSetup();
@@ -379,7 +407,6 @@ export const Stream = (props) => {
     }
     return () => {
       (async () => {
-        options.role = "audience";
         await leave();
         RTMLeave();
       })();
@@ -427,21 +454,20 @@ export const Stream = (props) => {
             });
           });
         });
-
-        // props.history.push({
-        //   pathname: "/faceoff",
-        //   state: {
-        //     // rtm: clientRTM,
-        //     id: "12233",
-        //   },
-        // });
       }
     });
   });
   return (
+    // "user/userID/myfans"
     <>
       {faceOff ? (
-        <Battle ref={ref} battle={battle} hostFirst={hostFirst} />
+        <Battle
+          ref={ref}
+          goBackToMyStream={goBackToMyStream}
+          battle={battle}
+          hostFirst={hostFirst}
+          quitStream={quitStream}
+        />
       ) : (
         <Grid
           container
@@ -569,7 +595,6 @@ export const Stream = (props) => {
                       >
                         <Close className={classes.closeIcon} />
                       </IconButton>
-                      {/* <img src={image.actor} alt="" /> */}
                     </div>
                     <div className={classes.guestVideo} ref={guest}></div>
                   </div>
