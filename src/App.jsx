@@ -72,6 +72,7 @@ function App(props) {
         }
       }
     } catch (err) {
+      props.history.replace("/");
       console.log(err);
     }
   };

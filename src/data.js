@@ -297,7 +297,6 @@ export const countryList = [
   "Mauritius",
   "Mayotte",
   "Mexico",
-
   "Micronesia, Federated States of Micronesia",
   "Moldova",
   "Monaco",

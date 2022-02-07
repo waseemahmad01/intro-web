@@ -45,6 +45,21 @@ const useStyles = makeStyles((theme) => ({
       },
     },
   },
+  badge2: {
+    "& .MuiBadge-badge": {
+      backgroundColor: "#f5ce42",
+      color: "#26BB21",
+      height: "39px",
+      width: "39px",
+      borderRadius: "50%",
+      border: "2px solid #ffffff",
+      [theme.breakpoints.down("lg")]: {
+        width: "16px",
+        height: "16px",
+        minWidth: "0",
+      },
+    },
+  },
   avatar: {
     height: "188px",
     width: "188px",
@@ -148,7 +163,9 @@ export const Online = () => {
             <Grid container direction="column" alignItems="center">
               <Grid item>
                 <Badge
-                  className={classes.badge}
+                  className={
+                    user.current_status === 1 ? classes.badge : classes.badge2
+                  }
                   overlap="circular"
                   anchorOrigin={{
                     vertical: "bottom",
