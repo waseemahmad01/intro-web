@@ -23,6 +23,7 @@ import {
   likedMeApi,
   getLiveUsers,
   checkMatch,
+  otherUserVideos,
 } from "../../../http";
 import {
   setMatches,
@@ -31,6 +32,7 @@ import {
   setVisitedMe,
 } from "../../../store/matches";
 import { setOnlineUsers } from "../../../store/user";
+import { setUserVideos } from "../../../store/userVideos";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
 
@@ -43,6 +45,7 @@ export const Home = () => {
   const visitedMe = useSelector((state) => state.matches.visitedMe);
   const likedMe = useSelector((state) => state.matches.myLikes);
   const onlineUsers = useSelector((state) => state.auth.user.onlineUsers);
+  const userReels = useSelector((state) => state.userVideos.data);
   const dispatch = useDispatch();
 
   const toFeet = (cm) => {
@@ -71,20 +74,22 @@ export const Home = () => {
           visitedMeApi(),
           likedMeApi(),
           getLiveUsers(),
+          otherUserVideos(userState._id),
         ])
         .then(
-          axios.spread(function (res1, res2, res3, res4, res5) {
+          axios.spread(function (res1, res2, res3, res4, res5, res6) {
             dispatch(setMatches(res1.data.data));
             dispatch(setIvisited(res2.data.data));
             dispatch(setVisitedMe(res3.data.data));
             dispatch(setMyLikes(res4.data.data));
             dispatch(setOnlineUsers(res5.data.data));
+            dispatch(setUserVideos(res6.data.data));
           })
         )
         .catch((err) => console.log(err));
     })();
     // eslint-disable-next-line
-  }, []);
+  }, [userState]);
   return (
     <Grid container direction="column" className={classes.container}>
       {onlineUsers.length !== 0 ? (
@@ -151,72 +156,38 @@ export const Home = () => {
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item container className={classes.reelContainer}>
+            <Grid
+              item
+              container
+              direction="column"
+              className={classes.reelContainer}
+            >
               <Typography className={classes.reelTitle}>Reels</Typography>
-              <List>
-                <ListItem
-                  className={classes.reelItem}
-                  dense
-                  disableGutters
-                  alignItems="center"
-                >
-                  <ListItemAvatar className={classes.reelAvatarContainer}>
-                    <Avatar
-                      component={Link}
-                      to="/home/profile"
-                      src={image.reelImage}
-                      className={classes.reelAvatar}
-                      variant="square"
+              <List className={classes.reelsList}>
+                {userReels.map((reel, index) => (
+                  <ListItem
+                    key={index}
+                    className={classes.reelItem}
+                    dense
+                    disableGutters
+                    alignItems="center"
+                  >
+                    <ListItemAvatar className={classes.reelAvatarContainer}>
+                      <Avatar
+                        component={Link}
+                        to="/home/profile"
+                        src={`${process.env.REACT_APP_API_URL}/${reel.cover}`}
+                        className={classes.reelAvatar}
+                        variant="square"
+                      />
+                    </ListItemAvatar>
+                    <ListItemText
+                      classes={{ root: classes.reelItemText }}
+                      primary={reel.video_title}
+                      secondary="23rd june"
                     />
-                  </ListItemAvatar>
-                  <ListItemText
-                    classes={{ root: classes.reelItemText }}
-                    primary="Dating me would be like"
-                    secondary="23rd june"
-                  />
-                </ListItem>
-                <ListItem
-                  className={classes.reelItem}
-                  dense
-                  disableGutters
-                  alignItems="center"
-                >
-                  <ListItemAvatar className={classes.reelAvatarContainer}>
-                    <Avatar
-                      component={Link}
-                      to="/home/profile"
-                      src={image.reelImage}
-                      className={classes.reelAvatar}
-                      variant="square"
-                    />
-                  </ListItemAvatar>
-                  <ListItemText
-                    classes={{ root: classes.reelItemText }}
-                    primary="Dating me would be like"
-                    secondary="23rd june"
-                  />
-                </ListItem>
-                <ListItem
-                  className={classes.reelItem}
-                  dense
-                  disableGutters
-                  alignItems="center"
-                >
-                  <ListItemAvatar className={classes.reelAvatarContainer}>
-                    <Avatar
-                      component={Link}
-                      to="/home/profile"
-                      src={image.reelImage}
-                      className={classes.reelAvatar}
-                      variant="square"
-                    />
-                  </ListItemAvatar>
-                  <ListItemText
-                    classes={{ root: classes.reelItemText }}
-                    primary="Dating me would be like"
-                    secondary="23rd june"
-                  />
-                </ListItem>
+                  </ListItem>
+                ))}
               </List>
             </Grid>
           </Grid>

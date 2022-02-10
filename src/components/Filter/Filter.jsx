@@ -160,6 +160,7 @@ export const Filter = ({
             title="Gender"
             options={genderList}
             setValue={setGender}
+            value={gender}
             open={openGender}
             onClose={setOpenGender}
             update={filterUpdated}
@@ -267,6 +268,7 @@ export const Filter = ({
             title="Intent"
             options={intentList}
             setValue={setIntent}
+            value={intent}
             open={openIntent}
             onClose={setopenIntent}
             update={filterUpdated}
@@ -312,6 +314,7 @@ export const Filter = ({
             title="Religion"
             options={religionList}
             setValue={setReligion}
+            value={religion}
             open={openReligion}
             onClose={setOpenReligion}
             update={filterUpdated}
@@ -355,6 +358,7 @@ export const Filter = ({
           </Grid>
           <CountryFilter
             setValue={setCountry}
+            value={country}
             open={openCountry}
             onClose={setOpenCountry}
             update={filterUpdated}
@@ -400,6 +404,7 @@ export const Filter = ({
             title="Ethnicity"
             options={ethnicityList}
             setValue={setEthnicity}
+            value={ethnicity}
             open={openEthnicity}
             onClose={setOpenEthnicity}
             update={filterUpdated}
@@ -481,6 +486,7 @@ export const Filter = ({
             title="Body Type"
             options={bodyTypeList}
             setValue={setBodyType}
+            value={bodyType}
             open={openBody}
             onClose={setOpenBody}
             update={filterUpdated}
@@ -526,6 +532,7 @@ export const Filter = ({
             title="Education"
             options={schoolDegree}
             setValue={setEducation}
+            value={education}
             open={openEducation}
             onClose={setOpenEducation}
             update={filterUpdated}
@@ -571,6 +578,7 @@ export const Filter = ({
             title="Kids"
             options={wantChild}
             setValue={setKids}
+            value={kids}
             open={openKids}
             onClose={setOpenKids}
             update={filterUpdated}
@@ -616,6 +624,7 @@ export const Filter = ({
             title="Drink"
             options={["yes", "no", "socially"]}
             setValue={setDrink}
+            value={drink}
             open={openDrink}
             onClose={setOpenDrink}
             update={filterUpdated}
@@ -661,6 +670,7 @@ export const Filter = ({
             title="Smoke"
             options={["yes", "no", "socially"]}
             setValue={setSmoke}
+            value={smoke}
             open={openSmoke}
             onClose={setOpenSmoke}
             update={filterUpdated}
@@ -706,6 +716,7 @@ export const Filter = ({
             title="Weed"
             options={["yes", "no", "socially"]}
             setValue={setWeed}
+            value={weed}
             open={openWeed}
             onClose={setOpenWeed}
             update={filterUpdated}
@@ -751,6 +762,7 @@ export const Filter = ({
             title="Drugs"
             options={["yes", "no", "sometimes"]}
             setValue={setDrugs}
+            value={drugs}
             open={openDrugs}
             onClose={setOpenDrugs}
             update={filterUpdated}
@@ -758,302 +770,6 @@ export const Filter = ({
             setIsAnyOpen={setIsAnyOpen}
           />
         </Grid>
-        <div>
-          {/* <Accordion square classes={{ root: classes.childAccordionRoot }}>
-					<AccordionSummary
-						expandIcon={<ChevronRight className={classes.childAccordionIcon} />}
-						classes={{ root: classes.childaccordionSummary }}
-					>
-						<div className={classes.childAccordionTitle}>
-							<Typography className={classes.childAccordionHeading}>
-								Gender
-							</Typography>
-							<Typography className={classes.childAccordionHeading2}>
-								Female
-							</Typography>
-						</div>
-					</AccordionSummary>
-					<AccordionDetails>
-						<Typography style={{ color: "#000", fontSize: "18px" }}>
-							Lorem ipsum dolor sit amet consectetur adipisicing elit.
-							Voluptatibus, itaque?
-						</Typography>
-					</AccordionDetails>
-				</Accordion>
-				<Accordion square classes={{ root: classes.childAccordionRoot }}>
-					<AccordionSummary
-						expandIcon={<ChevronRight className={classes.childAccordionIcon} />}
-						classes={{ root: classes.childaccordionSummary }}
-					>
-						<div className={classes.childAccordionTitle}>
-							<Typography className={classes.childAccordionHeading}>
-								Age
-							</Typography>
-							<Typography className={classes.childAccordionHeading2}>
-								23-32
-							</Typography>
-						</div>
-					</AccordionSummary>
-					<AccordionDetails>
-						<Typography style={{ color: "#000", fontSize: "18px" }}>
-							Lorem ipsum dolor sit amet consectetur adipisicing elit.
-							Voluptatibus, itaque?
-						</Typography>
-					</AccordionDetails>
-				</Accordion>
-				<Accordion square classes={{ root: classes.childAccordionRoot }}>
-					<AccordionSummary
-						expandIcon={<ChevronRight className={classes.childAccordionIcon} />}
-						classes={{ root: classes.childaccordionSummary }}
-					>
-						<div className={classes.childAccordionTitle}>
-							<Typography className={classes.childAccordionHeading}>
-								Intent
-							</Typography>
-							<Typography className={classes.childAccordionHeading2}>
-								Something Casual
-							</Typography>
-						</div>
-					</AccordionSummary>
-					<AccordionDetails>
-						<Typography style={{ color: "#000", fontSize: "18px" }}>
-							Lorem ipsum dolor sit amet consectetur adipisicing elit.
-							Voluptatibus, itaque?
-						</Typography>
-					</AccordionDetails>
-				</Accordion>
-				<Accordion square classes={{ root: classes.childAccordionRoot }}>
-					<AccordionSummary
-						expandIcon={<ChevronRight className={classes.childAccordionIcon} />}
-						classes={{ root: classes.childaccordionSummary }}
-					>
-						<div className={classes.childAccordionTitle}>
-							<Typography className={classes.childAccordionHeading}>
-								Religion
-							</Typography>
-							<Typography className={classes.childAccordionHeading2}>
-								Islam
-							</Typography>
-						</div>
-					</AccordionSummary>
-					<AccordionDetails>
-						<Typography style={{ color: "#000", fontSize: "18px" }}>
-							Lorem ipsum dolor sit amet consectetur adipisicing elit.
-							Voluptatibus, itaque?
-						</Typography>
-					</AccordionDetails>
-				</Accordion>
-				<Accordion square classes={{ root: classes.childAccordionRoot }}>
-					<AccordionSummary
-						expandIcon={<ChevronRight className={classes.childAccordionIcon} />}
-						classes={{ root: classes.childaccordionSummary }}
-					>
-						<div className={classes.childAccordionTitle}>
-							<Typography className={classes.childAccordionHeading}>
-								Country
-							</Typography>
-							<Typography className={classes.childAccordionHeading2}>
-								Pakistan
-							</Typography>
-						</div>
-					</AccordionSummary>
-					<AccordionDetails>
-						<Typography style={{ color: "#000", fontSize: "18px" }}>
-							Lorem ipsum dolor sit amet consectetur adipisicing elit.
-							Voluptatibus, itaque?
-						</Typography>
-					</AccordionDetails>
-				</Accordion>
-				<Accordion square classes={{ root: classes.childAccordionRoot }}>
-					<AccordionSummary
-						expandIcon={<ChevronRight className={classes.childAccordionIcon} />}
-						classes={{ root: classes.childaccordionSummary }}
-					>
-						<div className={classes.childAccordionTitle}>
-							<Typography className={classes.childAccordionHeading}>
-								Ethnicity
-							</Typography>
-							<Typography className={classes.childAccordionHeading2}>
-								Middle Eastren
-							</Typography>
-						</div>
-					</AccordionSummary>
-					<AccordionDetails>
-						<Typography style={{ color: "#000", fontSize: "18px" }}>
-							Lorem ipsum dolor sit amet consectetur adipisicing elit.
-							Voluptatibus, itaque?
-						</Typography>
-					</AccordionDetails>
-				</Accordion>
-				<Accordion square classes={{ root: classes.childAccordionRoot }}>
-					<AccordionSummary
-						expandIcon={<ChevronRight className={classes.childAccordionIcon} />}
-						classes={{ root: classes.childaccordionSummary }}
-					>
-						<div className={classes.childAccordionTitle}>
-							<Typography className={classes.childAccordionHeading}>
-								Height
-							</Typography>
-							<Typography className={classes.childAccordionHeading2}>
-								182cm
-							</Typography>
-						</div>
-					</AccordionSummary>
-					<AccordionDetails>
-						<Typography style={{ color: "#000", fontSize: "18px" }}>
-							Lorem ipsum dolor sit amet consectetur adipisicing elit.
-							Voluptatibus, itaque?
-						</Typography>
-					</AccordionDetails>
-				</Accordion>
-				<Accordion square classes={{ root: classes.childAccordionRoot }}>
-					<AccordionSummary
-						expandIcon={<ChevronRight className={classes.childAccordionIcon} />}
-						classes={{ root: classes.childaccordionSummary }}
-					>
-						<div className={classes.childAccordionTitle}>
-							<Typography className={classes.childAccordionHeading}>
-								Body Type
-							</Typography>
-							<Typography className={classes.childAccordionHeading2}>
-								Muscular
-							</Typography>
-						</div>
-					</AccordionSummary>
-					<AccordionDetails>
-						<Typography style={{ color: "#000", fontSize: "18px" }}>
-							Lorem ipsum dolor sit amet consectetur adipisicing elit.
-							Voluptatibus, itaque?
-						</Typography>
-					</AccordionDetails>
-				</Accordion>
-				<Accordion square classes={{ root: classes.childAccordionRoot }}>
-					<AccordionSummary
-						expandIcon={<ChevronRight className={classes.childAccordionIcon} />}
-						classes={{ root: classes.childaccordionSummary }}
-					>
-						<div className={classes.childAccordionTitle}>
-							<Typography className={classes.childAccordionHeading}>
-								Education
-							</Typography>
-							<Typography className={classes.childAccordionHeading2}>
-								Undergrade
-							</Typography>
-						</div>
-					</AccordionSummary>
-					<AccordionDetails>
-						<Typography style={{ color: "#000", fontSize: "18px" }}>
-							Lorem ipsum dolor sit amet consectetur adipisicing elit.
-							Voluptatibus, itaque?
-						</Typography>
-					</AccordionDetails>
-				</Accordion>
-				<Accordion square classes={{ root: classes.childAccordionRoot }}>
-					<AccordionSummary
-						expandIcon={<ChevronRight className={classes.childAccordionIcon} />}
-						classes={{ root: classes.childaccordionSummary }}
-					>
-						<div className={classes.childAccordionTitle}>
-							<Typography className={classes.childAccordionHeading}>
-								Kids
-							</Typography>
-							<Typography className={classes.childAccordionHeading2}>
-								Have Kids
-							</Typography>
-						</div>
-					</AccordionSummary>
-					<AccordionDetails>
-						<Typography style={{ color: "#000", fontSize: "18px" }}>
-							Lorem ipsum dolor sit amet consectetur adipisicing elit.
-							Voluptatibus, itaque?
-						</Typography>
-					</AccordionDetails>
-				</Accordion>
-				<Accordion square classes={{ root: classes.childAccordionRoot }}>
-					<AccordionSummary
-						expandIcon={<ChevronRight className={classes.childAccordionIcon} />}
-						classes={{ root: classes.childaccordionSummary }}
-					>
-						<div className={classes.childAccordionTitle}>
-							<Typography className={classes.childAccordionHeading}>
-								Drink
-							</Typography>
-							<Typography className={classes.childAccordionHeading2}>
-								Sometimes
-							</Typography>
-						</div>
-					</AccordionSummary>
-					<AccordionDetails>
-						<Typography style={{ color: "#000", fontSize: "18px" }}>
-							Lorem ipsum dolor sit amet consectetur adipisicing elit.
-							Voluptatibus, itaque?
-						</Typography>
-					</AccordionDetails>
-				</Accordion>
-				<Accordion square classes={{ root: classes.childAccordionRoot }}>
-					<AccordionSummary
-						expandIcon={<ChevronRight className={classes.childAccordionIcon} />}
-						classes={{ root: classes.childaccordionSummary }}
-					>
-						<div className={classes.childAccordionTitle}>
-							<Typography className={classes.childAccordionHeading}>
-								Smoke
-							</Typography>
-							<Typography className={classes.childAccordionHeading2}>
-								Yes
-							</Typography>
-						</div>
-					</AccordionSummary>
-					<AccordionDetails>
-						<Typography style={{ color: "#000", fontSize: "18px" }}>
-							Lorem ipsum dolor sit amet consectetur adipisicing elit.
-							Voluptatibus, itaque?
-						</Typography>
-					</AccordionDetails>
-				</Accordion>
-				<Accordion square classes={{ root: classes.childAccordionRoot }}>
-					<AccordionSummary
-						expandIcon={<ChevronRight className={classes.childAccordionIcon} />}
-						classes={{ root: classes.childaccordionSummary }}
-					>
-						<div className={classes.childAccordionTitle}>
-							<Typography className={classes.childAccordionHeading}>
-								Smoke Weed
-							</Typography>
-							<Typography className={classes.childAccordionHeading2}>
-								No
-							</Typography>
-						</div>
-					</AccordionSummary>
-					<AccordionDetails>
-						<Typography style={{ color: "#000", fontSize: "18px" }}>
-							Lorem ipsum dolor sit amet consectetur adipisicing elit.
-							Voluptatibus, itaque?
-						</Typography>
-					</AccordionDetails>
-				</Accordion>
-				<Accordion square classes={{ root: classes.childAccordionRoot }}>
-					<AccordionSummary
-						expandIcon={<ChevronRight className={classes.childAccordionIcon} />}
-						classes={{ root: classes.childaccordionSummary }}
-					>
-						<div className={classes.childAccordionTitle}>
-							<Typography className={classes.childAccordionHeading}>
-								Does Drugs
-							</Typography>
-							<Typography className={classes.childAccordionHeading2}>
-								Sometimes
-							</Typography>
-						</div>
-					</AccordionSummary>
-					<AccordionDetails>
-						<Typography style={{ color: "#000", fontSize: "18px" }}>
-							Lorem ipsum dolor sit amet consectetur adipisicing elit.
-							Voluptatibus, itaque?
-						</Typography>
-					</AccordionDetails>
-				</Accordion> */}
-        </div>
         <Button
           disableRipple
           variant="text"

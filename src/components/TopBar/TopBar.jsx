@@ -120,7 +120,11 @@ export const TopBar = ({ live }) => {
                 justifyContent="space-between"
               >
                 <Grid item>
-                  {live ? undefined : (
+                  {live ? (
+                    <Link to="/home" className={classes.live}>
+                      HOME
+                    </Link>
+                  ) : (
                     <Link to="/live" className={classes.live}>
                       LIVE
                     </Link>

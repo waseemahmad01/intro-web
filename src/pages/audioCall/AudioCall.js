@@ -41,7 +41,7 @@ const AudioCall = ({ hello, closeAPortal, appId }) => {
   };
 
   const handleMuteAudio = async () => {
-    console.log(localTracks);
+    // console.log(localTracks);
     const audioTrack = localTracks.current.audioTrack;
     audioTrack.setMuted(!muteAudio);
     setMuteAudio(!muteAudio);

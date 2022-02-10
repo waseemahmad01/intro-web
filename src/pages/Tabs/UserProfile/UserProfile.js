@@ -17,65 +17,70 @@ import { getUserById, otherUserVideos, deleteVideo } from "../../../http";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { toggleMute, setMute } from "../../../store/videoSound";
+import { setUserVideos } from "../../../store/userVideos";
 
 export const UserProfile = (props) => {
-  const userState = useSelector((state) => state.auth.user.data);
-  const id = userState._id;
+  const user = useSelector((state) => state.auth.user.data);
+  const id = user._id;
   const classes = useStyles();
   const dispatch = useDispatch();
   const theme = useTheme();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const videosRef = useRef([]);
   videosRef.current = [];
+  // const userData = useSelector((state) => state.auth.user.data);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [user, setUser] = useState({
-    phonenumber: "",
-    socialMedia_id: "",
-    step: "/dob",
-    date_of_birth: { dob: "", age: 0 },
-    email: "",
-    first_name: "",
-    last_name: "",
-    username: "",
-    identify: { gender: "", visible: false },
-    date_preference: { interested_gender: "", interested_audience: "" },
-    height: { height: 0.0, visible: false },
-    body_type: { type: "", visible: false },
-    ethnicity: {
-      country_list: [],
-      c_visible: false,
-      race: "",
-      r_visible: false,
-    },
-    location: { lat: "", lon: "", geoHash: "", visible: false },
-    home_town: {
-      live_with: "",
-      home_town: "",
-      live_with_visible: false,
-      visible: false,
-    },
-    education: {
-      school: "",
-      s_visible: false,
-      degree: "",
-      d_visible: false,
-    },
-    profession: {
-      company: { company: "", c_visible: false },
-      job_title: { job_title: "", j_visible: false },
-      occupation: { occupation: "", o_visible: false },
-    },
-    religion: { religion: "", visible: false },
-    vices: {
-      drink: { drink: "", d_visible: false },
-      smoke: { smoke: "", s_visible: false },
-      weed: { weed: "", w_visible: false },
-      drugs: { drugs: "", dr_visible: false },
-    },
-    profile_image: "",
-    children: { have_children: "", want_children: "", visible: false },
-    prompt: [{ question: "", url: "" }],
-  });
+  // const [user, setUser] = useState(
+  //   userState
+  // userState || {
+  //   phonenumber: "",
+  //   socialMedia_id: "",
+  //   step: "/dob",
+  //   date_of_birth: { dob: "", age: 0 },
+  //   email: "",
+  //   first_name: "",
+  //   last_name: "",
+  //   username: "",
+  //   identify: { gender: "", visible: false },
+  //   date_preference: { interested_gender: "", interested_audience: "" },
+  //   height: { height: 0.0, visible: false },
+  //   body_type: { type: "", visible: false },
+  //   ethnicity: {
+  //     country_list: [],
+  //     c_visible: false,
+  //     race: "",
+  //     r_visible: false,
+  //   },
+  //   location: { lat: "", lon: "", geoHash: "", visible: false },
+  //   home_town: {
+  //     live_with: "",
+  //     home_town: "",
+  //     live_with_visible: false,
+  //     visible: false,
+  //   },
+  //   education: {
+  //     school: "",
+  //     s_visible: false,
+  //     degree: "",
+  //     d_visible: false,
+  //   },
+  //   profession: {
+  //     company: { company: "", c_visible: false },
+  //     job_title: { job_title: "", j_visible: false },
+  //     occupation: { occupation: "", o_visible: false },
+  //   },
+  //   religion: { religion: "", visible: false },
+  //   vices: {
+  //     drink: { drink: "", d_visible: false },
+  //     smoke: { smoke: "", s_visible: false },
+  //     weed: { weed: "", w_visible: false },
+  //     drugs: { drugs: "", dr_visible: false },
+  //   },
+  //   profile_image: "",
+  //   children: { have_children: "", want_children: "", visible: false },
+  //   prompt: [{ question: "", url: "" }],
+  // }
+  // );
   const [videos, setVideos] = useState([]);
   const mutedState = useSelector((state) => state.video.muted);
   const [muted, setMuted] = useState(mutedState);
@@ -158,20 +163,16 @@ export const UserProfile = (props) => {
   };
   useEffect(() => {
     (async function () {
-      await axios
-        .all([getUserById(id), otherUserVideos(id)])
-        .then(
-          axios.spread((res1, res2) => {
-            setUser(res1.data.data);
-            setVideos(res2.data.data);
-          })
-        )
-        .catch((err) => {
-          console.log(err.message);
-        });
+      try {
+        const { data } = await otherUserVideos(id);
+        setVideos(data.data);
+        dispatch(setUserVideos(data.data));
+        // console.log(data.data);
+      } catch (err) {
+        console.log(err.message);
+      }
     })();
-    // eslint-disable-next-line
-  }, []);
+  }, [user]);
   useEffect(() => {
     if (videosRef.current.length > 0 && isDialogOpen === false) {
       videosRef.current[0].play();

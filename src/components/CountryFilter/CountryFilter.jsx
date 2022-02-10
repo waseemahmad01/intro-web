@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   makeStyles,
   Grid,
@@ -102,6 +102,7 @@ export const CountryFilter = ({
   update,
   setUpdate,
   setIsAnyOpen,
+  value: filterValue = [],
 }) => {
   const classes = useStyles();
   let obj = {};
@@ -110,6 +111,7 @@ export const CountryFilter = ({
     obj[country.name] = false;
   });
   const [state, setState] = useState(obj);
+  const [filterChanged, setFilterChanged] = useState(false);
   const handleChange = (e) => {
     const { name, checked } = e.target;
     setState({ ...state, [name]: checked });
@@ -120,11 +122,27 @@ export const CountryFilter = ({
       if (value) filters.push(key);
     }
     setValue(filters);
-    setState(obj);
+    // setState(obj);
+    setFilterChanged(!filterChanged);
     setUpdate(update + 1);
     setIsAnyOpen(false);
     onClose(false);
   };
+  useEffect(() => {
+    let obj = {};
+    // eslint-disable-next-line
+    allCounrtry.default.forEach((option) => {
+      obj[option.name] = false;
+    });
+    const keys = Object.keys(obj);
+    keys.forEach((key) => {
+      if (filterValue.indexOf(key) > -1) {
+        obj[key] = true;
+      }
+    });
+    console.log("running");
+    setState(obj);
+  }, [filterChanged]);
   return (
     <Dialog
       open={open}
@@ -160,6 +178,7 @@ export const CountryFilter = ({
                     name={country.name}
                     className={classes.checkBox}
                     color="primary"
+                    checked={Boolean(state[country.name])}
                     checkedIcon={<img src={image.checkIcon} alt="" />}
                     icon={<img src={image.unCheck} alt="" />}
                   />

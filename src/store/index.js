@@ -6,6 +6,7 @@ import utils from "./utils";
 import stories from "./stories";
 import stream from "./stream";
 import inbox from "./inbox";
+import userVideos from "./userVideos";
 
 const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ const store = configureStore({
     stories,
     stream,
     inbox,
+    userVideos,
   },
 });
 

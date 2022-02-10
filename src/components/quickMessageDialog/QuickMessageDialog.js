@@ -32,14 +32,10 @@ const QuickMessageDialog = ({
   return (
     <Dialog open={open} className={classes.dialog}>
       <Grid container direction="column" className={classes.container}>
-        <Typography className={classes.title}>Quick Message</Typography>
-        <Grid
-          item
-          direction="column"
-          container
-          wrap="nowrap"
-          className={classes.quickMessageContainer}
-        >
+        <Grid item container justifyContent="center">
+          <Typography className={classes.title}>Quick Message</Typography>
+        </Grid>
+        <Grid item className={classes.quickMessageContainer}>
           {quickMessageList.map((item, index) => (
             <QuickMessage
               label={item}
@@ -92,6 +88,7 @@ const useStyles = makeStyles((theme) => ({
   },
   quickMessageContainer: {
     display: "flex",
+    flexDirection: "column",
     paddingInline: "2rem",
     height: "380px",
     overflowY: "scroll",

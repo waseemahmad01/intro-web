@@ -88,6 +88,9 @@ export const useStyles = makeStyles((theme) => ({
       height: "100%",
       objectFit: "cover",
     },
+    "& .agora_video_player": {
+      objectFit: "contain ",
+    },
   },
   description: {
     position: "absolute",

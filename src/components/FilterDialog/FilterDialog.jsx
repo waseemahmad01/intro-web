@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   makeStyles,
   Grid,
@@ -95,29 +95,52 @@ export const FilterDialog = ({
   update,
   setUpdate,
   setIsAnyOpen,
+  value: filterValue = [],
 }) => {
+  // console.log("logging", value);
   const classes = useStyles();
   let obj = {};
   // eslint-disable-next-line
   options.forEach((option) => {
     obj[option] = false;
   });
+  // const [options]
   const [state, setState] = useState(obj);
+  const [filterChanged, setFilterChanged] = useState(false);
   const handleChange = (e) => {
     const { name, checked } = e.target;
+    // console.log(checked);
     setState({ ...state, [name]: checked });
   };
   const handleSet = () => {
     let filters = [];
     for (const [key, value] of Object.entries(state)) {
+      // console.log(key, value);
       if (value) filters.push(key);
     }
     setValue(filters);
-    setState(obj);
+    // setState(obj);
+    setFilterChanged(!filterChanged);
     setUpdate(update + 1);
     setIsAnyOpen(false);
     onClose(false);
   };
+  useEffect(() => {
+    let obj = {};
+    // eslint-disable-next-line
+    options.forEach((option) => {
+      obj[option] = false;
+    });
+    const keys = Object.keys(obj);
+    keys.forEach((key) => {
+      if (filterValue.indexOf(key) > -1) {
+        obj[key] = true;
+      }
+    });
+    // console.log("running");
+    setState(obj);
+    // console.log(obj);
+  }, [filterChanged]);
   return (
     <Dialog
       open={open}
@@ -148,6 +171,7 @@ export const FilterDialog = ({
                     name={option}
                     className={classes.checkBox}
                     color="primary"
+                    checked={Boolean(state[option])}
                     checkedIcon={<img src={image.checkIcon} alt="" />}
                     icon={<img src={image.unCheck} alt="" />}
                   />

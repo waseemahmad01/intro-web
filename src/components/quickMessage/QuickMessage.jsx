@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
 const QuickMessage = ({ name, handleShow, id, label, value }) => {
   const classes = useStyles();
   return (
-    <Grid item>
+    <>
       <input
         type="radio"
         className={classes.switch}
@@ -42,7 +42,7 @@ const QuickMessage = ({ name, handleShow, id, label, value }) => {
       <label htmlFor={id} className={classes.container}>
         {label}
       </label>
-    </Grid>
+    </>
   );
 };
 

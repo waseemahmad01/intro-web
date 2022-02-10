@@ -153,13 +153,13 @@ export const Inbox = (props) => {
   const handleOne = () => {
     setOne(!one);
     setTwo(false);
-    refTwo.current.classList.remove(`${classes.rotate}`);
+    // refTwo.current.classList.remove(`${classes.rotate}`);
     refOne.current.classList.toggle(`${classes.rotate}`);
   };
   const handleTwo = () => {
     setTwo(!two);
     setOne(false);
-    refOne.current.classList.remove(`${classes.rotate}`);
+    // refOne.current.classList.remove(`${classes.rotate}`);
     refTwo.current.classList.toggle(`${classes.rotate}`);
   };
   const handleChatClick = (index, chatId, uId) => {
@@ -542,7 +542,7 @@ export const Inbox = (props) => {
               open={openReportDialog}
               setOpen={setOpenReportDialog}
             />
-            <Grid item container className={classes.collapseContainer}>
+            {/* <Grid item container className={classes.collapseContainer}>
               <Grid
                 onClick={handleOne}
                 item
@@ -593,7 +593,7 @@ export const Inbox = (props) => {
                   </Typography>
                 </Grid>
               </Collapse>
-            </Grid>
+            </Grid> */}
             <Grid item container className={classes.collapseContainer}>
               <Grid
                 item

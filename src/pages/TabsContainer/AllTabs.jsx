@@ -141,7 +141,7 @@ export const AllTabs = () => {
     }
   });
 
-  const url = window.location.pathname;
+  const url = window.location.hash;
   const shuffle = (a) => {
     let array = a;
     let i = array.length;
@@ -153,7 +153,8 @@ export const AllTabs = () => {
   };
 
   useEffect(() => {
-    if (url === "/home/explore") {
+    // console.log(url);
+    if (url === "#/home/explore") {
       if (filterUpdated > 0) {
         pageNumber.current = 1;
         setVideos([]);
@@ -180,6 +181,7 @@ export const AllTabs = () => {
           country.length > 0 ? `country=${JSON.stringify(country)}` : null
         }&${height.length > 0 ? `height=${JSON.stringify(height[0])}` : null}`;
         const { data } = await getAllVideos(pageNumber.current, 10, query);
+        // console.log(data);
         setVideos([...videos, ...data.data]);
         totalPages.current = data.totalPages;
       })();

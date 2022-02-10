@@ -184,7 +184,7 @@ export const useStyles = makeStyles((theme) => ({
     borderRadius: "13px",
     boxShadow: theme.shadows[3],
     boxSizing: "border-box",
-    padding: "1rem 2rem",
+    padding: "1rem 0rem",
     [theme.breakpoints.down("lg")]: {
       width: "100%",
       padding: "1rem",
@@ -394,6 +394,26 @@ export const useStyles = makeStyles((theme) => ({
     height: "calc(100% - 160px)",
     [theme.breakpoints.down("lg")]: {
       height: "calc(100% - 80px)",
+    },
+  },
+  reelsList: {
+    width: "100%",
+    paddingInline: "2rem",
+    height: "340px",
+    overflowY: "auto",
+    "&::-webkit-scrollbar-track": {
+      background: "transparent",
+    },
+    "&::-webkit-scrollbar": {
+      width: "5px",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      background: theme.palette.common.darkPink,
+      borderRadius: "10px",
+    },
+    [theme.breakpoints.down("lg")]: {
+      paddingInline: "1rem",
+      height: "205px",
     },
   },
 }));
