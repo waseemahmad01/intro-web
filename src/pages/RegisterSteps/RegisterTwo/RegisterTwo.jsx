@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useStyles } from "../Styles/registerStyles";
-import { Grid, useTheme, useMediaQuery } from "@material-ui/core";
+import { Grid, useTheme, useMediaQuery, Typography } from "@material-ui/core";
 import image from "../../../assets/index";
 import { SelectOption } from "../../../components/SelectOption/SelectOption";
 import { CustomIconButton } from "../../../components/IconButton/CustomIconButton";
@@ -11,6 +11,7 @@ import { submit } from "../../../store/user";
 import { height, bodyType as bType, diet, fitness } from "../../../data";
 import axios from "axios";
 import Joi from "joi-browser";
+import ButtonComp from "../../../components/ButtonComp/ButtonComp";
 
 export const RegisterTwo = ({ onNext }) => {
   const classes = useStyles();
@@ -20,6 +21,7 @@ export const RegisterTwo = ({ onNext }) => {
 
   const heightOptions = height;
   const bodyTypeOptions = bType;
+  const [disabled, setDisabled] = useState(true);
 
   const [show, setShow] = useState({
     height: true,
@@ -107,13 +109,19 @@ export const RegisterTwo = ({ onNext }) => {
       };
       const bodyTypeData = {
         type: values.bodyType,
-        visible: show.bodyType,
+        t_visible: show.bodyType,
+        diet: values.diet,
+        d_visible: show.diet,
+        fitness: values.fitness,
+        f_visible: show.fitness,
         step: "/ethnicity-page",
       };
+      // console.log(bodyTypeData);
       await axios
         .all([heightApi(heightData), bodyType(bodyTypeData)])
         .then(
           axios.spread(function (res1, res2) {
+            console.log(res2.data);
             dispatch(submit(res2.data));
             onNext();
           })
@@ -123,6 +131,19 @@ export const RegisterTwo = ({ onNext }) => {
         });
     }
   };
+
+  useEffect(() => {
+    if (
+      values.bodyType !== "0" &&
+      values.diet !== "0" &&
+      values.fitness !== "0" &&
+      values.height !== "0"
+    ) {
+      setDisabled(false);
+    } else {
+      setDisabled(true);
+    }
+  }, [values]);
 
   return (
     <Grid
@@ -147,8 +168,14 @@ export const RegisterTwo = ({ onNext }) => {
               direction="column"
               className={classes.formContainer}
             >
+              <Grid item container justifyContent="center">
+                <Typography variant="h1" className={classes.formTitle}>
+                  Physical
+                </Typography>
+              </Grid>
               <Grid item sm={12}>
                 <SelectOption
+                  height={true}
                   checkboxVaraint="switch"
                   label="Height"
                   options={newHeight}
@@ -214,7 +241,12 @@ export const RegisterTwo = ({ onNext }) => {
                 style={{ marginTop: lgScreen ? "1rem" : "1.5rem" }}
                 justifyContent="center"
               >
-                <CustomIconButton onClick={handleNext} />
+                <ButtonComp
+                  onClick={handleNext}
+                  disabled={disabled}
+                  label="Continue"
+                />
+                {/* <CustomIconButton onClick={handleNext} /> */}
               </Grid>
             </Grid>
           </form>

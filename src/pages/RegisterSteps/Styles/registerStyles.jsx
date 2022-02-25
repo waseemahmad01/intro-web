@@ -12,7 +12,7 @@ export const useStyles = makeStyles((theme) => ({
 
   form: {
     padding: "0 8rem",
-    marginTop: "237px",
+    marginTop: "140px",
     [theme.breakpoints.down("lg")]: {
       padding: "0 5rem",
       marginTop: "7rem",
@@ -38,7 +38,9 @@ export const useStyles = makeStyles((theme) => ({
       transform: "scale(1.3)",
     },
   },
-
+  // skipButton: {
+  //   backgroundColor: "white",
+  // },
   p: {
     textAlign: "left",
     color: "#000",
@@ -51,6 +53,13 @@ export const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("lg")]: {
       fontSize: "16px",
       marginTop: "1rem",
+    },
+  },
+  formTitle: {
+    marginBottom: "1.9rem",
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "30px",
+      marginBottom: "0rem",
     },
   },
   skipButton: {
@@ -78,6 +87,13 @@ export const useStyles = makeStyles((theme) => ({
   title: {
     marginLeft: "34px",
     marginBottom: "0.8rem",
+    fontSize: "22px",
+    color: "#000",
+    fontWeight: "400",
+  },
+  showText: {
+    fontSize: "15px",
+    marginRight: "11px",
   },
   checkboxWithText: {
     backgroundColor: "#fff",
@@ -89,6 +105,9 @@ export const useStyles = makeStyles((theme) => ({
       height: "40px",
       width: "100%",
     },
+  },
+  intentContainer: {
+    marginTop: "40px",
   },
   label: {
     marginLeft: "15px",

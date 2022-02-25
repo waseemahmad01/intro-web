@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useStyles } from "../Styles/registerStyles";
-import { Grid, useTheme, useMediaQuery } from "@material-ui/core";
+import { Grid, useTheme, useMediaQuery, Typography } from "@material-ui/core";
 import image from "../../../assets/index";
 import { SelectOption } from "../../../components/SelectOption/SelectOption";
 import { CustomIconButton } from "../../../components/IconButton/CustomIconButton";
@@ -14,6 +14,33 @@ import { useDispatch } from "react-redux";
 import { submit } from "../../../store/user";
 import axios from "axios";
 import Joi from "joi-browser";
+import ButtonComp from "../../../components/ButtonComp/ButtonComp";
+
+const occupationList = [
+  "Architecture and Construction",
+  "Arts, Design, Entertainment, Sports, and Media",
+  "Building and Grounds Cleaning and Maintenance",
+  "Business and Finance",
+  "Community and Social Services",
+  "Science, Technology, Engineering and Mathematics",
+  "Construction and Extraction",
+  "Education, Training, and Library,",
+  "Farming, Fishing and Forestry",
+  "Food Preparation and Serving Related",
+  "Healthcare Practitioners and Technical",
+  "Healthcare Support",
+  "Installation, Maintenance and Repair",
+  "Legal",
+  "Life, Physical and Social Science",
+  "Business Management and Administration",
+  "Military",
+  "Office and Administrative Support",
+  "Government and Public Administration",
+  "Transportation. Distribution and Logistics",
+  "Personal Care and Services",
+  "Protective and Security Service",
+  "Marketing, Sales, and Service",
+];
 
 export const RegisterFive = ({ onNext }) => {
   const classes = useStyles();
@@ -21,14 +48,15 @@ export const RegisterFive = ({ onNext }) => {
   const theme = useTheme();
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
+  const [disabled, setDisabled] = useState(true);
   const [values, setValues] = useState({
     degree: "0",
+    occupation: "0",
   });
   const [details, setDetails] = useState({
     school: "",
     work: "",
     job: "",
-    occupation: "",
   });
   const [show, setShow] = useState({
     school: true,
@@ -41,34 +69,26 @@ export const RegisterFive = ({ onNext }) => {
   const [errors, setErrors] = useState({
     school: "",
     degree: "",
-    work: "",
-    job: "",
     occupation: "",
   });
 
   const schema = {
     school: Joi.string().required(),
     degree: Joi.string().min(2).required(),
-    work: Joi.string().required(),
-    job: Joi.string().required(),
-    occupation: Joi.string().required(),
+    occupation: Joi.string().min(2).required(),
   };
 
   const validate = () => {
     const data = {
       school: details.school[0],
       degree: values.degree,
-      work: details.work[0],
-      job: details.job[0],
-      occupation: details.occupation[0],
+      occupation: values.occupation,
     };
     const result = Joi.validate(data, schema, { abortEarly: false });
     if (!result.error) {
       setErrors({
         school: "",
         degree: "",
-        work: "",
-        job: "",
         occupation: "",
       });
       return false;
@@ -139,6 +159,7 @@ export const RegisterFive = ({ onNext }) => {
         o_visible: show.occupation,
         step: "/get-user-religion",
       };
+      // console.log(educationData, professionData);
       await axios
         .all([education(educationData), profession(professionData)])
         .then(
@@ -164,6 +185,17 @@ export const RegisterFive = ({ onNext }) => {
       console.log(err);
     }
   };
+  useEffect(() => {
+    if (
+      details.school !== "" &&
+      values.degree !== "0" &&
+      values.occupation !== "0"
+    ) {
+      setDisabled(false);
+    } else {
+      setDisabled(true);
+    }
+  }, [details, values]);
   return (
     <Grid
       container
@@ -190,6 +222,11 @@ export const RegisterFive = ({ onNext }) => {
               className={classes.formContainer}
               spacing={lgScreen ? 0 : 2}
             >
+              <Grid item container justifyContent="center">
+                <Typography variant="h1" className={classes.formTitle}>
+                  Education/ Profession
+                </Typography>
+              </Grid>
               <Grid item container sm={12}>
                 <Grid item className={classes.inputContainer}>
                   <Input
@@ -241,7 +278,7 @@ export const RegisterFive = ({ onNext }) => {
                   <Input
                     label="Workplace"
                     type="text"
-                    placeholder="Enter details"
+                    placeholder="Enter details (optional)"
                     value={details.work}
                     onChange={handleDetails}
                     name="work"
@@ -272,7 +309,7 @@ export const RegisterFive = ({ onNext }) => {
                   <Input
                     label="Job Title"
                     type="text"
-                    placeholder="Enter details"
+                    placeholder="Enter details (optional)"
                     value={details.job}
                     onChange={handleDetails}
                     name="job"
@@ -299,7 +336,20 @@ export const RegisterFive = ({ onNext }) => {
                 </Grid>
               </Grid>
               <Grid item container sm={12}>
-                <Grid item className={classes.inputContainer}>
+                <SelectOption
+                  checkboxVaraint="switch"
+                  label="Occupation"
+                  options={occupationList}
+                  placeholder="Select option"
+                  show={show.occupation}
+                  handleShow={handleShow}
+                  name="occupation"
+                  onSelect={handleSelect}
+                  value={values.occupation}
+                  error={Boolean(errors.occupation)}
+                  errorText={errors.occupation}
+                />
+                {/* <Grid item className={classes.inputContainer}>
                   <Input
                     label="Occupation"
                     type="text"
@@ -327,14 +377,19 @@ export const RegisterFive = ({ onNext }) => {
                     show={show.occupation}
                     handleShow={handleShow}
                   />
-                </Grid>
+                </Grid> */}
               </Grid>
 
               <Grid item container justifyContent="center">
-                <CustomIconButton onClick={handleNext} />
+                <ButtonComp
+                  label="Continue"
+                  onClick={handleNext}
+                  disabled={disabled}
+                />
+                {/* <CustomIconButton onClick={handleNext} />
                 <CustomButton onClick={handleSkip} variant="outlineButton">
                   Skip
-                </CustomButton>
+                </CustomButton> */}
               </Grid>
             </Grid>
           </form>

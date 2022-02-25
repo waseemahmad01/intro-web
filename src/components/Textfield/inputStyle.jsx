@@ -50,14 +50,18 @@ export const useStyles = makeStyles((theme) => ({
   },
   inputRoot: {
     "& .MuiOutlinedInput-root": {
+      boxShadow: theme.shadows[2],
       "& fieldset": {
-        border: `2px solid ${theme.palette.primary.main}`,
+        border: "1px solid transparent",
+        // border: `2px solid ${theme.palette.primary.main}`,
       },
       "&:hover fieldset": {
-        border: `2px solid ${theme.palette.primary.main}`,
+        border: "1px solid transparent",
+        // border: `2px solid ${theme.palette.primary.main}`,
       },
       "&.Mui-focused fieldset": {
-        border: `2px solid ${theme.palette.primary.main}`,
+        border: "1px solid transparent",
+        // border: `2px solid ${theme.palette.primary.main}`,
       },
     },
   },

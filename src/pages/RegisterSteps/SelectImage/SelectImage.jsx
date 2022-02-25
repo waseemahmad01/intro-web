@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useStyles } from "./selectImageStyles";
 import { Grid, useTheme, Typography, Dialog, Button } from "@material-ui/core";
 import { Header } from "../../../components/header/Header";
@@ -11,11 +11,13 @@ import Webcam from "react-webcam";
 import { useDispatch } from "react-redux";
 import { profileImage, step } from "../../../http";
 import { submit } from "../../../store/user";
+import ButtonComp from "../../../components/ButtonComp/ButtonComp";
 export const SelectImage = () => {
   const history = useHistory();
   const classes = useStyles();
   const theme = useTheme();
   const webcamRef = useRef();
+  const [disabled, setDisabled] = useState(true);
   const headerItems = [
     {
       label: "Register",
@@ -62,6 +64,13 @@ export const SelectImage = () => {
       console.log(err);
     }
   };
+  useEffect(() => {
+    if (imageFile !== null) {
+      setDisabled(false);
+    } else {
+      setDisabled(true);
+    }
+  }, [imageFile]);
   return (
     <Grid
       container
@@ -107,7 +116,7 @@ export const SelectImage = () => {
             <span className={classes.error}>Please upload an image.</span>
           )}
         </Grid>
-        <Grid item>
+        {/* <Grid item>
           <CustomButton
             variant="btnOutlineRed"
             styleProps={{
@@ -120,7 +129,7 @@ export const SelectImage = () => {
           >
             Open Camera
           </CustomButton>
-        </Grid>
+        </Grid> */}
         <Grid
           item
           container
@@ -130,7 +139,7 @@ export const SelectImage = () => {
           alignItems="center"
           spacing={smScreen ? 2 : undefined}
         >
-          <CustomButton
+          {/* <CustomButton
             variant="btnFacebook"
             styleProps={{
               marginRight: smScreen ? "0" : "2rem",
@@ -138,13 +147,18 @@ export const SelectImage = () => {
             }}
           >
             Choose from Facebook
-          </CustomButton>
+          </CustomButton> */}
           <label htmlFor="image-picker" className={classes.uploadButton}>
             Upload
           </label>
         </Grid>
         {/* <Link to="/home"> */}
-        <CustomIconButton onClick={handleSubmit} />
+        {/* <CustomIconButton onClick={handleSubmit} /> */}
+        <ButtonComp
+          label="Continue"
+          disabled={disabled}
+          onClick={handleSubmit}
+        />
         {/* </Link> */}
         <input
           type="file"

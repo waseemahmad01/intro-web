@@ -21,7 +21,7 @@ export const Register = () => {
     7: RegisterSeven,
     8: SelectImage,
   };
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(4);
   const Step = Steps[step];
   const onNext = () => {
     setStep(step + 1);

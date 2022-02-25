@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useStyles } from "../Styles/registerStyles";
-import { Grid, useTheme, useMediaQuery } from "@material-ui/core";
+import { Grid, useTheme, useMediaQuery, Typography } from "@material-ui/core";
 import image from "../../../assets/index";
 import { SelectOption } from "../../../components/SelectOption/SelectOption";
 import { CustomIconButton } from "../../../components/IconButton/CustomIconButton";
@@ -10,6 +10,7 @@ import { vices, step } from "../../../http";
 import { useDispatch } from "react-redux";
 import { submit } from "../../../store/user";
 import Joi from "joi-browser";
+import ButtonComp from "../../../components/ButtonComp/ButtonComp";
 
 export const RegisterSeven = ({ onNext }) => {
   const classes = useStyles();
@@ -18,6 +19,7 @@ export const RegisterSeven = ({ onNext }) => {
   const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
   const options = ["No", "Yes", "Sometimes", "Prefer not to say"];
+  const [disabled, setDisabled] = useState(true);
   const [show, setShow] = useState({
     drink: true,
     smoke: true,
@@ -120,6 +122,18 @@ export const RegisterSeven = ({ onNext }) => {
       console.log(err);
     }
   };
+  useEffect(() => {
+    if (
+      values.drink !== "0" &&
+      values.drugs !== "0" &&
+      values.smoke !== "0" &&
+      values.weed !== "0"
+    ) {
+      setDisabled(false);
+    } else {
+      setDisabled(true);
+    }
+  }, [values]);
   return (
     <Grid
       container
@@ -147,6 +161,11 @@ export const RegisterSeven = ({ onNext }) => {
               spacing={lgScreen ? 2 : 2}
               // style={{ marginTop: lgScreen ? "2rem" : "8rem" }}
             >
+              <Grid item container justifyContent="center">
+                <Typography variant="h1" className={classes.formTitle}>
+                  Lifestyle
+                </Typography>
+              </Grid>
               <Grid item sm={12}>
                 <SelectOption
                   checkboxVaraint="switch"
@@ -208,10 +227,15 @@ export const RegisterSeven = ({ onNext }) => {
                 />
               </Grid>
               <Grid item container justifyContent="center">
-                <CustomIconButton onClick={handleNext} />
+                <ButtonComp
+                  label="Continue"
+                  disabled={disabled}
+                  onClick={handleNext}
+                />
+                {/* <CustomIconButton onClick={handleNext} />
                 <CustomButton onClick={handleSkip} variant="outlineButton">
                   Skip
-                </CustomButton>
+                </CustomButton> */}
               </Grid>
             </Grid>
           </form>

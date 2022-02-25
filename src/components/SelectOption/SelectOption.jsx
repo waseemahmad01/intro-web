@@ -9,7 +9,8 @@ import {
   useMediaQuery,
 } from "@material-ui/core";
 import { Checkbox } from "../Checkbox/Checkbox";
-import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
+import image from "../../assets/index";
+// import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 
 import { makeStyles } from "@material-ui/core";
 
@@ -32,7 +33,7 @@ export const useStyles = makeStyles((theme) => ({
     },
   },
   select: {
-    width: "456px",
+    width: "100%",
 
     borderRadius: "34px",
     backgroundColor: "#fff",
@@ -45,19 +46,23 @@ export const useStyles = makeStyles((theme) => ({
       backgroundColor: "transparent",
     },
     [theme.breakpoints.down("lg")]: {
-      width: "300px",
+      // width: "300px",
       height: "40px",
       fontSize: "15px",
       marginBottom: "0px",
     },
     "& .MuiOutlinedInput-notchedOutline": {
-      border: `2px solid ${theme.palette.primary.main}`,
+      boxShadow: theme.shadows[2],
+      border: "1px solid transparent",
+      // border: `2px solid ${theme.palette.primary.main}`,
     },
     "&:hover .MuiOutlinedInput-notchedOutline": {
-      border: `2px solid ${theme.palette.primary.main}`,
+      border: "1px solid transparent",
+      // border: `2px solid ${theme.palette.primary.main}`,
     },
     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-      border: `2px solid ${theme.palette.primary.main}`,
+      border: "1px solid transparent",
+      // border: `2px solid ${theme.palette.primary.main}`,
     },
   },
 
@@ -90,7 +95,7 @@ export const useStyles = makeStyles((theme) => ({
   },
   dropdownIcon: {
     fontSize: "2rem",
-    marginRight: "5px",
+    marginRight: "15px",
     fontWeight: "700",
     [theme.breakpoints.down("lg")]: {
       fontSize: "1.7rem",
@@ -127,6 +132,8 @@ export const SelectOption = ({
   value,
   errorText,
   identify,
+  noShow,
+  height,
   ...rest
 }) => {
   const classes = useStyles();
@@ -154,7 +161,11 @@ export const SelectOption = ({
         alignItems="center"
         style={{ marginBottom: "0.7rem" }}
       >
-        <Grid item className={classes.selectContainer}>
+        <Grid
+          item
+          className={classes.selectContainer}
+          style={{ minWidth: noShow ? "100%" : "" }}
+        >
           <Select
             {...rest}
             value={`${value}`}
@@ -182,7 +193,11 @@ export const SelectOption = ({
               },
             }}
             IconComponent={() => (
-              <KeyboardArrowDownIcon className={classes.dropdownIcon} />
+              <img
+                className={classes.dropdownIcon}
+                src={image.downArrowBlue}
+                alt=""
+              />
             )}
           >
             <MenuItem dense className={classes.menuItem} value={"0"}>
@@ -200,22 +215,24 @@ export const SelectOption = ({
           </Select>
           {errorText && <span className={classes.error}>{errorText}</span>}
         </Grid>
-        <Grid
-          item
-          container
-          alignItems="center"
-          justifyContent="flex-start"
-          className={classes.switchContainer}
-          style={{ marginLeft: identify ? "auto" : "" }}
-        >
-          <span>Show on profile</span>
-          <Checkbox
-            variant={checkboxVaraint}
-            name={name}
-            show={show}
-            handleShow={handleShow}
-          />
-        </Grid>
+        {!noShow && !height && (
+          <Grid
+            item
+            container
+            alignItems="center"
+            justifyContent="flex-start"
+            className={classes.switchContainer}
+            style={{ marginLeft: identify ? "auto" : "" }}
+          >
+            <span>Show on profile</span>
+            <Checkbox
+              variant={checkboxVaraint}
+              name={name}
+              show={show}
+              handleShow={handleShow}
+            />
+          </Grid>
+        )}
       </Grid>
     </Grid>
   );

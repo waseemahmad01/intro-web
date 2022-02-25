@@ -18,9 +18,12 @@ import {
   identify as identifyApi,
 } from "../../../http";
 import Joi from "joi-browser";
-import { SelectOption } from "../../../components/SelectOption/SelectOption";
+// import { SelectOption } from "../../../components/SelectOption/SelectOption";
 import { gender } from "../../../data";
 import axios from "axios";
+import { Checkbox } from "../../../components/Checkbox/Checkbox";
+import ButtonComp from "../../../components/ButtonComp/ButtonComp";
+import { useEffect } from "react";
 
 export const RegisterFour = ({ onNext }) => {
   const classes = useStyles();
@@ -28,32 +31,30 @@ export const RegisterFour = ({ onNext }) => {
   const theme = useTheme();
   const mdScreen = useMediaQuery(theme.breakpoints.down("md"));
   const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
-  const identifyOptions = gender;
+  // const identifyOptions = gender;
+  const [disabled, setDisabled] = useState(true);
   const [datePreference, setDatePrerence] = useState("");
+  const [show, setShow] = useState(true);
   const [audience, setAudience] = useState("");
-  const [identify, setIdentify] = useState("0");
-  const [identifyShow, setIdentifyShow] = useState(true);
+  // const [identify, setIdentify] = useState("0");
+  // const [identifyShow, setIdentifyShow] = useState(true);
   const [errors, setErrors] = useState({
-    identify: "",
     datePreference: "",
     audience: "",
   });
   const schema = {
-    identify: Joi.string().min(2).required().label("Identify"),
     datePreference: Joi.string().required().label("Date Preference"),
     audience: Joi.string().required().label("Intent"),
   };
 
   const validate = () => {
     const data = {
-      identify,
       datePreference,
       audience,
     };
     const result = Joi.validate(data, schema, { abortEarly: false });
     if (!result.error) {
       setErrors({
-        identify: "",
         datePreference: "",
         audience: "",
       });
@@ -70,21 +71,21 @@ export const RegisterFour = ({ onNext }) => {
   };
 
   const handleShow = (e) => {
-    setIdentifyShow(e.target.checked);
+    setShow(e.target.checked);
   };
-  const handleSelect = (e) => {
-    setIdentify(e.target.value);
-    const obj = { identify: e.target.value };
-    const subSchema = { identify: schema.identify };
-    const { error } = Joi.validate(obj, subSchema);
-    // eslint-disable-next-line
-    const it = error
-      ? setErrors({
-          ...errors,
-          identify: `"Identify" is not allowed to be empty`,
-        })
-      : setErrors({ ...errors, identify: "" });
-  };
+  // const handleSelect = (e) => {
+  //   setIdentify(e.target.value);
+  //   const obj = { identify: e.target.value };
+  //   const subSchema = { identify: schema.identify };
+  //   const { error } = Joi.validate(obj, subSchema);
+  //   // eslint-disable-next-line
+  //   const it = error
+  //     ? setErrors({
+  //         ...errors,
+  //         identify: `"Identify" is not allowed to be empty`,
+  //       })
+  //     : setErrors({ ...errors, identify: "" });
+  // };
   const handleDatePreference = (e) => {
     setDatePrerence(e.target.value);
     const obj = { datePreference: e.target.value };
@@ -97,6 +98,16 @@ export const RegisterFour = ({ onNext }) => {
           datePreference: `"Date Preference" is not allowed to be empty`,
         })
       : setErrors({ ...errors, datePreference: "" });
+
+    if (
+      errors.datePreference === "" &&
+      errors.audience === "" &&
+      audience !== ""
+    ) {
+      setDisabled(false);
+    } else {
+      setDisabled(true);
+    }
   };
   const handleAudiencePreference = (e) => {
     setAudience(e.target.value);
@@ -110,33 +121,35 @@ export const RegisterFour = ({ onNext }) => {
           audience: `"Intent" is not allowed to be empty`,
         })
       : setErrors({ ...errors, audience: "" });
+    if (
+      errors.datePreference === "" &&
+      errors.audience === "" &&
+      datePreference !== ""
+    ) {
+      setDisabled(false);
+    } else {
+      setDisabled(true);
+    }
   };
   const handleNext = async () => {
     const error = validate();
     if (!error) {
-      const identifyData = {
-        gender: identify,
-        visible: identifyShow,
-        step: "/choose-date-characters",
-      };
-      const apiData = {
-        interested_gender: datePreference,
-        interested_audience: audience,
-        visible: true,
-        step: "/height",
-      };
-      await axios
-        .all([identifyApi(identifyData), datePreferenceApi(apiData)])
-        .then(
-          axios.spread((res1, res2) => {
-            dispatch(submit(res2.data));
-            onNext();
-          })
-        )
-        .catch((err) => console.log(err.message));
+      try {
+        const apiData = {
+          interested_gender: datePreference,
+          interested_audience: audience,
+          visible: show,
+          step: "/height",
+        };
+        const { data } = await datePreferenceApi(apiData);
+        dispatch(submit(data));
+        onNext();
+      } catch (err) {
+        alert("something went wrong");
+        console.log(err.message);
+      }
     }
   };
-
   return (
     <Grid
       container
@@ -159,7 +172,12 @@ export const RegisterFour = ({ onNext }) => {
             // className={classes.registerFourContainer}
             direction="column"
           >
-            <Grid item sm={12}>
+            <Grid item container justifyContent="center">
+              <Typography variant="h1" className={classes.formTitle}>
+                Dating Preference
+              </Typography>
+            </Grid>
+            {/* <Grid item sm={12}>
               <SelectOption
                 checkboxVaraint="switch"
                 label="How do you identify?"
@@ -174,20 +192,20 @@ export const RegisterFour = ({ onNext }) => {
                 errorText={errors.identify}
                 identify
               />
-            </Grid>
+            </Grid> */}
             <Grid item>
               <Typography className={classes.title} variant="h3">
-                Dating Preferences
+                I am looking for
               </Typography>
             </Grid>
-            <Grid item>
+            {/* <Grid item>
               <Typography
                 className={`${classes.title} ${classes.t2}`}
                 variant="h5"
               >
                 You can change this later
               </Typography>
-            </Grid>
+            </Grid> */}
             <Grid
               item
               style={{
@@ -213,19 +231,36 @@ export const RegisterFour = ({ onNext }) => {
                 )}
               </RadioGroup>
             </Grid>
-            <Grid item>
+            <Grid
+              item
+              container
+              justifyContent="space-between"
+              alignItems="center"
+              className={classes.intentContainer}
+            >
               <Typography className={classes.title} variant="h3">
                 Intent
               </Typography>
+              <Grid item style={{ paddingRight: "5px" }}>
+                <Grid item container alignItems="center">
+                  <span className={classes.showText}>show on profile</span>
+                  <Checkbox
+                    variant="switch"
+                    name="intentVisible"
+                    show={show}
+                    handleShow={handleShow}
+                  />
+                </Grid>
+              </Grid>
             </Grid>
-            <Grid item>
+            {/* <Grid item>
               <Typography
                 className={`${classes.title} ${classes.t2}`}
                 variant="h5"
               >
                 You can change this lator
               </Typography>
-            </Grid>
+            </Grid> */}
             <Grid container spacing={3} className={classes.checkboxContainer}>
               <RadioGroup value={audience} onChange={handleAudiencePreference}>
                 <Grid
@@ -254,12 +289,17 @@ export const RegisterFour = ({ onNext }) => {
             <Grid
               item
               style={{
-                marginTop: mdScreen ? "0rem" : "2rem",
+                marginTop: mdScreen ? "0rem" : "63px",
                 paddingLeft: "16px",
               }}
             >
               <Grid item container alignItems="center" justifyContent="center">
-                <CustomIconButton onClick={handleNext} />
+                <ButtonComp
+                  disabled={disabled}
+                  onClick={handleNext}
+                  label="Continue"
+                />
+                {/* <CustomIconButton onClick={handleNext} /> */}
               </Grid>
             </Grid>
           </Grid>

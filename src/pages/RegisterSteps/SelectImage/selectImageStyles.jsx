@@ -66,7 +66,6 @@ export const useStyles = makeStyles((theme) => ({
     textAlign: "center",
     lineHeight: "61px",
     fontSize: "21px",
-    marginLeft: "2rem",
     boxShadow: theme.shadows[3],
     [theme.breakpoints.down("lg")]: {
       width: "270px",

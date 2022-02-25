@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useStyles } from "../Styles/registerStyles";
-import { Grid } from "@material-ui/core";
+import { Grid, Typography, useTheme, useMediaQuery } from "@material-ui/core";
 import image from "../../../assets/index";
 import { CustomIconButton } from "../../../components/IconButton/CustomIconButton";
 import { CustomButton } from "../../../components/CustomButton/CustomButton";
@@ -12,10 +12,14 @@ import Joi from "joi-browser";
 import { SelectOption } from "../../../components/SelectOption/SelectOption";
 import { politics, religion, haveChild, wantChild } from "../../../data";
 import axios from "axios";
+import ButtonComp from "../../../components/ButtonComp/ButtonComp";
 
 export const RegisterSix = ({ onNext }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const [disabled, setDisabled] = useState();
+  const theme = useTheme();
+  const lgScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
   const [show, setShow] = useState({
     religion: true,
@@ -89,7 +93,9 @@ export const RegisterSix = ({ onNext }) => {
     if (!error) {
       const religionData = {
         religion: values.religion,
-        visible: show.religion,
+        r_visible: show.religion,
+        politics: values.politics,
+        p_visible: show.politics,
         step: "/get-user-children",
       };
       const childData = {
@@ -121,6 +127,20 @@ export const RegisterSix = ({ onNext }) => {
       console.log(err);
     }
   };
+
+  useEffect(() => {
+    if (
+      values.haveChildren !== "0" &&
+      values.politics !== "0" &&
+      values.religion !== "0" &&
+      values.wantChildren !== "0"
+    ) {
+      setDisabled(false);
+    } else {
+      setDisabled(true);
+    }
+  }, [values]);
+
   return (
     <Grid
       container
@@ -146,6 +166,11 @@ export const RegisterSix = ({ onNext }) => {
               className={classes.formContainer}
               // style={{ marginTop: lgScreen ? "3rem" : "8rem" }}
             >
+              <Grid item container justifyContent="center">
+                <Typography variant="h1" className={classes.formTitle}>
+                  Religion/ Politics
+                </Typography>
+              </Grid>
               <Grid item sm={12}>
                 <SelectOption
                   checkboxVaraint="switch"
@@ -176,6 +201,16 @@ export const RegisterSix = ({ onNext }) => {
                   errorText={errors.politics}
                 />
               </Grid>
+              <Grid
+                item
+                container
+                justifyContent="center"
+                style={{ marginTop: lgScreen ? "25px" : "50px" }}
+              >
+                <Typography variant="h1" className={classes.formTitle}>
+                  Children
+                </Typography>
+              </Grid>
               <Grid item sm={12}>
                 <SelectOption
                   checkboxVaraint="switch"
@@ -189,6 +224,7 @@ export const RegisterSix = ({ onNext }) => {
                   value={values.haveChildren}
                   error={Boolean(errors.haveChildren)}
                   errorText={errors.haveChildren}
+                  height={true}
                 />
               </Grid>
               <Grid item sm={12}>
@@ -204,6 +240,7 @@ export const RegisterSix = ({ onNext }) => {
                   value={values.wantChildren}
                   error={Boolean(errors.wantChildren)}
                   errorText={errors.wantChildren}
+                  height={true}
                 />
               </Grid>
               <Grid
@@ -212,10 +249,15 @@ export const RegisterSix = ({ onNext }) => {
                 style={{ marginTop: "2rem" }}
                 justifyContent="center"
               >
-                <CustomIconButton onClick={handleNext} />
+                <ButtonComp
+                  label="Continue"
+                  disabled={disabled}
+                  onClick={handleNext}
+                />
+                {/* <CustomIconButton onClick={handleNext} />
                 <CustomButton onClick={handleSkip} variant="outlineButton">
                   Skip
-                </CustomButton>
+                </CustomButton> */}
               </Grid>
             </Grid>
           </form>

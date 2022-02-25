@@ -8,20 +8,24 @@ import {
 } from "@material-ui/core";
 import { useStyles } from "../Styles/registerStylesOne";
 import { Input } from "../../../components/Textfield/Input";
-import { CustomIconButton } from "../../../components/IconButton/CustomIconButton";
+// import { CustomIconButton } from "../../../components/IconButton/CustomIconButton";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { submit } from "../../../store/user";
 import { Header } from "../../../components/header/Header";
+import { SelectOption } from "../../../components/SelectOption/SelectOption";
 import {
   dob,
   username,
   setLocation as setLocationApi,
   checkUsername,
+  identify,
 } from "../../../http/index";
 import axios from "axios";
 import Joi from "joi-browser";
 import { useEffect } from "react";
+import { gender } from "../../../data";
+import ButtonComp from "../../../components/ButtonComp/ButtonComp";
 
 export const RegisterOne = ({ onNext }) => {
   const classes = useStyles();
@@ -35,31 +39,54 @@ export const RegisterOne = ({ onNext }) => {
     setChecked(event.target.checked);
   };
   const [type, setType] = useState("text");
+  const [disabled, setDisabled] = useState(true);
   const [user, setUser] = useState({
     email: "",
     firstname: "",
     lastname: "",
     username: "",
     dob: "",
+    identify: "0",
   });
-  const [errors, setErrors] = useState({});
+  const handleSelect = (e) => {
+    const { name, value } = e.target;
+    setUser({ ...user, [name]: value });
+    const obj = { [name]: value };
+    const subSchema = { [name]: schema[name] };
+    const { error } = Joi.validate(obj, subSchema);
+    // eslint-disable-next-line
+    const it = error
+      ? setErrors({
+          ...errors,
+          [name]: `"${
+            name.charAt(0).toUpperCase() + name.slice(1)
+          }" can not be empty`,
+        })
+      : setErrors({ ...errors, [name]: "" });
+  };
+  const [errors, setErrors] = useState({
+    firstname: "",
+    username: "",
+    dob: "",
+    identify: "",
+  });
   const schema = {
-    email: Joi.string().email().required().label("Email"),
     firstname: Joi.string().required().label("Firstname"),
-    lastname: Joi.string().required().label("Lastname"),
     username: Joi.string().required().label("Username"),
     dob: Joi.date().required().label("Date of birth"),
+    identify: Joi.string().min(2).required().label("Identify"),
   };
 
   const validate = () => {
     // console.log(location);
     const data = {
-      email: user.email[0],
       firstname: user.firstname[0],
-      lastname: user.lastname[0],
       username: user.username[0],
       dob: user.dob[0],
+      identify: user.identify,
     };
+
+    console.log(data);
     const result = Joi.validate(data, schema, { abortEarly: false });
     if (!result.error) {
       setErrors({});
@@ -68,6 +95,10 @@ export const RegisterOne = ({ onNext }) => {
       const errorsObject = {};
       for (let item of result.error.details)
         errorsObject[item.path[0]] = item.message;
+
+      if (user.identify.length <= 1) {
+        errorsObject.identify = "Identify can not be empty!";
+      }
       setErrors(errorsObject);
       return true;
     }
@@ -121,6 +152,11 @@ export const RegisterOne = ({ onNext }) => {
         });
         return;
       }
+      const identifyData = {
+        gender: user.identify,
+        visible: true,
+        step: "/choose-date-characters",
+      };
       const dateOfBirth = {
         dob: user.dob[0],
         age: calculateAge(user.dob[0]),
@@ -145,10 +181,11 @@ export const RegisterOne = ({ onNext }) => {
           dob(dateOfBirth),
           setLocationApi(locationData),
           username(userInfo),
+          identify(identifyData),
         ])
         .then(
-          axios.spread(function (res1, res2, res3) {
-            dispatch(submit(res3.data));
+          axios.spread(function (res1, res2, res3, res4) {
+            dispatch(submit(res4.data));
             onNext();
           })
         )
@@ -163,6 +200,20 @@ export const RegisterOne = ({ onNext }) => {
       });
     }
   }, []);
+
+  useEffect(() => {
+    if (
+      errors.firstname === "" &&
+      errors.dob === "" &&
+      errors.username === "" &&
+      errors.identify === "" &&
+      checked
+    ) {
+      setDisabled(false);
+    } else {
+      setDisabled(true);
+    }
+  }, [errors, checked]);
 
   const theme = useTheme();
   const xsScreen = useMediaQuery(theme.breakpoints.down("xs"));
@@ -193,7 +244,7 @@ export const RegisterOne = ({ onNext }) => {
         className={classes.form}
       >
         <Typography variant="h1" className={classes.formTitle}>
-          Sign up
+          Signup
         </Typography>
         <Grid item>
           <form autoComplete="off">
@@ -202,57 +253,10 @@ export const RegisterOne = ({ onNext }) => {
               className={classes.formContainer}
               direction="column"
             >
-              <Grid item>
-                <Input
-                  label="Email Address"
-                  type="text"
-                  name="email"
-                  onChange={handleUser}
-                  value={user.email}
-                  error={Boolean(errors.email)}
-                  helperText={errors.email}
-                />
-              </Grid>
-              <Grid item container direction="row" spacing={xsScreen ? 0 : 2}>
-                <Grid item sm={6} xs={12}>
-                  <Input
-                    label="First Name"
-                    type="text"
-                    // placeholder="first name"
-                    name="firstname"
-                    onChange={handleUser}
-                    value={user.firstname}
-                    error={Boolean(errors.firstname)}
-                    helperText={errors.firstname}
-                  />
-                </Grid>
-                <Grid item sm={6} xs={12}>
-                  <Input
-                    label="Last Name"
-                    type="text"
-                    name="lastname"
-                    onChange={handleUser}
-                    value={user.lastname}
-                    error={Boolean(errors.lastname)}
-                    helperText={errors.lastname}
-                  />
-                </Grid>
-              </Grid>
-              <Grid item>
-                <Input
-                  label="Choose a unique username"
-                  type="text"
-                  name="username"
-                  onChange={handleUser}
-                  value={user.username}
-                  error={Boolean(errors.username)}
-                  helperText={errors.username}
-                />
-              </Grid>
               <Grid item container spacing={2}>
                 <Grid item sm={12}>
                   <Input
-                    type={setType}
+                    type={type}
                     placeholder="Calender"
                     label="Date of birth"
                     onFocus={(e) => {
@@ -273,6 +277,88 @@ export const RegisterOne = ({ onNext }) => {
                   />
                 </Grid>
               </Grid>
+              {/* <Grid item>
+                <Input
+                  label="Email Address"
+                  type="text"
+                  name="email"
+                  onChange={handleUser}
+                  value={user.email}
+                  error={Boolean(errors.email)}
+                  helperText={errors.email}
+                />
+              </Grid> */}
+              <Grid item container direction="row" spacing={xsScreen ? 0 : 2}>
+                <Grid item xs={12}>
+                  <Input
+                    label="Enter Your Name"
+                    type="text"
+                    placeholder="Name"
+                    name="firstname"
+                    onChange={handleUser}
+                    value={user.firstname}
+                    error={Boolean(errors.firstname)}
+                    helperText={errors.firstname}
+                  />
+                </Grid>
+                {/* <Grid item sm={6} xs={12}>
+                  <Input
+                    label="Last Name"
+                    type="text"
+                    name="lastname"
+                    onChange={handleUser}
+                    value={user.lastname}
+                    error={Boolean(errors.lastname)}
+                    helperText={errors.lastname}
+                  />
+                </Grid> */}
+              </Grid>
+              <Grid item>
+                <Input
+                  label="Select A Username"
+                  type="text"
+                  name="username"
+                  placeholder="@"
+                  onChange={handleUser}
+                  value={user.username}
+                  error={Boolean(errors.username)}
+                  helperText={errors.username}
+                />
+              </Grid>
+
+              <Grid item>
+                <SelectOption
+                  noShow={true}
+                  checkboxVaraint="switch"
+                  label="How do you identify"
+                  options={gender}
+                  placeholder="Choose"
+                  name="identify"
+                  value={user.identify}
+                  onSelect={handleSelect}
+                  errorText={errors.identify}
+                />
+              </Grid>
+              <Grid
+                item
+                container
+                justifyContent="center"
+                style={{ marginTop: lgScreen ? "40px" : "89px" }}
+              >
+                <ButtonComp
+                  label="Continue"
+                  onClick={handleSubmit}
+                  disabled={disabled}
+                />
+              </Grid>
+              <Grid item container justifyContent="center">
+                <Typography className={classes.p} variant="body1">
+                  Already have an account?
+                  <Link to="/login" className={classes.link}>
+                    Sign In
+                  </Link>
+                </Typography>
+              </Grid>
               <Grid
                 item
                 container
@@ -289,25 +375,13 @@ export const RegisterOne = ({ onNext }) => {
                 </Grid>
                 <Grid item container alignItems="center" xs={11}>
                   <Typography
-                    style={{ marginLeft: "10px" }}
                     variant="subtitle1"
                     className={classes.typographyS1}
                   >
-                    I've read and agreed to the terms of serivce and our privacy
+                    I've read and agreed to the terms of service and our privacy
                     policy
                   </Typography>
                 </Grid>
-              </Grid>
-              <Grid item container justifyContent="center">
-                <CustomIconButton disabled={!checked} onClick={handleSubmit} />
-              </Grid>
-              <Grid item container justifyContent="center">
-                <Typography className={classes.p} variant="body1">
-                  Already have an account?
-                  <Link to="/login" className={classes.link}>
-                    Sign In
-                  </Link>
-                </Typography>
               </Grid>
             </Grid>
           </form>

@@ -81,7 +81,7 @@ export const Home = () => {
             dispatch(setMatches(res1.data.data));
             dispatch(setIvisited(res2.data.data));
             dispatch(setVisitedMe(res3.data.data));
-            dispatch(setMyLikes(res4.data.data));
+            // dispatch(setMyLikes(res4.data.data));
             dispatch(setOnlineUsers(res5.data.data));
             dispatch(setUserVideos(res6.data.data));
           })
